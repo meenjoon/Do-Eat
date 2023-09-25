@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-kapt")
 }
 
 android {
@@ -65,4 +66,9 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview:1.3.2")
     implementation("androidx.compose.material:material:1.0.1")
     implementation("androidx.activity:activity-compose:1.6.1")
+
+    // Navigation
+    implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
+    implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
+    implementation("androidx.navigation:navigation-dynamic-features-fragment:2.5.3")
 }
