@@ -6,12 +6,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.mbj.doeat.ui.graph.BottomBarScreen
 import com.mbj.doeat.ui.graph.HomeNavGraph
 import com.mbj.doeat.ui.theme.Yellow700
+import com.mbj.doeat.ui.theme.Gray200
 
 @Composable
 fun HomeScreen(navController: NavHostController = rememberNavController()) {
@@ -63,13 +65,16 @@ fun RowScope.AddItem(
     BottomNavigationItem(
         label = {
             Text(
-                screen.title
+                if (selected) screen.title else "",
+                fontWeight = FontWeight.SemiBold,
+                color = Color.Black
             )
         },
         icon = {
             Icon(
                 painter = painterResource(id = screen.icon),
                 contentDescription = "Navigation Icon",
+                tint = if (selected) Color.Black else Gray200
             )
         },
         selected = selected,
