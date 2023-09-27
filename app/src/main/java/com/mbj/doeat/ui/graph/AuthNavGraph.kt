@@ -9,7 +9,7 @@ import com.mbj.doeat.ui.screen.signin.SignInScreen
 
 fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
     navigation(
-        route = "AUTHENTICATION",
+        route = Graph.AUTHENTICATION,
         startDestination = AuthScreen.Login.route
     ) {
         composable(route = AuthScreen.Login.route) {

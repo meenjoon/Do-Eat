@@ -15,6 +15,7 @@ import com.mbj.doeat.ui.screen.home.nearby_restaurants.NearbyRestaurantsScreen
 fun HomeNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
+        route = Graph.HOME,
         startDestination = BottomBarScreen.NearbyRestaurants.route
     ) {
         composable(route = BottomBarScreen.NearbyRestaurants.route) {
