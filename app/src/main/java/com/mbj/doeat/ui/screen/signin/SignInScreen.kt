@@ -36,8 +36,10 @@ import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import com.mbj.doeat.R
+import com.mbj.doeat.ui.graph.Graph
 import com.mbj.doeat.ui.theme.Yellow700
 import com.mbj.doeat.ui.viewmodel.SignInViewModel
+import com.mbj.doeat.util.NavigationUtils
 
 @Composable
 fun SignInScreen(
@@ -125,6 +127,7 @@ private fun loginWithKakaoNickName(token: OAuthToken, viewModel: SignInViewModel
                 Log.e("Kakao", "사용자 정보 실패", error)
             }
             user != null -> {
+                NavigationUtils.navigate(controller = navHostController, routeName = Graph.HOME, backStackRouteName = Graph.AUTHENTICATION)
                 /**
                  * TODO : 서버로부터 계정 여부를 확인하고 추후 사용할 DB에 데이터 적재
                  */
