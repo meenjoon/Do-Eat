@@ -4,11 +4,15 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url = uri("https://storage.googleapis.com/r8-releases/raw")
+        }
     }
 
     dependencies {
         classpath("androidx.navigation:navigation-safe-args-gradle-plugin:2.5.3")
         classpath("com.google.dagger:hilt-android-gradle-plugin:2.45")
+        classpath("com.android.tools:r8:8.2.16-dev")
     }
 }
 
