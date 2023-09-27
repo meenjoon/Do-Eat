@@ -1,9 +1,16 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
 }
+
+val properties = Properties()
+properties.load(rootProject.file("local.properties").inputStream())
+
+val KAKAO_SIGNIN_NATIVE_KEY = properties.getProperty("kakao_signin_native_key")
 
 android {
     namespace = "com.mbj.doeat"
@@ -20,6 +27,11 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        buildConfigField("String", "KAKAO_NATIVE_KEY", properties.getProperty("kakao_native_key"))
+
+        manifestPlaceholders["KAKAO_SIGNIN_NATIVE_KEY"] = KAKAO_SIGNIN_NATIVE_KEY
+
     }
 
     buildTypes {
@@ -78,4 +90,7 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-fragment:1.0.0")
     kapt("com.google.dagger:hilt-android-compiler:2.45")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0-alpha01")
+
+    // KaKao Login
+    implementation("com.kakao.sdk:v2-user:2.13.0")
 }
