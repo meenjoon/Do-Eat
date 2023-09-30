@@ -11,6 +11,7 @@ val properties = Properties()
 properties.load(rootProject.file("local.properties").inputStream())
 
 val KAKAO_SIGNIN_NATIVE_KEY = properties.getProperty("kakao_signin_native_key")
+val NAVER_CLIENT_ID = properties.getProperty("naver_client_id")
 
 android {
     namespace = "com.mbj.doeat"
@@ -31,6 +32,7 @@ android {
         buildConfigField("String", "KAKAO_NATIVE_KEY", properties.getProperty("kakao_native_key"))
 
         manifestPlaceholders["KAKAO_SIGNIN_NATIVE_KEY"] = KAKAO_SIGNIN_NATIVE_KEY
+        manifestPlaceholders["NAVER_CLIENT_ID"] = NAVER_CLIENT_ID
 
     }
 
@@ -93,4 +95,8 @@ dependencies {
 
     // KaKao Login
     implementation("com.kakao.sdk:v2-user:2.13.0")
+
+    // Naver Map
+    implementation("com.naver.maps:map-sdk:3.17.0")
+    implementation("io.github.fornewid:naver-map-compose:1.3.0")
 }
