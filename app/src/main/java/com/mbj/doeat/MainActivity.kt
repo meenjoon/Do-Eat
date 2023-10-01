@@ -13,7 +13,9 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.mbj.doeat.ui.graph.RootNavigationGraph
 import com.mbj.doeat.ui.theme.DoEatTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     lateinit var fusedLocationClient: FusedLocationProviderClient
