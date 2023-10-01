@@ -46,6 +46,7 @@ import com.naver.maps.map.compose.MarkerState
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberCameraPositionState
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.mbj.doeat.ui.component.ToastMessage
 import com.mbj.doeat.ui.screen.home.nearby_restaurants.viewmodel.NearByRestaurantsViewModel
 
 @OptIn(ExperimentalNaverMapApi::class, ExperimentalMaterialApi::class)
@@ -79,9 +80,7 @@ fun NearbyRestaurantsScreen(
                 myLocation(fusedLocationClient, viewModel, cameraPositionState)
             } else {
                 Log.d("NearbyRestaurantsScreen", "권한이 거부되었습니다.")
-                /**
-                 * 권한 거부 상태 UI TODO
-                 */
+                viewModel.updateLocationPermissionDenied()
             }
         }
     }
@@ -150,6 +149,12 @@ fun NearbyRestaurantsScreen(
                         }
                     )
                 }
+            )
+            ToastMessage(
+                modifier = Modifier.padding(16.dp),
+                showMessage = viewModel.isLocationPermissionDenied.collectAsState(initial = false).value,
+                clickCount = viewModel.isLocationPermissionDeniedCount.collectAsState().value,
+                message = "위치 권한이 거부되었습니다.\n허용 후 다시 시도해주세요."
             )
         }
     }
@@ -223,9 +228,5 @@ fun handleLocationPermission(
             ) == PackageManager.PERMISSION_GRANTED
         }) {
         myLocation(fusedLocationClient, viewModel, cameraPositionState)
-    } else {
-        /**
-         * 권한 거부 상태 UI TODO
-         */
     }
 }
