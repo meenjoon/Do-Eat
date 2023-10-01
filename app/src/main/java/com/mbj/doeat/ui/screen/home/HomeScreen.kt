@@ -10,7 +10,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-맵import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.mbj.doeat.ui.graph.BottomBarScreen
 import com.mbj.doeat.ui.graph.HomeNavGraph
 import com.mbj.doeat.ui.theme.Yellow700

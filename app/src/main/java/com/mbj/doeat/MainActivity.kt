@@ -9,20 +9,26 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.mbj.doeat.ui.graph.RootNavigationGraph
 import com.mbj.doeat.ui.theme.DoEatTheme
 
 class MainActivity : ComponentActivity() {
+
+    lateinit var fusedLocationClient: FusedLocationProviderClient
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
         setContent {
             DoEatTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    MainNavigationScreen()
+                    MainNavigationScreen(fusedLocationClient)
                 }
             }
         }
@@ -30,8 +36,8 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainNavigationScreen() {
+fun MainNavigationScreen(fusedLocationClient: FusedLocationProviderClient) {
     val navController = rememberNavController()
 
-    RootNavigationGraph(navController)
+    RootNavigationGraph(navController, fusedLocationClient)
 }

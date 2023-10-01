@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.mbj.doeat.R
 import com.mbj.doeat.ui.screen.home.setting.SettingScreen
 import com.mbj.doeat.ui.screen.home.chat.ChatScreen
@@ -12,7 +13,10 @@ import com.mbj.doeat.ui.screen.home.menu_recommendation.MenuRecommendationScreen
 import com.mbj.doeat.ui.screen.home.nearby_restaurants.NearbyRestaurantsScreen
 
 @Composable
-fun HomeNavGraph(navController: NavHostController) {
+fun HomeNavGraph(
+    navController: NavHostController,
+    fusedLocationClient: FusedLocationProviderClient
+) {
     NavHost(
         navController = navController,
         route = Graph.HOME,
@@ -21,8 +25,9 @@ fun HomeNavGraph(navController: NavHostController) {
         composable(route = BottomBarScreen.NearbyRestaurants.route) {
             NearbyRestaurantsScreen(
                 name = BottomBarScreen.NearbyRestaurants.route,
-                onClick = { }
-            )
+                navController = navController,
+                fusedLocationClient = fusedLocationClient
+                )
         }
         composable(route = BottomBarScreen.Chat.route) {
             ChatScreen(

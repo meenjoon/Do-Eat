@@ -4,10 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.mbj.doeat.ui.screen.home.HomeScreen
 
 @Composable
-fun RootNavigationGraph(navController: NavHostController) {
+fun RootNavigationGraph(navController: NavHostController, fusedLocationClient: FusedLocationProviderClient) {
     NavHost(
         navController = navController,
         route = Graph.ROOT,
@@ -15,7 +16,7 @@ fun RootNavigationGraph(navController: NavHostController) {
     ) {
         authNavGraph(navController = navController)
         composable(route = Graph.HOME) {
-            HomeScreen()
+            HomeScreen(fusedLocationClient = fusedLocationClient)
         }
     }
 }
