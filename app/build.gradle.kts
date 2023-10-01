@@ -100,4 +100,11 @@ dependencies {
     // Naver Map
     implementation("com.naver.maps:map-sdk:3.17.0")
     implementation("io.github.fornewid:naver-map-compose:1.3.0")
+
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+
+    // Moshi Converter
+    implementation("com.squareup.moshi:moshi-kotlin:1.9.3")
 }
