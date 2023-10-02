@@ -32,6 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.mbj.doeat.R
 import com.mbj.doeat.ui.component.Image
@@ -46,8 +47,14 @@ import com.naver.maps.map.compose.MarkerState
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberCameraPositionState
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.mbj.doeat.data.remote.model.SearchResult
+import com.mbj.doeat.ui.component.MainAppBar
 import com.mbj.doeat.ui.component.ToastMessage
+import com.mbj.doeat.ui.model.SearchWidgetState
 import com.mbj.doeat.ui.screen.home.nearby_restaurants.viewmodel.NearByRestaurantsViewModel
+import com.mbj.doeat.ui.theme.Yellow700
+import com.mbj.doeat.util.MapConverter.formatLatLng
+import com.mbj.doeat.util.MapConverter.removeHtmlTags
 
 @OptIn(ExperimentalNaverMapApi::class, ExperimentalMaterialApi::class)
 @Composable
@@ -56,7 +63,8 @@ fun NearbyRestaurantsScreen(
     navController: NavHostController,
     fusedLocationClient: FusedLocationProviderClient,
 ) {
-    val viewModel = NearByRestaurantsViewModel()
+    val viewModel: NearByRestaurantsViewModel = hiltViewModel()
+
     val context = LocalContext.current
     val permissions = arrayOf(
         Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -64,6 +72,9 @@ fun NearbyRestaurantsScreen(
     )
 
     val myLocationInfo by viewModel.location.collectAsState()
+    val searchWidgetState by viewModel.searchWidgetState.collectAsState()
+    val searchTextState by viewModel.searchTextState.collectAsState()
+    val searchResult by viewModel.searchResult.collectAsState(initial = SearchResult(emptyList()))
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
         position = CameraPosition(myLocationInfo, 11.0)
     }
@@ -118,16 +129,40 @@ fun NearbyRestaurantsScreen(
         sheetPeekHeight = 200.dp,
         scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = bottomSheetState),
         sheetBackgroundColor = Color.Transparent,
-        sheetContentColor = Color.Transparent
+        sheetContentColor = Color.Transparent,
+        topBar = {
+            MainAppBar(
+                searchWidgetState = searchWidgetState,
+                searchTextState = searchTextState,
+                backgroundColor = Yellow700,
+                contentColor = Color.Black,
+                defaultAppBarText = "맛집 검색",
+                searchAppBarText = "지역을 입력해주세요.",
+                onTextChange = {
+                    viewModel.updateSearchTextState(newValue = it)
+                },
+                onCloseClicked = {
+                    viewModel.updateSearchWidgetState(newValue = SearchWidgetState.CLOSED)
+                },
+                onSearchClicked = { searchWord ->
+                    viewModel.getFamousRestaurant(searchWord)
+                },
+                onSearchTriggered = {
+                    viewModel.updateSearchWidgetState(newValue = SearchWidgetState.OPENED)
+                }
+            )
+        }
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
         ) {
             NaverMap(cameraPositionState = cameraPositionState) {
-                Marker(
-                    state = MarkerState(position = LatLng(37.532600, 127.024612)),
-                    captionText = "서울"
-                )
+                searchResult.items.map {
+                    Marker(
+                        state = MarkerState(position = formatLatLng(it.mapy, it.mapx)),
+                        captionText = removeHtmlTags(it.title)
+                    )
+                }
             }
             Image(
                 painter = imagePainter,
@@ -151,7 +186,10 @@ fun NearbyRestaurantsScreen(
                 }
             )
             ToastMessage(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.BottomStart)
+                    .offset(y = (-190).dp),
                 showMessage = viewModel.isLocationPermissionDenied.collectAsState(initial = false).value,
                 clickCount = viewModel.isLocationPermissionDeniedCount.collectAsState().value,
                 message = "위치 권한이 거부되었습니다.\n허용 후 다시 시도해주세요."
