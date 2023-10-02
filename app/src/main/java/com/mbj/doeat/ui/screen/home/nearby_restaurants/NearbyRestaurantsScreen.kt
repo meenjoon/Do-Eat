@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
+import androidx.compose.material.BottomSheetState
 import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
@@ -31,6 +32,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -91,6 +93,8 @@ fun NearbyRestaurantsScreen(
     val searchWidgetState by viewModel.searchWidgetState.collectAsState()
     val searchTextState by viewModel.searchTextState.collectAsState()
     val searchResult by viewModel.searchResult.collectAsState(initial = SearchResult(emptyList()))
+    val searchTextCollapse by viewModel.searchResultCollapse.collectAsState(initial = false)
+    val searchTextCollapseCount by viewModel.searchResultCollapseCount.collectAsState()
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
         position = CameraPosition(myLocationInfo, 11.0)
     }
@@ -163,6 +167,7 @@ fun NearbyRestaurantsScreen(
                 },
                 onSearchClicked = { searchWord ->
                     viewModel.getFamousRestaurant(searchWord)
+                    viewModel.toggleSearchResultCollapse()
                 },
                 onSearchTriggered = {
                     viewModel.updateSearchWidgetState(newValue = SearchWidgetState.OPENED)
@@ -170,6 +175,7 @@ fun NearbyRestaurantsScreen(
             )
         }
     ) {
+        CollapseBottomSheetIfRequired(bottomSheetState, searchTextCollapse, searchTextCollapseCount)
         Box(
             modifier = Modifier.fillMaxSize(),
         ) {
@@ -380,5 +386,19 @@ fun handleLocationPermission(
             ) == PackageManager.PERMISSION_GRANTED
         }) {
         myLocation(fusedLocationClient, viewModel, cameraPositionState)
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun CollapseBottomSheetIfRequired(
+    bottomSheetState: BottomSheetState,
+    shouldCollapse: Boolean,
+    eventCount: Int
+) {
+    LaunchedEffect(eventCount) {
+        if (shouldCollapse) {
+            bottomSheetState.collapse()
+        }
     }
 }
