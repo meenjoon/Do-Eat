@@ -89,14 +89,14 @@ fun NearbyRestaurantsScreen(
         Manifest.permission.ACCESS_FINE_LOCATION
     )
 
-    val myLocationInfo by viewModel.location.collectAsState()
+    val myLocationInfoState by viewModel.location.collectAsState()
     val searchWidgetState by viewModel.searchWidgetState.collectAsState()
     val searchTextState by viewModel.searchTextState.collectAsState()
-    val searchResult by viewModel.searchResult.collectAsState(initial = SearchResult(emptyList()))
-    val searchTextCollapse by viewModel.searchResultCollapse.collectAsState(initial = false)
-    val searchTextCollapseCount by viewModel.searchResultCollapseCount.collectAsState()
+    val searchResultState by viewModel.searchResult.collectAsState(initial = SearchResult(emptyList()))
+    val searchResultCollapseState by viewModel.searchResultCollapse.collectAsState(initial = false)
+    val searchResultCollapseCountState by viewModel.searchResultCollapseCount.collectAsState()
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
-        position = CameraPosition(myLocationInfo, 11.0)
+        position = CameraPosition(myLocationInfoState, 11.0)
     }
 
     val launcher = rememberLauncherForActivityResult(
@@ -108,10 +108,10 @@ fun NearbyRestaurantsScreen(
             val areGranted = permissionsMap.values.all { it }
             if (areGranted) {
                 Log.d("NearbyRestaurantsScreen", "권한이 동의되었습니다.")
-                myLocation(fusedLocationClient, viewModel, cameraPositionState)
+                updateMyLocation(fusedLocationClient, viewModel, cameraPositionState)
             } else {
                 Log.d("NearbyRestaurantsScreen", "권한이 거부되었습니다.")
-                viewModel.updateLocationPermissionDenied()
+                viewModel.setLocationPermissionDenied()
             }
         }
     }
@@ -160,14 +160,14 @@ fun NearbyRestaurantsScreen(
                 defaultAppBarText = "맛집 검색",
                 searchAppBarText = "지역을 입력해주세요.",
                 onTextChange = {
-                    viewModel.updateSearchTextState(newValue = it)
+                    viewModel.updateSearchText(newValue = it)
                 },
                 onCloseClicked = {
                     viewModel.updateSearchWidgetState(newValue = SearchWidgetState.CLOSED)
                 },
                 onSearchClicked = { searchWord ->
                     viewModel.getFamousRestaurant(searchWord)
-                    viewModel.toggleSearchResultCollapse()
+                    viewModel.toggleSearchResultCollapsed()
                 },
                 onSearchTriggered = {
                     viewModel.updateSearchWidgetState(newValue = SearchWidgetState.OPENED)
@@ -175,13 +175,13 @@ fun NearbyRestaurantsScreen(
             )
         }
     ) {
-        CollapseBottomSheetIfRequired(bottomSheetState, searchTextCollapse, searchTextCollapseCount)
+        CollapseBottomSheetIfRequired(bottomSheetState, searchResultCollapseState, searchResultCollapseCountState)
         Box(
             modifier = Modifier.fillMaxSize(),
         ) {
             NaverMap(cameraPositionState = cameraPositionState) {
-                if (searchResult.items.isNotEmpty()) {
-                    searchResult.items.forEachIndexed { index, searchItem ->
+                if (searchResultState.items.isNotEmpty()) {
+                    searchResultState.items.forEachIndexed { index, searchItem ->
                         val iconTintColor = randomColors[index % randomColors.size]
                         Marker(
                             state = MarkerState(position = formatLatLng(searchItem.mapy, searchItem.mapx)),
@@ -190,13 +190,13 @@ fun NearbyRestaurantsScreen(
                         )
                     }
                     cameraPositionState.move(
-                        CameraUpdate.scrollAndZoomTo(formatLatLng(searchResult.items.first().mapy, searchResult.items.first().mapx), 18.0)
+                        CameraUpdate.scrollAndZoomTo(formatLatLng(searchResultState.items.first().mapy, searchResultState.items.first().mapx), 18.0)
                             .animate(CameraAnimation.Easing)
                     )
                 }
-                if(myLocationInfo != LatLng(37.532600, 127.024612)) {
+                if(myLocationInfoState != LatLng(37.532600, 127.024612)) {
                     Marker(
-                        state = MarkerState(position = myLocationInfo),
+                        state = MarkerState(position = myLocationInfoState),
                         captionText = "내 위치",
                     )
                 }
@@ -213,9 +213,9 @@ fun NearbyRestaurantsScreen(
                         permissions = permissions,
                         launcher = launcher,
                         onPermissionGranted = {
-                            myLocation(
+                            updateMyLocation(
                                 fusedLocationClient = fusedLocationClient,
-                                nearByRestaurantsViewModel = viewModel,
+                                viewModel = viewModel,
                                 cameraPositionState = cameraPositionState
                             )
                         }
@@ -242,14 +242,14 @@ fun NearbyRestaurantsScreen(
 }
 
 @OptIn(ExperimentalNaverMapApi::class)
-fun myLocation(
+fun updateMyLocation(
     fusedLocationClient: FusedLocationProviderClient,
-    nearByRestaurantsViewModel: NearByRestaurantsViewModel,
+    viewModel: NearByRestaurantsViewModel,
     cameraPositionState: CameraPositionState,
 ) {
     try {
         fusedLocationClient.lastLocation.addOnSuccessListener {
-            nearByRestaurantsViewModel.updateLocation(LatLng(it.latitude, it.longitude))
+            viewModel.updateLocation(LatLng(it.latitude, it.longitude))
             cameraPositionState.move(
                 CameraUpdate.scrollAndZoomTo(LatLng(it.latitude, it.longitude), 18.0)
                     .animate(CameraAnimation.Easing)
@@ -385,7 +385,7 @@ fun handleLocationPermission(
                 it
             ) == PackageManager.PERMISSION_GRANTED
         }) {
-        myLocation(fusedLocationClient, viewModel, cameraPositionState)
+        updateMyLocation(fusedLocationClient, viewModel, cameraPositionState)
     }
 }
 

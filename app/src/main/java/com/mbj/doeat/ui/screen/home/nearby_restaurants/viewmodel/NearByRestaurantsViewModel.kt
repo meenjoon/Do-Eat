@@ -55,7 +55,7 @@ class NearByRestaurantsViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             searchResult.collectLatest { searchResult ->
-                updateSearchInvalid(searchResult)
+                handleSearchResult(searchResult)
             }
         }
     }
@@ -64,7 +64,7 @@ class NearByRestaurantsViewModel @Inject constructor(
         _location.value = newValue
     }
 
-    fun updateLocationPermissionDenied() {
+    fun setLocationPermissionDenied() {
         viewModelScope.launch {
             _isLocationPermissionDenied.emit(true)
             _isLocationPermissionDeniedCount.value = _isLocationPermissionDeniedCount.value + 1
@@ -90,11 +90,11 @@ class NearByRestaurantsViewModel @Inject constructor(
         _searchWidgetState.value = newValue
     }
 
-    fun updateSearchTextState(newValue: String) {
+    fun updateSearchText(newValue: String) {
         _searchTextState.value = newValue
     }
 
-    private fun updateSearchInvalid(searchResult: SearchResult) {
+    private fun handleSearchResult(searchResult: SearchResult) {
         viewModelScope.launch {
             if (searchResult.items.isEmpty()) {
                 _isSearchInvalid.emit(true)
@@ -103,7 +103,7 @@ class NearByRestaurantsViewModel @Inject constructor(
         }
     }
 
-    fun toggleSearchResultCollapse() {
+    fun toggleSearchResultCollapsed() {
         viewModelScope.launch {
             _searchResultCollapse.emit(true)
             _searchResultCollapseCount.value = _searchResultCollapseCount.value + 1

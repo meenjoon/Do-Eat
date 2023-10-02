@@ -39,8 +39,8 @@ fun LongRectangleButtonWithParams(
         modifier = Modifier
             .padding(padding)
             .then(if (useFillMaxWidth) Modifier.fillMaxWidth() else Modifier.width(width))
-            .height(height) // 높이 조절
-            .clip(shape) // 모서리 둥글게
+            .height(height)
+            .clip(shape)
             .background(backgroundColor)
             .border(1.dp, backgroundColor, shape)
             .clickable { onClick() }
