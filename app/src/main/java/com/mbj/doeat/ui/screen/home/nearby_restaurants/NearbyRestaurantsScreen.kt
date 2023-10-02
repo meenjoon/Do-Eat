@@ -188,6 +188,12 @@ fun NearbyRestaurantsScreen(
                             .animate(CameraAnimation.Easing)
                     )
                 }
+                if(myLocationInfo != LatLng(37.532600, 127.024612)) {
+                    Marker(
+                        state = MarkerState(position = myLocationInfo),
+                        captionText = "내 위치",
+                    )
+                }
             }
             Image(
                 painter = imagePainter,
