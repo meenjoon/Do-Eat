@@ -10,15 +10,23 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.BottomSheetValue
+import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Text
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.runtime.Composable
@@ -30,7 +38,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -47,8 +59,11 @@ import com.naver.maps.map.compose.MarkerState
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberCameraPositionState
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.mbj.doeat.data.remote.model.SearchItem
 import com.mbj.doeat.data.remote.model.SearchResult
+import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
 import com.mbj.doeat.ui.component.MainAppBar
+import com.mbj.doeat.ui.component.RoundedLine
 import com.mbj.doeat.ui.component.ToastMessage
 import com.mbj.doeat.ui.model.SearchWidgetState
 import com.mbj.doeat.ui.screen.home.nearby_restaurants.viewmodel.NearByRestaurantsViewModel
@@ -116,17 +131,18 @@ fun NearbyRestaurantsScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(300.dp)
+                    .height(500.dp)
                     .background(
                         color = Color.White,
                         shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)
                     )
                     .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
+                    .offset(y = 15.dp)
             ) {
-                MyBottomSheetContent()
+                MyBottomSheetContent(viewModel)
             }
         },
-        sheetPeekHeight = 200.dp,
+        sheetPeekHeight = 150.dp,
         scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = bottomSheetState),
         sheetBackgroundColor = Color.Transparent,
         sheetContentColor = Color.Transparent,
@@ -169,7 +185,7 @@ fun NearbyRestaurantsScreen(
                 contentDescription = "내 위치",
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-                    .offset(x = 10.dp, y = (-210).dp),
+                    .offset(x = 10.dp, y = (-160).dp),
                 onClick = {
                     checkAndRequestPermissions(
                         context = context,
@@ -227,15 +243,87 @@ fun myLocation(
 }
 
 @Composable
-fun MyBottomSheetContent() {
+fun MyBottomSheetContent(viewModel: NearByRestaurantsViewModel) {
+    val searchResult by viewModel.searchResult.collectAsState(initial = SearchResult(emptyList()))
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(bottom = 80.dp)
     ) {
-        /**
-         * 바텀 시트 내용 추가 TODO
-         */
+        RoundedLine(
+            strokeWidth = 2.dp,
+            cornerRadius = 22.dp,
+            modifier = Modifier
+                .width(30.dp)
+                .height(2.dp)
+                .background(Color.Black)
+                .align(Alignment.CenterHorizontally)
+        )
+        Spacer(modifier = Modifier.height(15.dp))
+        Text(
+            text = "맛집 정보",
+            fontSize = 30.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+        LazyColumn {
+            items(
+                items = searchResult.items,
+                key = { searchItem -> searchItem.hashCode() }
+            ) { searchItem ->
+                MyBottomSheetContentItem(searchItem = searchItem)
+            }
+        }
+    }
+}
+
+@Composable
+fun MyBottomSheetContentItem(searchItem: SearchItem) {
+    Spacer(modifier = Modifier.height(16.dp))
+    Column(
+        horizontalAlignment = Alignment.Start
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(start = 10.dp, end = 10.dp)
+        ) {
+            Text(text = removeHtmlTags(searchItem.title),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.width(5.dp))
+            Text(text = searchItem.category,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Gray
+            )
+        }
+        Spacer(modifier = Modifier.height(5.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(start = 10.dp, end = 10.dp)
+        ) {
+            Text(text = searchItem.roadAddress,
+                fontSize = 16.sp)
+        }
+        LongRectangleButtonWithParams(text = "상세보기",
+            height = 40.dp,
+            useFillMaxWidth = true,
+            padding = PaddingValues(start = 30.dp, end = 30.dp, top = 10.dp, bottom = 10.dp),
+            backgroundColor = Yellow700,
+            contentColor = Color.Black
+        ) {
+            /**
+             * 버튼을 클릭했을 때 실행할 동작 TODO
+             */
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Divider(
+            modifier = Modifier.fillMaxWidth(),
+            color = Color.Gray,
+            thickness = 1.dp
+        )
     }
 }
 
@@ -273,4 +361,17 @@ fun handleLocationPermission(
         }) {
         myLocation(fusedLocationClient, viewModel, cameraPositionState)
     }
+}
+
+@Preview
+@Composable
+fun MyBottomSheetContentItemPreview() {
+    MyBottomSheetContentItem(SearchItem(
+        title = "옛맛<b>서울</b>불고기",
+        link = "https://oldbulgogi.modoo.at",
+        category = "한식>육류,고기요리",
+        roadAddress = "서울특별시 마포구 독막로 56",
+        mapx = 1269194298,
+        mapy = 375477233
+    ))
 }
