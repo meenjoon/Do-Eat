@@ -194,6 +194,12 @@ fun NearbyRestaurantsScreen(
                 clickCount = viewModel.isLocationPermissionDeniedCount.collectAsState().value,
                 message = "위치 권한이 거부되었습니다.\n허용 후 다시 시도해주세요."
             )
+            ToastMessage(
+                modifier = Modifier.padding(16.dp),
+                showMessage = viewModel.isSearchInvalid.collectAsState(initial = false).value,
+                clickCount = viewModel.isSearchInvalidCount.collectAsState().value,
+                message = "올바른 지역을 입력해주세요."
+            )
         }
     }
 }

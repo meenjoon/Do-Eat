@@ -40,6 +40,20 @@ class NearByRestaurantsViewModel @Inject constructor(
     private val _searchTextState = MutableStateFlow("")
     val searchTextState: StateFlow<String> = _searchTextState
 
+    private val _isSearchInvalid = MutableSharedFlow<Boolean>()
+    val isSearchInvalid: SharedFlow<Boolean> = _isSearchInvalid.asSharedFlow()
+
+    private val _isSearchInvalidCount = MutableStateFlow<Int>(0)
+    val isSearchInvalidCount: StateFlow<Int> = _isSearchInvalidCount
+
+    init {
+        viewModelScope.launch {
+            searchResult.collectLatest { searchResult ->
+                updateSearchInvalid(searchResult)
+            }
+        }
+    }
+
     fun updateLocation(newValue: LatLng) {
         _location.value = newValue
     }
@@ -72,5 +86,14 @@ class NearByRestaurantsViewModel @Inject constructor(
 
     fun updateSearchTextState(newValue: String) {
         _searchTextState.value = newValue
+    }
+
+    private fun updateSearchInvalid(searchResult: SearchResult) {
+        viewModelScope.launch {
+            if (searchResult.items.isEmpty()) {
+                _isSearchInvalid.emit(true)
+                _isSearchInvalidCount.value = _isSearchInvalidCount.value + 1
+            }
+        }
     }
 }
