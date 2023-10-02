@@ -68,6 +68,7 @@ import com.mbj.doeat.ui.component.ToastMessage
 import com.mbj.doeat.ui.model.SearchWidgetState
 import com.mbj.doeat.ui.screen.home.nearby_restaurants.viewmodel.NearByRestaurantsViewModel
 import com.mbj.doeat.ui.theme.Yellow700
+import com.mbj.doeat.ui.theme.randomColors
 import com.mbj.doeat.util.MapConverter.formatLatLng
 import com.mbj.doeat.util.MapConverter.removeHtmlTags
 
@@ -173,10 +174,18 @@ fun NearbyRestaurantsScreen(
             modifier = Modifier.fillMaxSize(),
         ) {
             NaverMap(cameraPositionState = cameraPositionState) {
-                searchResult.items.map {
-                    Marker(
-                        state = MarkerState(position = formatLatLng(it.mapy, it.mapx)),
-                        captionText = removeHtmlTags(it.title)
+                if (searchResult.items.isNotEmpty()) {
+                    searchResult.items.forEachIndexed { index, searchItem ->
+                        val iconTintColor = randomColors[index % randomColors.size]
+                        Marker(
+                            state = MarkerState(position = formatLatLng(searchItem.mapy, searchItem.mapx)),
+                            captionText = removeHtmlTags(searchItem.title),
+                            iconTintColor = iconTintColor
+                        )
+                    }
+                    cameraPositionState.move(
+                        CameraUpdate.scrollAndZoomTo(formatLatLng(searchResult.items.first().mapy, searchResult.items.first().mapx), 18.0)
+                            .animate(CameraAnimation.Easing)
                     )
                 }
             }
@@ -230,7 +239,7 @@ fun myLocation(
         fusedLocationClient.lastLocation.addOnSuccessListener {
             nearByRestaurantsViewModel.updateLocation(LatLng(it.latitude, it.longitude))
             cameraPositionState.move(
-                CameraUpdate.scrollTo(LatLng(it.latitude, it.longitude))
+                CameraUpdate.scrollAndZoomTo(LatLng(it.latitude, it.longitude), 18.0)
                     .animate(CameraAnimation.Easing)
             )
         }
