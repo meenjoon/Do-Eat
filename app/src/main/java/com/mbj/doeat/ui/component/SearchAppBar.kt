@@ -117,7 +117,8 @@ fun SearchAppBar(
                 )
             },
             textStyle = TextStyle(
-                fontSize = MaterialTheme.typography.subtitle1.fontSize
+                fontSize = MaterialTheme.typography.subtitle1.fontSize,
+                color = contentColor
             ),
             singleLine = true,
             leadingIcon = {
@@ -160,7 +161,7 @@ fun SearchAppBar(
             ),
             colors = TextFieldDefaults.textFieldColors(
                 backgroundColor = Yellow700,
-                cursorColor = Color.White.copy(alpha = ContentAlpha.medium)
+                cursorColor = contentColor.copy(alpha = ContentAlpha.medium)
             ))
     }
 }
