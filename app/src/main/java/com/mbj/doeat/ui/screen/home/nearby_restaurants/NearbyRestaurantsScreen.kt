@@ -8,6 +8,7 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -40,7 +41,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -140,7 +140,7 @@ fun NearbyRestaurantsScreen(
                     .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
                     .offset(y = 15.dp)
             ) {
-                MyBottomSheetContent(viewModel)
+                MyBottomSheetContent(viewModel, cameraPositionState)
             }
         },
         sheetPeekHeight = 150.dp,
@@ -243,16 +243,13 @@ fun myLocation(
                     .animate(CameraAnimation.Easing)
             )
         }
-        fusedLocationClient.lastLocation.addOnCanceledListener {
-
-        }
     } catch (e: SecurityException) {
         Log.d("NearbyRestaurantsScreen", e.stackTraceToString())
     }
 }
 
 @Composable
-fun MyBottomSheetContent(viewModel: NearByRestaurantsViewModel) {
+fun MyBottomSheetContent(viewModel: NearByRestaurantsViewModel, cameraPositionState: CameraPositionState) {
     val searchResult by viewModel.searchResult.collectAsState(initial = SearchResult(emptyList()))
     Column(
         modifier = Modifier
@@ -280,42 +277,51 @@ fun MyBottomSheetContent(viewModel: NearByRestaurantsViewModel) {
                 items = searchResult.items,
                 key = { searchItem -> searchItem.hashCode() }
             ) { searchItem ->
-                MyBottomSheetContentItem(searchItem = searchItem)
+                MyBottomSheetContentItem(searchItem = searchItem, cameraPositionState = cameraPositionState)
             }
         }
     }
 }
 
+@OptIn(ExperimentalNaverMapApi::class)
 @Composable
-fun MyBottomSheetContentItem(searchItem: SearchItem) {
+fun MyBottomSheetContentItem(searchItem: SearchItem,cameraPositionState: CameraPositionState,) {
     Spacer(modifier = Modifier.height(16.dp))
-    Column(
-        horizontalAlignment = Alignment.Start
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .padding(start = 10.dp, end = 10.dp)
+    Column(modifier = Modifier.clickable {
+        cameraPositionState.move(
+            CameraUpdate.scrollAndZoomTo(formatLatLng(searchItem.mapy, searchItem.mapx), 18.0)
+                .animate(CameraAnimation.Easing)
+        )
+    }) {
+        Column(
+            horizontalAlignment = Alignment.Start
         ) {
-            Text(text = removeHtmlTags(searchItem.title),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.width(5.dp))
-            Text(text = searchItem.category,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Gray
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .padding(start = 10.dp, end = 10.dp)
+            ) {
+                Text(text = removeHtmlTags(searchItem.title),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.width(5.dp))
+                Text(text = searchItem.category,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Gray
+                )
+            }
+            Spacer(modifier = Modifier.height(5.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .padding(start = 10.dp, end = 10.dp)
+            ) {
+                Text(text = searchItem.roadAddress,
+                    fontSize = 16.sp)
+            }
         }
-        Spacer(modifier = Modifier.height(5.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .padding(start = 10.dp, end = 10.dp)
-        ) {
-            Text(text = searchItem.roadAddress,
-                fontSize = 16.sp)
-        }
+        Spacer(modifier = Modifier.height(8.dp))
         LongRectangleButtonWithParams(text = "상세보기",
             height = 40.dp,
             useFillMaxWidth = true,
@@ -324,10 +330,9 @@ fun MyBottomSheetContentItem(searchItem: SearchItem) {
             contentColor = Color.Black
         ) {
             /**
-             * 버튼을 클릭했을 때 실행할 동작 TODO
+             * 상세보기 버튼을 클릭했을 때 실행할 동작 TODO
              */
         }
-        Spacer(modifier = Modifier.height(8.dp))
         Divider(
             modifier = Modifier.fillMaxWidth(),
             color = Color.Gray,
@@ -370,17 +375,4 @@ fun handleLocationPermission(
         }) {
         myLocation(fusedLocationClient, viewModel, cameraPositionState)
     }
-}
-
-@Preview
-@Composable
-fun MyBottomSheetContentItemPreview() {
-    MyBottomSheetContentItem(SearchItem(
-        title = "옛맛<b>서울</b>불고기",
-        link = "https://oldbulgogi.modoo.at",
-        category = "한식>육류,고기요리",
-        roadAddress = "서울특별시 마포구 독막로 56",
-        mapx = 1269194298,
-        mapy = 375477233
-    ))
 }
