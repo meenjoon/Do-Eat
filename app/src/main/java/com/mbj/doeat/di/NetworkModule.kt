@@ -16,7 +16,14 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import javax.inject.Qualifier
 import javax.inject.Singleton
+
+@Qualifier
+annotation class RestaurantListRetrofit
+
+@Qualifier
+annotation class RestaurantListOkHttpClient
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -24,6 +31,7 @@ object NetworkModule {
 
     @Singleton
     @Provides
+    @RestaurantListOkHttpClient
     fun provideOkHttpClient(): OkHttpClient {
         val logger = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
@@ -56,7 +64,11 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideRetrofit(okHttpClient: OkHttpClient, json: Json): Retrofit {
+    @RestaurantListRetrofit
+    fun provideRestaurantListRetrofit(
+        @RestaurantListOkHttpClient okHttpClient: OkHttpClient,
+        json: Json
+    ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BuildConfig.NAVER_OEPNAPI_BASE_URL)
             .client(okHttpClient)
@@ -67,7 +79,7 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideSearchService(retrofit: Retrofit): SearchService {
+    fun provideSearchService(@RestaurantListRetrofit retrofit: Retrofit): SearchService {
         return retrofit.create(SearchService::class.java)
     }
 
