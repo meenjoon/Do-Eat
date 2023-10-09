@@ -30,20 +30,20 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import com.mbj.doeat.R
-import com.mbj.doeat.ui.graph.Graph
+import com.mbj.doeat.data.remote.model.LoginRequest
 import com.mbj.doeat.ui.theme.Yellow700
 import com.mbj.doeat.ui.screen.signin.viewmodel.SignInViewModel
-import com.mbj.doeat.util.NavigationUtils
 
 @Composable
 fun SignInScreen(
-    viewModel: SignInViewModel = SignInViewModel(),
+    viewModel: SignInViewModel = hiltViewModel(),
     navHostController: NavHostController
 ) {
     var isAutoLogin by remember { mutableStateOf(false) }
@@ -127,10 +127,10 @@ private fun loginWithKakaoNickName(token: OAuthToken, viewModel: SignInViewModel
                 Log.e("Kakao", "사용자 정보 실패", error)
             }
             user != null -> {
-                NavigationUtils.navigate(controller = navHostController, routeName = Graph.HOME, backStackRouteName = Graph.AUTHENTICATION)
-                /**
-                 * TODO : 서버로부터 계정 여부를 확인하고 추후 사용할 DB에 데이터 적재
-                 */
+                if (user.id != null && user.kakaoAccount?.profile?.nickname != null && user.kakaoAccount!!.profile?.thumbnailImageUrl != null) {
+                    val loginRequest = LoginRequest(user.id!!, user.kakaoAccount?.profile?.nickname!!, user.kakaoAccount?.profile?.thumbnailImageUrl!!)
+                    viewModel.signIn(loginRequest, navHostController)
+                }
             }
         }
     }
