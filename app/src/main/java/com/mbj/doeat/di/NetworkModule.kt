@@ -3,6 +3,9 @@ package com.mbj.doeat.di
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.mbj.doeat.BuildConfig
 import com.mbj.doeat.data.remote.network.adapter.ApiCallAdapterFactory
+import com.mbj.doeat.data.remote.network.api.default_db.DefaultDBApi
+import com.mbj.doeat.data.remote.network.api.default_db.repository.DefaultDBDataSource
+import com.mbj.doeat.data.remote.network.api.default_db.service.DefaultDBService
 import com.mbj.doeat.data.remote.network.api.famous_restarant.FamousRestaurantApi
 import com.mbj.doeat.data.remote.network.api.famous_restarant.repository.FamousRestaurantDataSource
 import com.mbj.doeat.data.remote.network.api.famous_restarant.service.SearchService
@@ -23,6 +26,8 @@ import javax.inject.Singleton
 annotation class RestaurantListRetrofit
 @Qualifier
 annotation class RestaurantListOkHttpClient
+@Qualifier
+annotation class DefaultDBRetrofit
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -88,5 +93,32 @@ object NetworkModule {
         apiClient: SearchService,
     ): FamousRestaurantApi {
         return FamousRestaurantDataSource(apiClient)
+    }
+
+    @Singleton
+    @Provides
+    @DefaultDBRetrofit
+    fun provideDefaultDBRetrofit(
+        json: Json
+    ): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(BuildConfig.DOEAT_BASE_URL)
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .addCallAdapterFactory(ApiCallAdapterFactory.create())
+            .build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideDefaultDBService(@DefaultDBRetrofit retrofit: Retrofit): DefaultDBService {
+        return retrofit.create(DefaultDBService::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideDefaultDBDataSource(
+        defaultDBService: DefaultDBService,
+    ): DefaultDBApi {
+        return DefaultDBDataSource(defaultDBService)
     }
 }
