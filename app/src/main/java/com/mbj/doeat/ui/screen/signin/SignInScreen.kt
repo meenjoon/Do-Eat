@@ -38,7 +38,7 @@ import com.kakao.sdk.user.UserApiClient
 import com.mbj.doeat.R
 import com.mbj.doeat.ui.graph.Graph
 import com.mbj.doeat.ui.theme.Yellow700
-import com.mbj.doeat.ui.viewmodel.SignInViewModel
+import com.mbj.doeat.ui.screen.signin.viewmodel.SignInViewModel
 import com.mbj.doeat.util.NavigationUtils
 
 @Composable

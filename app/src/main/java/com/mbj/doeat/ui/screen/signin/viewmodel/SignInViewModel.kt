@@ -1,4 +1,4 @@
-package com.mbj.doeat.ui.viewmodel
+package com.mbj.doeat.ui.screen.signin.viewmodel
 
 import androidx.lifecycle.ViewModel
 
