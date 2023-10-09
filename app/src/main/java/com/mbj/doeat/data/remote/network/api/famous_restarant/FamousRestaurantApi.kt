@@ -1,4 +1,4 @@
-package com.mbj.doeat.data.remote.network.api
+package com.mbj.doeat.data.remote.network.api.famous_restarant
 
 import com.mbj.doeat.data.remote.model.SearchResult
 import com.mbj.doeat.data.remote.network.adapter.ApiResponse

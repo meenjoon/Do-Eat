@@ -3,9 +3,9 @@ package com.mbj.doeat.di
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.mbj.doeat.BuildConfig
 import com.mbj.doeat.data.remote.network.adapter.ApiCallAdapterFactory
-import com.mbj.doeat.data.remote.network.api.FamousRestaurantApi
-import com.mbj.doeat.data.remote.network.repository.FamousRestaurantDataSource
-import com.mbj.doeat.data.remote.network.service.SearchService
+import com.mbj.doeat.data.remote.network.api.famous_restarant.FamousRestaurantApi
+import com.mbj.doeat.data.remote.network.api.famous_restarant.repository.FamousRestaurantDataSource
+import com.mbj.doeat.data.remote.network.api.famous_restarant.service.SearchService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,7 +21,6 @@ import javax.inject.Singleton
 
 @Qualifier
 annotation class RestaurantListRetrofit
-
 @Qualifier
 annotation class RestaurantListOkHttpClient
 

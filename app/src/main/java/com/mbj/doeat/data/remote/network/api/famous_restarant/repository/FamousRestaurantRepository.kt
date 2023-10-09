@@ -1,8 +1,8 @@
-package com.mbj.doeat.data.remote.network.repository
+package com.mbj.doeat.data.remote.network.api.famous_restarant.repository
 
 import com.mbj.doeat.data.remote.model.SearchResult
 import com.mbj.doeat.data.remote.network.adapter.ApiResponse
-import com.mbj.doeat.data.remote.network.api.FamousRestaurantApi
+import com.mbj.doeat.data.remote.network.api.famous_restarant.FamousRestaurantApi
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

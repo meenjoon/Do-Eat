@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mbj.doeat.data.remote.model.SearchResult
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
-import com.mbj.doeat.data.remote.network.repository.FamousRestaurantRepository
+import com.mbj.doeat.data.remote.network.api.famous_restarant.repository.FamousRestaurantRepository
 import com.mbj.doeat.ui.model.SearchWidgetState
 import com.naver.maps.geometry.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel

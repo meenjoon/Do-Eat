@@ -1,13 +1,12 @@
-package com.mbj.doeat.data.remote.network.repository
+package com.mbj.doeat.data.remote.network.api.famous_restarant.repository
 
-import android.util.Log
 import com.mbj.doeat.data.remote.model.SearchResult
 import com.mbj.doeat.data.remote.network.adapter.ApiResponse
 import com.mbj.doeat.data.remote.network.adapter.onError
 import com.mbj.doeat.data.remote.network.adapter.onException
 import com.mbj.doeat.data.remote.network.adapter.onSuccess
-import com.mbj.doeat.data.remote.network.api.FamousRestaurantApi
-import com.mbj.doeat.data.remote.network.service.SearchService
+import com.mbj.doeat.data.remote.network.api.famous_restarant.FamousRestaurantApi
+import com.mbj.doeat.data.remote.network.api.famous_restarant.service.SearchService
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
