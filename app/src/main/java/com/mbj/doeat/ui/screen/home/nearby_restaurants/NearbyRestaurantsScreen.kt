@@ -344,9 +344,12 @@ fun MyBottomSheetContentItem(searchItem: SearchItem,cameraPositionState: CameraP
             backgroundColor = Yellow700,
             contentColor = Color.Black
         ) {
-            /**
-             * 상세보기 버튼을 클릭했을 때 실행할 동작 TODO
-             */
+            val encodedLink = UrlUtils.encodeUrl(searchItem.link)
+            NavigationUtils.navigate(
+                navController, DetailScreen.Detail.navigateWithArg(
+                    searchItem.copy(link = encodedLink)
+                )
+            )
         }
         Divider(
             modifier = Modifier.fillMaxWidth(),
