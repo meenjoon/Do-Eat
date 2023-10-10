@@ -67,12 +67,15 @@ import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
 import com.mbj.doeat.ui.component.MainAppBar
 import com.mbj.doeat.ui.component.RoundedLine
 import com.mbj.doeat.ui.component.ToastMessage
+import com.mbj.doeat.ui.graph.DetailScreen
 import com.mbj.doeat.ui.model.SearchWidgetState
 import com.mbj.doeat.ui.screen.home.nearby_restaurants.viewmodel.NearByRestaurantsViewModel
 import com.mbj.doeat.ui.theme.Yellow700
 import com.mbj.doeat.ui.theme.randomColors
 import com.mbj.doeat.util.MapConverter.formatLatLng
 import com.mbj.doeat.util.MapConverter.removeHtmlTags
+import com.mbj.doeat.util.NavigationUtils
+import com.mbj.doeat.util.UrlUtils
 
 @OptIn(ExperimentalNaverMapApi::class, ExperimentalMaterialApi::class)
 @Composable
@@ -144,7 +147,7 @@ fun NearbyRestaurantsScreen(
                     .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
                     .offset(y = 15.dp)
             ) {
-                MyBottomSheetContent(viewModel, cameraPositionState)
+                MyBottomSheetContent(viewModel, cameraPositionState, navController)
             }
         },
         sheetPeekHeight = 150.dp,
@@ -261,7 +264,7 @@ fun updateMyLocation(
 }
 
 @Composable
-fun MyBottomSheetContent(viewModel: NearByRestaurantsViewModel, cameraPositionState: CameraPositionState) {
+fun MyBottomSheetContent(viewModel: NearByRestaurantsViewModel, cameraPositionState: CameraPositionState, navController: NavHostController) {
     val searchResult by viewModel.searchResult.collectAsState(initial = SearchResult(emptyList()))
     Column(
         modifier = Modifier
@@ -289,7 +292,7 @@ fun MyBottomSheetContent(viewModel: NearByRestaurantsViewModel, cameraPositionSt
                 items = searchResult.items,
                 key = { searchItem -> searchItem.hashCode() }
             ) { searchItem ->
-                MyBottomSheetContentItem(searchItem = searchItem, cameraPositionState = cameraPositionState)
+                MyBottomSheetContentItem(searchItem = searchItem, cameraPositionState = cameraPositionState, navController = navController)
             }
         }
     }
@@ -297,7 +300,7 @@ fun MyBottomSheetContent(viewModel: NearByRestaurantsViewModel, cameraPositionSt
 
 @OptIn(ExperimentalNaverMapApi::class)
 @Composable
-fun MyBottomSheetContentItem(searchItem: SearchItem,cameraPositionState: CameraPositionState,) {
+fun MyBottomSheetContentItem(searchItem: SearchItem,cameraPositionState: CameraPositionState, navController: NavHostController) {
     Spacer(modifier = Modifier.height(16.dp))
     Column(modifier = Modifier.clickable {
         cameraPositionState.move(

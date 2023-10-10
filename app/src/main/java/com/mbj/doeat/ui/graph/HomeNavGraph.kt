@@ -53,6 +53,7 @@ fun HomeNavGraph(
                 onClick = { }
             )
         }
+        detailsNavGraph(navController = navController)
     }
 }
 
