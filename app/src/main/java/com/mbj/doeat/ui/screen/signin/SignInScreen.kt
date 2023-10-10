@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Checkbox
+import androidx.compose.material.CheckboxDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -46,7 +48,7 @@ fun SignInScreen(
     viewModel: SignInViewModel = hiltViewModel(),
     navHostController: NavHostController
 ) {
-    var isAutoLogin by remember { mutableStateOf(false) }
+    var isAutoLogin by remember { mutableStateOf(viewModel.isAutoLoginEnabled()) }
     val context = LocalContext.current
 
     val kakaoCallback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
@@ -55,11 +57,12 @@ fun SignInScreen(
                 Log.e("Kakao", "카카오 계정 로그인 실패", error)
             }
             token != null -> {
-                loginWithKakaoNickName(token, viewModel, navHostController)
+                loginWithKakaoNickName(viewModel, navHostController)
                 Log.d("Kakao", "token : ${token.accessToken}")
             }
         }
     }
+    viewModel.checkAccessTokenAndNavigate(navHostController)
 
     Column(
         modifier = Modifier
@@ -72,7 +75,7 @@ fun SignInScreen(
         Box(
             modifier = Modifier
                 .width(200.dp)
-                .height(50.dp)
+                .height(55.dp)
                 .clip(MaterialTheme.shapes.medium)
                 .background(Yellow700)
                 .clickable {
@@ -97,7 +100,8 @@ fun SignInScreen(
 
                 Text(
                     text = "카카오 로그인",
-                    style = MaterialTheme.typography.body1
+                    style = MaterialTheme.typography.body1,
+                    color = Color.Black,
                 )
             }
         }
@@ -110,9 +114,14 @@ fun SignInScreen(
             Checkbox(
                 checked = isAutoLogin,
                 onCheckedChange = { isChecked ->
+                    viewModel.setAutoLoginEnabled(isChecked)
                     isAutoLogin = isChecked
                 },
-                modifier = Modifier.padding(end = 8.dp)
+                modifier = Modifier.padding(end = 8.dp),
+                colors = CheckboxDefaults.colors(
+                    checkedColor = Yellow700,
+                    checkmarkColor = Color.Black
+                )
             )
 
             Text(text = "자동 로그인")
@@ -120,7 +129,7 @@ fun SignInScreen(
     }
 }
 
-private fun loginWithKakaoNickName(token: OAuthToken, viewModel: SignInViewModel, navHostController: NavHostController) {
+private fun loginWithKakaoNickName(viewModel: SignInViewModel, navHostController: NavHostController) {
     UserApiClient.instance.me { user, error ->
         when {
             error != null -> {
