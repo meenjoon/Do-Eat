@@ -9,7 +9,6 @@ import com.mbj.doeat.data.remote.network.adapter.onSuccess
 import com.mbj.doeat.data.remote.network.api.default_db.DefaultDBApi
 import com.mbj.doeat.data.remote.network.api.default_db.service.DefaultDBService
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -17,10 +16,9 @@ import kotlinx.coroutines.flow.onCompletion
 import javax.inject.Inject
 
 class DefaultDBDataSource @Inject constructor(
-    private val defaultDBService: DefaultDBService
+    private val defaultDBService: DefaultDBService,
+    private val defaultDispatcher: CoroutineDispatcher
 ) : DefaultDBApi {
-
-    private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
 
     override fun signIn(
         loginRequest: LoginRequest,

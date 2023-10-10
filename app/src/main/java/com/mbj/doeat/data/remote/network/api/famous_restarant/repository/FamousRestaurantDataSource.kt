@@ -8,7 +8,6 @@ import com.mbj.doeat.data.remote.network.adapter.onSuccess
 import com.mbj.doeat.data.remote.network.api.famous_restarant.FamousRestaurantApi
 import com.mbj.doeat.data.remote.network.api.famous_restarant.service.SearchService
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -16,10 +15,9 @@ import kotlinx.coroutines.flow.onCompletion
 import javax.inject.Inject
 
 class FamousRestaurantDataSource @Inject constructor(
-    private val searchService: SearchService
+    private val searchService: SearchService,
+    private val defaultDispatcher: CoroutineDispatcher
 ) : FamousRestaurantApi {
-
-    private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
 
     override fun getSearchResult(
         query: String,
@@ -43,5 +41,4 @@ class FamousRestaurantDataSource @Inject constructor(
     }.onCompletion {
         onComplete()
     }.flowOn(defaultDispatcher)
-
 }

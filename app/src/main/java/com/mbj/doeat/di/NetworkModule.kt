@@ -13,6 +13,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
@@ -91,8 +93,9 @@ object NetworkModule {
     @Provides
     fun provideFamousRestaurantDataSource(
         apiClient: SearchService,
+        defaultDispatcher: CoroutineDispatcher
     ): FamousRestaurantApi {
-        return FamousRestaurantDataSource(apiClient)
+        return FamousRestaurantDataSource(apiClient, defaultDispatcher)
     }
 
     @Singleton
@@ -118,7 +121,14 @@ object NetworkModule {
     @Provides
     fun provideDefaultDBDataSource(
         defaultDBService: DefaultDBService,
+        defaultDispatcher: CoroutineDispatcher
     ): DefaultDBApi {
-        return DefaultDBDataSource(defaultDBService)
+        return DefaultDBDataSource(defaultDBService, defaultDispatcher)
+    }
+
+    @Singleton
+    @Provides
+    fun provideDefaultDispatcher(): CoroutineDispatcher {
+        return Dispatchers.Default
     }
 }
