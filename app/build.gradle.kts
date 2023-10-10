@@ -34,6 +34,7 @@ android {
         buildConfigField("String", "NAVER_OEPNAPI_BASE_URL", properties.getProperty("naver_openapi_base_url"))
         buildConfigField("String", "NAVER_OEPNAPI_CLIENT_ID", properties.getProperty("naver_openapi_client_id"))
         buildConfigField("String", "NAVER_OEPNAPI_CLIENT_SECRET", properties.getProperty("naver_openapi_client_secret"))
+        buildConfigField("String", "DOEAT_BASE_URL", properties.getProperty("doeat_base_url"))
 
         manifestPlaceholders["KAKAO_SIGNIN_NATIVE_KEY"] = KAKAO_SIGNIN_NATIVE_KEY
         manifestPlaceholders["NAVER_CLIENT_ID"] = NAVER_CLIENT_ID

@@ -1,35 +1,32 @@
-package com.mbj.doeat.data.remote.network.repository
+package com.mbj.doeat.data.remote.network.api.default_db.repository
 
-import android.util.Log
-import com.mbj.doeat.data.remote.model.SearchResult
+import com.mbj.doeat.data.remote.model.LoginRequest
+import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.network.adapter.ApiResponse
 import com.mbj.doeat.data.remote.network.adapter.onError
 import com.mbj.doeat.data.remote.network.adapter.onException
 import com.mbj.doeat.data.remote.network.adapter.onSuccess
-import com.mbj.doeat.data.remote.network.api.FamousRestaurantApi
-import com.mbj.doeat.data.remote.network.service.SearchService
+import com.mbj.doeat.data.remote.network.api.default_db.DefaultDBApi
+import com.mbj.doeat.data.remote.network.api.default_db.service.DefaultDBService
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
 import javax.inject.Inject
 
-class FamousRestaurantDataSource @Inject constructor(
-    private val searchService: SearchService
-) : FamousRestaurantApi {
+class DefaultDBDataSource @Inject constructor(
+    private val defaultDBService: DefaultDBService,
+    private val defaultDispatcher: CoroutineDispatcher
+) : DefaultDBApi {
 
-    private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
-
-    override fun getSearchResult(
-        query: String,
-        display: Int,
+    override fun signIn(
+        loginRequest: LoginRequest,
         onComplete: () -> Unit,
         onError: (message: String?) -> Unit
-    ): Flow<ApiResponse<SearchResult>> = flow {
+    ): Flow<ApiResponse<LoginResponse>> = flow {
         try {
-            val response = searchService.getFamousRestaurant(query = query, display = display)
+            val response = defaultDBService.login(loginRequest)
 
             response.onSuccess {
                 emit(response)
@@ -44,5 +41,4 @@ class FamousRestaurantDataSource @Inject constructor(
     }.onCompletion {
         onComplete()
     }.flowOn(defaultDispatcher)
-
 }
