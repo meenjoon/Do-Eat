@@ -2,6 +2,7 @@ package com.mbj.doeat.data.remote.network.api.default_db.repository
 
 import com.mbj.doeat.data.remote.model.LoginRequest
 import com.mbj.doeat.data.remote.model.LoginResponse
+import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.network.adapter.ApiResponse
 import com.mbj.doeat.data.remote.network.api.default_db.DefaultDBApi
 import kotlinx.coroutines.flow.Flow
@@ -18,6 +19,18 @@ class DefaultDBRepository @Inject constructor(
     ): Flow<ApiResponse<LoginResponse>> {
         return defaultDBDataSource.signIn(
             loginRequest,
+            onComplete = onComplete,
+            onError = onError
+        )
+    }
+
+    override fun getPartiesByLocation(
+        restaurantLocation: String,
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit
+    ): Flow<ApiResponse<List<Party>>> {
+        return defaultDBDataSource.getPartiesByLocation(
+            restaurantLocation,
             onComplete = onComplete,
             onError = onError
         )
