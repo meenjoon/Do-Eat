@@ -22,6 +22,7 @@ import com.google.accompanist.web.AccompanistWebViewClient
 import com.google.accompanist.web.WebView
 import com.google.accompanist.web.rememberWebViewNavigator
 import com.google.accompanist.web.rememberWebViewState
+import com.mbj.doeat.BuildConfig
 import com.mbj.doeat.data.remote.model.SearchItem
 import com.mbj.doeat.ui.screen.home.detail.viewmodel.DetailViewModel
 import com.mbj.doeat.util.UrlUtils
@@ -38,7 +39,7 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
     val webChromeClient = AccompanistWebChromeClient()
     val webViewNavigator = rememberWebViewNavigator()
     val url = if (searchItemState?.link == "") {
-        "https://search.naver.com/search.naver?query=${searchItemState?.title}"
+        "${BuildConfig.NAVER_SEARCH_BASE_URL}search.naver?query=${searchItemState?.title}"
     } else {
         UrlUtils.decodeUrl(searchItemState?.link ?: "")
     }
