@@ -112,4 +112,7 @@ dependencies {
     // Kotlin Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.1")
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0")
+
+    // WebView
+    implementation("com.google.accompanist:accompanist-webview:0.24.13-rc")
 }
