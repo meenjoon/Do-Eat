@@ -1,10 +1,16 @@
 package com.mbj.doeat.ui.screen.home.detail
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -24,8 +30,8 @@ import com.mbj.doeat.util.UrlUtils
 fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onClick: () -> Unit) {
 
     val viewModel = DetailViewModel()
-    viewModel.updateSearchItem(searchItem)
 
+    viewModel.updateSearchItem(searchItem)
     val searchItemState by viewModel.searchItem.collectAsState()
 
     val webViewClient = AccompanistWebViewClient()
@@ -45,6 +51,25 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
         modifier = Modifier
             .fillMaxSize()
     ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "뒤로 가기",
+                modifier = Modifier.clickable {
+                    if (webViewNavigator.canGoBack) {
+                        webViewNavigator.navigateBack()
+                    } else {
+                        navController.popBackStack()
+                    }
+                },
+            )
+        }
+
         WebView(
             state = webViewState,
             navigator = webViewNavigator,
