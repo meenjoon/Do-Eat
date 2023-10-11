@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -28,6 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.google.accompanist.web.AccompanistWebChromeClient
 import com.google.accompanist.web.AccompanistWebViewClient
@@ -46,7 +49,7 @@ import com.mbj.doeat.util.UrlUtils
 @Composable
 fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onClick: () -> Unit) {
 
-    val viewModel = DetailViewModel()
+    val viewModel: DetailViewModel = hiltViewModel()
 
     viewModel.updateSearchItem(searchItem)
     val searchItemState by viewModel.searchItem.collectAsState()
@@ -63,6 +66,8 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
         url = url,
         additionalHttpHeaders = emptyMap()
     )
+
+    val partyListState by viewModel.partyList.collectAsState()
 
     Column(
         modifier = Modifier
@@ -106,121 +111,142 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
                 .fillMaxWidth()
                 .padding(8.dp)
         )
-    }
 
-    @Composable
-    fun PartyItem(
-        party: Party,
-        onJoinClick: (Party) -> Unit
-    ) {
-        Column(
+        Text(
+            text = "현재 개설된 파티",
+            fontWeight = FontWeight.Bold,
+            fontSize = 28.sp,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-                .background(Beige100, shape = RoundedCornerShape(12.dp))
-                .border(1.dp, Color.Gray, shape = RoundedCornerShape(12.dp))
+                .align(Alignment.CenterHorizontally)
+                .padding(top = 10.dp, bottom = 10.dp)
+        )
+
+        LazyColumn(
+            modifier = Modifier.padding(bottom = 80.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = party.restaurantName,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        color = Color.Black,
-                        modifier = Modifier
-                            .fillMaxWidth(0.6f)
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        text = party.category,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp,
-                        color = Color.Gray,
-                        modifier = Modifier.align(Alignment.CenterVertically),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-
-                Text(
-                    text = party.restaurantLocation,
-                    fontSize = 11.sp,
-                    color = Color.Black,
-                    modifier = Modifier.padding(top = 4.dp)
-
-                )
-
-                Text(
-                    text = party.detail,
-                    fontSize = 14.sp,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    color = Color.Gray,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 20.dp)
-                        .clickable {
-                            onJoinClick(party)
-                        },
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = "${party.currentNumberPeople} / ${party.recruitmentLimit}",
-                        fontSize = 22.sp,
-                        color = Color.Black,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                    )
-
-                    Spacer(modifier = Modifier.width(40.dp))
-
-                    Text(
-                        text = "참가하기",
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                        modifier = Modifier
-                            .background(Remon400, shape = RoundedCornerShape(4.dp))
-                            .padding(4.dp)
-                            .clickable {
-                                /**
-                                 * 채팅방 참가하기 TODO
-                                 */
-                                onJoinClick
-                            }
-                    )
-                }
+            items(
+                items = partyListState,
+                key = { party -> party.postId }
+            ) { party ->
+                PartyItem(party = party, onJoinClick = {})
             }
         }
     }
+}
 
-    @Preview
-    @Composable
-    fun PartyItemPreview() {
-        DoEatTheme {
-            val dummyParty = Party(
-                postId = 11,
-                userId = 4,
-                restaurantName = "마노디셰프1231231212231231313131313123",
-                restaurantLocation = "서울특별시 송파구 송파대로 570 타워 730 B1",
-                recruitmentLimit = 10,
-                currentNumberPeople = 5,
-                detail = "This is a party description. This is a party description. This is a party description. This is a party description. This is a party description. This is a party description.",
-                link = "",
-                category = "음식점>이탈리아 음식 12313123131312312"
+@Composable
+fun PartyItem(
+    party: Party,
+    onJoinClick: (Party) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .background(Beige100, shape = RoundedCornerShape(12.dp))
+            .border(1.dp, Color.Gray, shape = RoundedCornerShape(12.dp))
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = party.restaurantName,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = Color.Black,
+                    modifier = Modifier
+                        .fillMaxWidth(0.6f)
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    text = party.category,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Text(
+                text = party.restaurantLocation,
+                fontSize = 11.sp,
+                color = Color.Black,
+                modifier = Modifier.padding(top = 4.dp)
+
             )
-            PartyItem(party = dummyParty, onJoinClick = {})
+
+            Text(
+                text = party.detail,
+                fontSize = 14.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                color = Color.Gray,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 20.dp)
+                    .clickable {
+                        onJoinClick(party)
+                    },
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "${party.currentNumberPeople} / ${party.recruitmentLimit}",
+                    fontSize = 22.sp,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                )
+
+                Spacer(modifier = Modifier.width(40.dp))
+
+                Text(
+                    text = "참가하기",
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    modifier = Modifier
+                        .background(Remon400, shape = RoundedCornerShape(4.dp))
+                        .padding(4.dp)
+                        .clickable {
+                            /**
+                             * 채팅방 참가하기 TODO
+                             */
+                            onJoinClick
+                        }
+                )
+            }
         }
     }
+}
+
+@Preview
+@Composable
+fun PartyItemPreview() {
+    DoEatTheme {
+        val dummyParty = Party(
+            postId = 11,
+            userId = 4,
+            restaurantName = "마노디셰프1231231212231231313131313123",
+            restaurantLocation = "서울특별시 송파구 송파대로 570 타워 730 B1",
+            recruitmentLimit = 10,
+            currentNumberPeople = 5,
+            detail = "This is a party description. This is a party description. This is a party description. This is a party description. This is a party description. This is a party description.",
+            link = "",
+            category = "음식점>이탈리아 음식 12313123131312312"
+        )
+        PartyItem(party = dummyParty, onJoinClick = {})
+    }
+}

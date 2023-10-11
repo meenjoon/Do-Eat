@@ -76,6 +76,7 @@ import com.mbj.doeat.util.MapConverter.formatLatLng
 import com.mbj.doeat.util.MapConverter.removeHtmlTags
 import com.mbj.doeat.util.NavigationUtils
 import com.mbj.doeat.util.UrlUtils
+import com.mbj.doeat.util.UrlUtils.encodeUrl
 
 @OptIn(ExperimentalNaverMapApi::class, ExperimentalMaterialApi::class)
 @Composable
@@ -344,10 +345,11 @@ fun MyBottomSheetContentItem(searchItem: SearchItem,cameraPositionState: CameraP
             backgroundColor = Yellow700,
             contentColor = Color.Black
         ) {
-            val encodedLink = UrlUtils.encodeUrl(searchItem.link)
+            val encodedLink = encodeUrl(searchItem.link)
+            val titleWithoutHtmlTags = removeHtmlTags(searchItem.title)
             NavigationUtils.navigate(
                 navController, DetailScreen.Detail.navigateWithArg(
-                    searchItem.copy(link = encodedLink)
+                    searchItem.copy(title = titleWithoutHtmlTags, link = encodedLink)
                 )
             )
         }
