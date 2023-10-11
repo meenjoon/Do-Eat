@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 
 
 @Composable
@@ -32,10 +33,10 @@ fun LongRectangleButtonWithParams(
     backgroundColor: Color = Yellow700,
     contentColor: Color = Color.Black,
     textStyle: TextStyle = MaterialTheme.typography.button,
+    fontSize: TextUnit = TextUnit.Unspecified,
     onClick: () -> Unit
 ) {
     Box(
-
         modifier = Modifier
             .padding(padding)
             .then(if (useFillMaxWidth) Modifier.fillMaxWidth() else Modifier.width(width))
@@ -54,6 +55,7 @@ fun LongRectangleButtonWithParams(
             text = text,
             color = contentColor,
             style = textStyle,
+            fontSize = fontSize
         )
     }
 }

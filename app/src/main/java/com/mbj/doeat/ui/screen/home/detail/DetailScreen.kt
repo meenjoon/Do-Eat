@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -16,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -40,6 +42,7 @@ import com.google.accompanist.web.rememberWebViewState
 import com.mbj.doeat.BuildConfig
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.SearchItem
+import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
 import com.mbj.doeat.ui.screen.home.detail.viewmodel.DetailViewModel
 import com.mbj.doeat.ui.theme.Beige100
 import com.mbj.doeat.ui.theme.DoEatTheme
@@ -69,69 +72,86 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
 
     val partyListState by viewModel.partyList.collectAsState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.Start
-        ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "뒤로 가기",
-                modifier = Modifier.clickable {
-                    if (webViewNavigator.canGoBack) {
-                        webViewNavigator.navigateBack()
-                    } else {
-                        navController.popBackStack()
-                    }
-                },
-            )
-        }
+    Scaffold(
+        bottomBar = {
+            LongRectangleButtonWithParams(
+                text = "파티원 구하기",
+                fontSize = 20.sp,
+                height = 60.dp,
+                useFillMaxWidth = true,
+                padding = PaddingValues(top = 5.dp, bottom = 5.dp, start = 15.dp, end = 15.dp),
+                backgroundColor = Remon400,
+                contentColor = Color.Black,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+            }
+        },
+        content = { padding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "뒤로 가기",
+                        modifier = Modifier.clickable {
+                            if (webViewNavigator.canGoBack) {
+                                webViewNavigator.navigateBack()
+                            } else {
+                                navController.popBackStack()
+                            }
+                        },
+                    )
+                }
 
-        WebView(
-            state = webViewState,
-            navigator = webViewNavigator,
-            client = webViewClient,
-            chromeClient = webChromeClient,
-            onCreated = { webView ->
-                with(webView) {
-                    settings.run {
-                        javaScriptEnabled = true
-                        domStorageEnabled = true
-                        javaScriptCanOpenWindowsAutomatically = false
+                WebView(
+                    state = webViewState,
+                    navigator = webViewNavigator,
+                    client = webViewClient,
+                    chromeClient = webChromeClient,
+                    onCreated = { webView ->
+                        with(webView) {
+                            settings.run {
+                                javaScriptEnabled = true
+                                domStorageEnabled = true
+                                javaScriptCanOpenWindowsAutomatically = false
+                            }
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxHeight(0.5f)
+                        .fillMaxWidth()
+                        .padding(start = 4.dp, end = 4.dp)
+                )
+
+                Text(
+                    text = "현재 개설된 파티",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 28.sp,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(top = 10.dp, bottom = 10.dp)
+                )
+
+                LazyColumn(
+                    modifier = Modifier.padding(bottom = 80.dp)
+                ) {
+                    items(
+                        items = partyListState,
+                        key = { party -> party.postId }
+                    ) { party ->
+                        PartyItem(party = party, onJoinClick = {})
                     }
                 }
-            },
-            modifier = Modifier
-                .fillMaxHeight(0.5f)
-                .fillMaxWidth()
-                .padding(8.dp)
-        )
-
-        Text(
-            text = "현재 개설된 파티",
-            fontWeight = FontWeight.Bold,
-            fontSize = 28.sp,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(top = 10.dp, bottom = 10.dp)
-        )
-
-        LazyColumn(
-            modifier = Modifier.padding(bottom = 80.dp)
-        ) {
-            items(
-                items = partyListState,
-                key = { party -> party.postId }
-            ) { party ->
-                PartyItem(party = party, onJoinClick = {})
             }
         }
-    }
+    )
 }
 
 @Composable
