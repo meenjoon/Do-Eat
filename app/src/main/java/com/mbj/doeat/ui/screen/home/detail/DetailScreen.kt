@@ -26,6 +26,7 @@ import androidx.compose.material.BottomSheetState
 import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
@@ -67,6 +68,7 @@ import com.mbj.doeat.ui.screen.home.detail.viewmodel.DetailViewModel
 import com.mbj.doeat.ui.theme.Beige100
 import com.mbj.doeat.ui.theme.Gray200
 import com.mbj.doeat.ui.theme.Remon400
+import com.mbj.doeat.ui.theme.Yellow700
 import com.mbj.doeat.util.UrlUtils
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -182,28 +184,49 @@ fun DetailContent(
                 .padding(8.dp),
             horizontalArrangement = Arrangement.Start
         ) {
-            BackButton(webViewNavigator, navController)
+            BackButton(navController)
         }
 
-        WebView(
-            state = webViewState,
-            navigator = webViewNavigator,
-            client = webViewClient,
-            chromeClient = webChromeClient,
-            onCreated = { webView ->
-                with(webView) {
-                    settings.run {
-                        javaScriptEnabled = true
-                        domStorageEnabled = true
-                        javaScriptCanOpenWindowsAutomatically = false
-                    }
-                }
-            },
+        Box(
             modifier = Modifier
                 .fillMaxHeight(0.5f)
                 .fillMaxWidth()
                 .padding(start = 4.dp, end = 4.dp)
-        )
+        ) {
+            WebView(
+                state = webViewState,
+                navigator = webViewNavigator,
+                client = webViewClient,
+                chromeClient = webChromeClient,
+                onCreated = { webView ->
+                    with(webView) {
+                        settings.run {
+                            javaScriptEnabled = true
+                            domStorageEnabled = true
+                            javaScriptCanOpenWindowsAutomatically = false
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxSize()
+            )
+
+            IconButton(
+                onClick = {
+                    if (webViewNavigator.canGoBack) {
+                        webViewNavigator.navigateBack()
+                    }
+                },
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.TopStart)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "뒤로 가기",
+                    tint = Yellow700
+                )
+            }
+        }
 
         Text(
             text = "현재 개설된 파티",
@@ -227,16 +250,12 @@ fun DetailContent(
 }
 
 @Composable
-fun BackButton(webViewNavigator: WebViewNavigator, navController: NavHostController) {
+fun BackButton(navController: NavHostController) {
     Icon(
         imageVector = Icons.Default.ArrowBack,
         contentDescription = "뒤로 가기",
         modifier = Modifier.clickable {
-            if (webViewNavigator.canGoBack) {
-                webViewNavigator.navigateBack()
-            } else {
-                navController.popBackStack()
-            }
+            navController.popBackStack()
         }
     )
 }
