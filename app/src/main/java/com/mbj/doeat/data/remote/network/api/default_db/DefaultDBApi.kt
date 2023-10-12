@@ -3,6 +3,7 @@ package com.mbj.doeat.data.remote.network.api.default_db
 import com.mbj.doeat.data.remote.model.LoginRequest
 import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.model.Party
+import com.mbj.doeat.data.remote.model.PartyPostRequest
 import com.mbj.doeat.data.remote.network.adapter.ApiResponse
 import kotlinx.coroutines.flow.Flow
 
@@ -19,4 +20,10 @@ interface DefaultDBApi {
         onComplete: () -> Unit,
         onError: (message: String?) -> Unit
     ): Flow<ApiResponse<List<Party>>>
+
+    fun postParty(
+        partyPostRequest: PartyPostRequest,
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit
+    ): Flow<ApiResponse<Party>>
 }

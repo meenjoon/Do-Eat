@@ -3,6 +3,7 @@ package com.mbj.doeat.data.remote.network.api.default_db.repository
 import com.mbj.doeat.data.remote.model.LoginRequest
 import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.model.Party
+import com.mbj.doeat.data.remote.model.PartyPostRequest
 import com.mbj.doeat.data.remote.network.adapter.ApiResponse
 import com.mbj.doeat.data.remote.network.adapter.onError
 import com.mbj.doeat.data.remote.network.adapter.onException
@@ -50,6 +51,28 @@ class DefaultDBDataSource @Inject constructor(
     ): Flow<ApiResponse<List<Party>>> = flow {
         try {
             val response = defaultDBService.getPartiesByLocation(restaurantLocation)
+            response.onSuccess {
+                emit(response)
+            }.onError { code, message ->
+                onError("code: $code, message: $message")
+            }.onException {
+                onError(it.message)
+            }
+        } catch (e: Exception) {
+            onError(e.message)
+        }
+    }.onCompletion {
+        onComplete()
+    }.flowOn(defaultDispatcher)
+
+    override fun postParty(
+        partyPostRequest: PartyPostRequest,
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit
+    ): Flow<ApiResponse<Party>> = flow {
+        try {
+            val response = defaultDBService.postParty(partyPostRequest)
+
             response.onSuccess {
                 emit(response)
             }.onError { code, message ->
