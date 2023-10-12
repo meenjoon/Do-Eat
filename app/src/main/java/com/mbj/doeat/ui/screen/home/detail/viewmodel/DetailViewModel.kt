@@ -28,6 +28,9 @@ class DetailViewModel @Inject constructor(private val defaultDBRepository: Defau
     private val _recruitmentDetails = MutableStateFlow("")
     val recruitmentDetails: StateFlow<String> = _recruitmentDetails
 
+    private val _isBottomSheetExpanded = MutableStateFlow<Boolean>(false)
+    val isBottomSheetExpanded: StateFlow<Boolean> = _isBottomSheetExpanded
+
     init {
         viewModelScope.launch {
             searchItem.collectLatest { searchItem ->
@@ -62,5 +65,9 @@ class DetailViewModel @Inject constructor(private val defaultDBRepository: Defau
 
     fun changeRecruitmentDetails(recruitDetails: String) {
         _recruitmentDetails.value = recruitDetails
+    }
+
+    fun toggleBottomSheetState() {
+        _isBottomSheetExpanded.value = !_isBottomSheetExpanded.value
     }
 }

@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.BottomSheetScaffold
+import androidx.compose.material.BottomSheetState
 import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -34,6 +35,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -76,6 +78,7 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
     val partyListState by viewModel.partyList.collectAsState()
     val recruitmentCount by viewModel.recruitmentCount.collectAsState()
     val recruitmentDetails by viewModel.recruitmentDetails.collectAsState()
+    val isBottomSheetExpandedState by viewModel.isBottomSheetExpanded.collectAsState()
 
     val webViewClient = AccompanistWebViewClient()
     val webChromeClient = AccompanistWebChromeClient()
@@ -114,9 +117,11 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
         },
         sheetBackgroundColor = Color.Transparent,
         sheetContentColor = Color.Transparent,
-        sheetPeekHeight = 20.dp,
+        sheetPeekHeight = 0.dp,
         content = { padding ->
+            ExpandBottomSheetIfRequired(bottomSheetState, isBottomSheetExpandedState)
             DetailContent(
+                viewModel = viewModel,
                 navController = navController,
                 webViewClient = webViewClient,
                 webChromeClient = webChromeClient,
@@ -147,6 +152,7 @@ fun getUrl(searchItemState: SearchItem?): String {
 
 @Composable
 fun DetailContent(
+    viewModel: DetailViewModel,
     navController: NavHostController,
     webViewClient: AccompanistWebViewClient,
     webChromeClient: AccompanistWebChromeClient,
@@ -197,9 +203,15 @@ fun DetailContent(
                 .padding(top = 10.dp, bottom = 10.dp)
         )
 
-        PartiesSection(partyListState, onClick)
+        PartiesSection(
+            viewModel = viewModel,
+            partyListState = partyListState
+        ) {
+        }
 
-        CreatePartyButton(onClick)
+        CreatePartyButton(onClick = {
+            viewModel.toggleBottomSheetState()
+        })
     }
 }
 
@@ -219,7 +231,7 @@ fun BackButton(webViewNavigator: WebViewNavigator, navController: NavHostControl
 }
 
 @Composable
-fun PartiesSection(partyListState: List<Party>, onClick: () -> Unit) {
+fun PartiesSection(viewModel: DetailViewModel, partyListState: List<Party>, onClick: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -238,12 +250,15 @@ fun PartiesSection(partyListState: List<Party>, onClick: () -> Unit) {
                     NoPartiesAvailable()
                 }
             } else {
-                PartiesList(partyListState = partyListState,
-                    modifier = Modifier.weight(1f)) {
-                    }
+                PartiesList(
+                    viewModel = viewModel, partyListState = partyListState,
+                    modifier = Modifier.weight(1f)
+                ) {
+                }
             }
-            CreatePartyButton {
-            }
+            CreatePartyButton(onClick = {
+                viewModel.toggleBottomSheetState()
+            })
         }
     }
 }
@@ -264,7 +279,12 @@ fun NoPartiesAvailable() {
 }
 
 @Composable
-fun PartiesList(partyListState: List<Party>, modifier: Modifier, onClick: () -> Unit) {
+fun PartiesList(
+    viewModel: DetailViewModel,
+    partyListState: List<Party>,
+    modifier: Modifier,
+    onClick: () -> Unit
+) {
     LazyColumn(
         modifier = modifier
     ) {
@@ -292,8 +312,9 @@ fun CreatePartyButton(onClick: () -> Unit) {
         ),
         backgroundColor = Remon400,
         contentColor = Color.Black,
-        shape = RoundedCornerShape(12.dp)
-    ) {}
+        shape = RoundedCornerShape(12.dp),
+        onClick = onClick
+    )
 }
 
 @Composable
@@ -539,5 +560,16 @@ fun PartyItem(
                 )
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ExpandBottomSheetIfRequired(
+    bottomSheetState: BottomSheetState,
+    toggle: Boolean,
+) {
+    LaunchedEffect(toggle) {
+        bottomSheetState.expand()
     }
 }
