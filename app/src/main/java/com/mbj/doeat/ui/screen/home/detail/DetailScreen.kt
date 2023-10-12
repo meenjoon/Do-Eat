@@ -62,6 +62,7 @@ import com.mbj.doeat.BuildConfig
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.SearchItem
 import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
+import com.mbj.doeat.ui.component.YesNoDialog
 import com.mbj.doeat.ui.screen.home.detail.viewmodel.DetailViewModel
 import com.mbj.doeat.ui.theme.Beige100
 import com.mbj.doeat.ui.theme.Gray200
@@ -76,9 +77,10 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
 
     val searchItemState by viewModel.searchItem.collectAsState()
     val partyListState by viewModel.partyList.collectAsState()
-    val recruitmentCount by viewModel.recruitmentCount.collectAsState()
-    val recruitmentDetails by viewModel.recruitmentDetails.collectAsState()
+    val recruitmentCountState by viewModel.recruitmentCount.collectAsState()
+    val recruitmentDetailsState by viewModel.recruitmentDetails.collectAsState()
     val isBottomSheetExpandedState by viewModel.isBottomSheetExpanded.collectAsState()
+    val showCreatePartyDialogState by viewModel.showCreatePartyDialog.collectAsState()
 
     val webViewClient = AccompanistWebViewClient()
     val webChromeClient = AccompanistWebChromeClient()
@@ -104,9 +106,10 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
                     .offset(y = 15.dp)
             ) {
                 DetailBottomSheet(
+                    viewModel = viewModel,
                     party = searchItemState,
-                    recruitmentCount = recruitmentCount,
-                    recruitmentDetails = recruitmentDetails,
+                    recruitmentCount = recruitmentCountState,
+                    recruitmentDetails = recruitmentDetailsState,
                     onRecruitmentCountChange = { newCount ->
                         viewModel.changeRecruitmentCount(newCount)
                     }
@@ -131,6 +134,15 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
                 onClick = onClick,
                 padding = padding
             )
+            YesNoDialog(
+                showDialog = showCreatePartyDialogState,
+                onYesClick = { viewModel.postParty(navHostController = navController) },
+                onNoClick = { viewModel.changeShowCreatePartyDialog(showDialog = false) },
+                title = "파티를 모집하시겠습니까?",
+                message = "파티가 등록됩니다.",
+                confirmButtonMessage = "등록",
+                dismissButtonMessage = "취소"
+            )
         }
     )
 }
@@ -141,7 +153,6 @@ fun initializeWebView(searchItemState: SearchItem?) = rememberWebViewState(
     additionalHttpHeaders = emptyMap()
 )
 
-@Composable
 fun getUrl(searchItemState: SearchItem?): String {
     return if (searchItemState?.link == "") {
         "${BuildConfig.NAVER_SEARCH_BASE_URL}search.naver?query=${searchItemState?.title}"
@@ -319,6 +330,7 @@ fun CreatePartyButton(onClick: () -> Unit) {
 
 @Composable
 fun DetailBottomSheet(
+    viewModel: DetailViewModel,
     party: SearchItem?,
     recruitmentCount: String,
     recruitmentDetails: String,
@@ -331,7 +343,7 @@ fun DetailBottomSheet(
             .padding(16.dp)
     ) {
         Text(
-            text = "같이 살 사람 구하기",
+            text = "같이 갈 사람 구하기",
             fontSize = 26.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black
@@ -461,7 +473,9 @@ fun DetailBottomSheet(
             backgroundColor = Remon400,
             contentColor = Color.Black,
             shape = RoundedCornerShape(12.dp)
-        ) {}
+        ) {
+            viewModel.changeShowCreatePartyDialog(showDialog = true)
+        }
     }
 }
 
