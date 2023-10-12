@@ -1,5 +1,6 @@
 package com.mbj.doeat.data.remote.network.api.default_db
 
+import com.mbj.doeat.data.remote.model.FindUserRequest
 import com.mbj.doeat.data.remote.model.LoginRequest
 import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.model.Party
@@ -26,4 +27,10 @@ interface DefaultDBApi {
         onComplete: () -> Unit,
         onError: (message: String?) -> Unit
     ): Flow<ApiResponse<Party>>
+
+    fun findUser(
+        findUserRequest: FindUserRequest,
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit
+    ): Flow<ApiResponse<LoginResponse>>
 }

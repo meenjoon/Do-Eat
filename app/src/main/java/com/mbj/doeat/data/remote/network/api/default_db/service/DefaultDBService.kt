@@ -1,5 +1,6 @@
 package com.mbj.doeat.data.remote.network.api.default_db.service
 
+import com.mbj.doeat.data.remote.model.FindUserRequest
 import com.mbj.doeat.data.remote.model.LoginRequest
 import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.model.Party
@@ -20,4 +21,7 @@ interface DefaultDBService {
 
     @POST("party/post")
     suspend fun postParty(@Body request: PartyPostRequest): ApiResponse<Party>
+
+    @POST("user/find")
+    suspend fun findUser(@Body findUserRequest: FindUserRequest): ApiResponse<LoginResponse>
 }

@@ -1,5 +1,6 @@
 package com.mbj.doeat.data.remote.network.api.default_db.repository
 
+import com.mbj.doeat.data.remote.model.FindUserRequest
 import com.mbj.doeat.data.remote.model.LoginRequest
 import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.model.Party
@@ -44,6 +45,18 @@ class DefaultDBRepository @Inject constructor(
     ): Flow<ApiResponse<Party>> {
         return defaultDBDataSource.postParty(
             partyPostRequest,
+            onComplete = onComplete,
+            onError = onError
+        )
+    }
+
+    override fun findUser(
+        findUserRequest: FindUserRequest,
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit
+    ): Flow<ApiResponse<LoginResponse>> {
+        return defaultDBDataSource.findUser(
+            findUserRequest,
             onComplete = onComplete,
             onError = onError
         )

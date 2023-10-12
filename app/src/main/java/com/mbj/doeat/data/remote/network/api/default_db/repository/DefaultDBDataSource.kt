@@ -1,5 +1,6 @@
 package com.mbj.doeat.data.remote.network.api.default_db.repository
 
+import com.mbj.doeat.data.remote.model.FindUserRequest
 import com.mbj.doeat.data.remote.model.LoginRequest
 import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.model.Party
@@ -72,6 +73,28 @@ class DefaultDBDataSource @Inject constructor(
     ): Flow<ApiResponse<Party>> = flow {
         try {
             val response = defaultDBService.postParty(partyPostRequest)
+
+            response.onSuccess {
+                emit(response)
+            }.onError { code, message ->
+                onError("code: $code, message: $message")
+            }.onException {
+                onError(it.message)
+            }
+        } catch (e: Exception) {
+            onError(e.message)
+        }
+    }.onCompletion {
+        onComplete()
+    }.flowOn(defaultDispatcher)
+
+    override fun findUser(
+        findUserRequest: FindUserRequest,
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit
+    ): Flow<ApiResponse<LoginResponse>> = flow {
+        try {
+            val response = defaultDBService.findUser(findUserRequest)
 
             response.onSuccess {
                 emit(response)
