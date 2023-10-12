@@ -18,6 +18,7 @@ import androidx.compose.material.Text
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 
@@ -55,7 +56,8 @@ fun LongRectangleButtonWithParams(
             text = text,
             color = contentColor,
             style = textStyle,
-            fontSize = fontSize
+            fontSize = fontSize,
+            fontWeight = FontWeight.Bold
         )
     }
 }

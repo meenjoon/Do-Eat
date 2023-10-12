@@ -22,6 +22,12 @@ class DetailViewModel @Inject constructor(private val defaultDBRepository: Defau
     private val _searchItem = MutableStateFlow<SearchItem?>(null)
     val searchItem: StateFlow<SearchItem?> = _searchItem
 
+    private val _recruitmentCount = MutableStateFlow("")
+    val recruitmentCount: StateFlow<String> = _recruitmentCount
+
+    private val _recruitmentDetails = MutableStateFlow("")
+    val recruitmentDetails: StateFlow<String> = _recruitmentDetails
+
     init {
         viewModelScope.launch {
             searchItem.collectLatest { searchItem ->
@@ -48,5 +54,13 @@ class DetailViewModel @Inject constructor(private val defaultDBRepository: Defau
                 _partyList.value = responsePartyList.data
             }
         }
+    }
+
+    fun changeRecruitmentCount(recruitCount: String) {
+        _recruitmentCount.value = recruitCount
+    }
+
+    fun changeRecruitmentDetails(recruitDetails: String) {
+        _recruitmentDetails.value = recruitDetails
     }
 }

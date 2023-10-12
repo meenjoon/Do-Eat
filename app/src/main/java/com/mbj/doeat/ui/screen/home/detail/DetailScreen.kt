@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,32 +12,48 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.BottomSheetScaffold
+import androidx.compose.material.BottomSheetValue
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
-import androidx.compose.material.Scaffold
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.rememberBottomSheetScaffoldState
+import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.text.isDigitsOnly
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.google.accompanist.web.AccompanistWebChromeClient
 import com.google.accompanist.web.AccompanistWebViewClient
 import com.google.accompanist.web.WebView
+import com.google.accompanist.web.WebViewNavigator
+import com.google.accompanist.web.WebViewState
 import com.google.accompanist.web.rememberWebViewNavigator
 import com.google.accompanist.web.rememberWebViewState
 import com.mbj.doeat.BuildConfig
@@ -45,113 +62,386 @@ import com.mbj.doeat.data.remote.model.SearchItem
 import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
 import com.mbj.doeat.ui.screen.home.detail.viewmodel.DetailViewModel
 import com.mbj.doeat.ui.theme.Beige100
-import com.mbj.doeat.ui.theme.DoEatTheme
+import com.mbj.doeat.ui.theme.Gray200
 import com.mbj.doeat.ui.theme.Remon400
 import com.mbj.doeat.util.UrlUtils
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onClick: () -> Unit) {
-
     val viewModel: DetailViewModel = hiltViewModel()
-
     viewModel.updateSearchItem(searchItem)
+
     val searchItemState by viewModel.searchItem.collectAsState()
+    val partyListState by viewModel.partyList.collectAsState()
+    val recruitmentCount by viewModel.recruitmentCount.collectAsState()
+    val recruitmentDetails by viewModel.recruitmentDetails.collectAsState()
 
     val webViewClient = AccompanistWebViewClient()
     val webChromeClient = AccompanistWebChromeClient()
+    val webViewState = initializeWebView(searchItemState)
     val webViewNavigator = rememberWebViewNavigator()
-    val url = if (searchItemState?.link == "") {
+
+    val bottomSheetState = rememberBottomSheetState(
+        initialValue = BottomSheetValue.Collapsed
+    )
+
+    BottomSheetScaffold(
+        scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = bottomSheetState),
+        sheetContent = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(650.dp)
+                    .background(
+                        color = Color.White,
+                        shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)
+                    )
+                    .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
+                    .offset(y = 15.dp)
+            ) {
+                DetailBottomSheet(
+                    party = searchItemState,
+                    recruitmentCount = recruitmentCount,
+                    recruitmentDetails = recruitmentDetails,
+                    onRecruitmentCountChange = { newCount ->
+                        viewModel.changeRecruitmentCount(newCount)
+                    }
+                ) { newDetails ->
+                    viewModel.changeRecruitmentDetails(newDetails)
+                }
+            }
+        },
+        sheetBackgroundColor = Color.Transparent,
+        sheetContentColor = Color.Transparent,
+        sheetPeekHeight = 20.dp,
+        content = { padding ->
+            DetailContent(
+                navController = navController,
+                webViewClient = webViewClient,
+                webChromeClient = webChromeClient,
+                webViewState = webViewState,
+                webViewNavigator = webViewNavigator,
+                partyListState = partyListState,
+                onClick = onClick,
+                padding = padding
+            )
+        }
+    )
+}
+
+@Composable
+fun initializeWebView(searchItemState: SearchItem?) = rememberWebViewState(
+    url = getUrl(searchItemState),
+    additionalHttpHeaders = emptyMap()
+)
+
+@Composable
+fun getUrl(searchItemState: SearchItem?): String {
+    return if (searchItemState?.link == "") {
         "${BuildConfig.NAVER_SEARCH_BASE_URL}search.naver?query=${searchItemState?.title}"
     } else {
         UrlUtils.decodeUrl(searchItemState?.link ?: "")
     }
-    val webViewState = rememberWebViewState(
-        url = url,
-        additionalHttpHeaders = emptyMap()
-    )
+}
 
-    val partyListState by viewModel.partyList.collectAsState()
+@Composable
+fun DetailContent(
+    navController: NavHostController,
+    webViewClient: AccompanistWebViewClient,
+    webChromeClient: AccompanistWebChromeClient,
+    webViewState: WebViewState,
+    webViewNavigator: WebViewNavigator,
+    partyListState: List<Party>,
+    onClick: () -> Unit,
+    padding: PaddingValues
+) {
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.Start
+        ) {
+            BackButton(webViewNavigator, navController)
+        }
 
-    Scaffold(
-        bottomBar = {
-            LongRectangleButtonWithParams(
-                text = "파티원 구하기",
-                fontSize = 20.sp,
-                height = 60.dp,
-                useFillMaxWidth = true,
-                padding = PaddingValues(top = 5.dp, bottom = 5.dp, start = 15.dp, end = 15.dp),
-                backgroundColor = Remon400,
-                contentColor = Color.Black,
-                shape = RoundedCornerShape(12.dp)
-            ) {
-            }
-        },
-        content = { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "뒤로 가기",
-                        modifier = Modifier.clickable {
-                            if (webViewNavigator.canGoBack) {
-                                webViewNavigator.navigateBack()
-                            } else {
-                                navController.popBackStack()
-                            }
-                        },
-                    )
-                }
-
-                WebView(
-                    state = webViewState,
-                    navigator = webViewNavigator,
-                    client = webViewClient,
-                    chromeClient = webChromeClient,
-                    onCreated = { webView ->
-                        with(webView) {
-                            settings.run {
-                                javaScriptEnabled = true
-                                domStorageEnabled = true
-                                javaScriptCanOpenWindowsAutomatically = false
-                            }
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxHeight(0.5f)
-                        .fillMaxWidth()
-                        .padding(start = 4.dp, end = 4.dp)
-                )
-
-                Text(
-                    text = "현재 개설된 파티",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 28.sp,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(top = 10.dp, bottom = 10.dp)
-                )
-
-                LazyColumn(
-                    modifier = Modifier.padding(bottom = 80.dp)
-                ) {
-                    items(
-                        items = partyListState,
-                        key = { party -> party.postId }
-                    ) { party ->
-                        PartyItem(party = party, onJoinClick = {})
+        WebView(
+            state = webViewState,
+            navigator = webViewNavigator,
+            client = webViewClient,
+            chromeClient = webChromeClient,
+            onCreated = { webView ->
+                with(webView) {
+                    settings.run {
+                        javaScriptEnabled = true
+                        domStorageEnabled = true
+                        javaScriptCanOpenWindowsAutomatically = false
                     }
                 }
+            },
+            modifier = Modifier
+                .fillMaxHeight(0.5f)
+                .fillMaxWidth()
+                .padding(start = 4.dp, end = 4.dp)
+        )
+
+        Text(
+            text = "현재 개설된 파티",
+            fontWeight = FontWeight.Bold,
+            fontSize = 28.sp,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(top = 10.dp, bottom = 10.dp)
+        )
+
+        PartiesSection(partyListState, onClick)
+
+        CreatePartyButton(onClick)
+    }
+}
+
+@Composable
+fun BackButton(webViewNavigator: WebViewNavigator, navController: NavHostController) {
+    Icon(
+        imageVector = Icons.Default.ArrowBack,
+        contentDescription = "뒤로 가기",
+        modifier = Modifier.clickable {
+            if (webViewNavigator.canGoBack) {
+                webViewNavigator.navigateBack()
+            } else {
+                navController.popBackStack()
             }
         }
     )
+}
+
+@Composable
+fun PartiesSection(partyListState: List<Party>, onClick: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            if (partyListState.isEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.7f)
+                        .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    NoPartiesAvailable()
+                }
+            } else {
+                PartiesList(partyListState = partyListState,
+                    modifier = Modifier.weight(1f)) {
+                    }
+            }
+            CreatePartyButton {
+            }
+        }
+    }
+}
+
+@Composable
+fun NoPartiesAvailable() {
+    Icon(
+        imageVector = Icons.Default.Close,
+        contentDescription = "No parties available",
+        modifier = Modifier.size(120.dp),
+        tint = Color.Red
+    )
+    Text(
+        text = "현재 개설된 파티가 없습니다.",
+        fontSize = 20.sp,
+        modifier = Modifier.padding(top = 8.dp)
+    )
+}
+
+@Composable
+fun PartiesList(partyListState: List<Party>, modifier: Modifier, onClick: () -> Unit) {
+    LazyColumn(
+        modifier = modifier
+    ) {
+        items(
+            items = partyListState,
+            key = { party -> party.postId }
+        ) { party ->
+            PartyItem(party = party, onJoinClick = {})
+        }
+    }
+}
+
+@Composable
+fun CreatePartyButton(onClick: () -> Unit) {
+    LongRectangleButtonWithParams(
+        text = "파티원 구하기",
+        fontSize = 25.sp,
+        height = 60.dp,
+        useFillMaxWidth = true,
+        padding = PaddingValues(
+            top = 8.dp,
+            bottom = 8.dp,
+            start = 15.dp,
+            end = 15.dp
+        ),
+        backgroundColor = Remon400,
+        contentColor = Color.Black,
+        shape = RoundedCornerShape(12.dp)
+    ) {}
+}
+
+@Composable
+fun DetailBottomSheet(
+    party: SearchItem?,
+    recruitmentCount: String,
+    recruitmentDetails: String,
+    onRecruitmentCountChange: (String) -> Unit,
+    onRecruitmentDetailsChange: (String) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "같이 살 사람 구하기",
+            fontSize = 26.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
+
+        Spacer(modifier = Modifier.padding(top = 10.dp))
+
+        Text(
+            text = "같이 갈 사람이 없다면 직접 \n만들어보세요",
+            fontSize = 18.sp,
+            color = Gray200
+        )
+
+        Spacer(modifier = Modifier.padding(top = 20.dp))
+
+        Text(
+            text = "맛집",
+            fontSize = 17.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
+
+        Text(
+            text = party?.title ?: "제목이 제공되지 않습니다.",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
+
+        Spacer(modifier = Modifier.padding(top = 10.dp))
+
+        Text(
+            text = "장소",
+            fontSize = 17.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
+
+        Text(
+            text = party?.roadAddress ?: "주소가 제공되지 않습니다.",
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.padding(top = 10.dp))
+
+        Text(
+            text = "모집 인원*",
+            fontSize = 17.sp,
+            fontWeight = FontWeight.Bold,
+            color = if (recruitmentCount.isEmpty()) {
+                Color.Red
+            } else {
+                Color.Black
+            }
+
+        )
+
+        Spacer(modifier = Modifier.padding(top = 5.dp))
+
+        OutlinedTextField(
+            value = recruitmentCount,
+            onValueChange = { newValue ->
+                if (newValue.isDigitsOnly()) {
+                    onRecruitmentCountChange(newValue)
+                }
+            },
+            textStyle = TextStyle(fontSize = 17.sp),
+            label = { Text("모집 인원") },
+            modifier = Modifier.fillMaxWidth(),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                errorLabelColor = Color.Red,
+                cursorColor = Color.Black,
+                unfocusedLabelColor = if (recruitmentCount.isEmpty()) Color.Red else Color.Black,
+                focusedLabelColor = Color.Black,
+                errorBorderColor = Color.Red,
+                focusedBorderColor = Color.Black,
+                unfocusedBorderColor = if (recruitmentCount.isEmpty()) Color.Red else Color.Black
+            ),
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Number
+            ),
+            isError = recruitmentCount.isEmpty()
+        )
+
+        Spacer(modifier = Modifier.padding(top = 10.dp))
+
+        Text(
+            text = "세부사항",
+            fontSize = 17.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
+
+        Spacer(modifier = Modifier.padding(top = 5.dp))
+
+        OutlinedTextField(
+            value = recruitmentDetails,
+            onValueChange = { newValue ->
+                onRecruitmentDetailsChange(newValue)
+            },
+            textStyle = TextStyle(fontSize = 17.sp),
+            label = { Text("모집 세부사항") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.7f),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color.Black,
+                unfocusedBorderColor = Color.Black,
+                errorLabelColor = Color.Red,
+                unfocusedLabelColor = Color.Black,
+                focusedLabelColor = Color.Black,
+                cursorColor = Color.Black
+            )
+        )
+        LongRectangleButtonWithParams(
+            text = "파티 등록",
+            fontSize = 25.sp,
+            height = 60.dp,
+            useFillMaxWidth = true,
+            padding = PaddingValues(
+                top = 8.dp,
+                bottom = 8.dp,
+                start = 15.dp,
+                end = 15.dp
+            ),
+            backgroundColor = Remon400,
+            contentColor = Color.Black,
+            shape = RoundedCornerShape(12.dp)
+        ) {}
+    }
 }
 
 @Composable
@@ -249,24 +539,5 @@ fun PartyItem(
                 )
             }
         }
-    }
-}
-
-@Preview
-@Composable
-fun PartyItemPreview() {
-    DoEatTheme {
-        val dummyParty = Party(
-            postId = 11,
-            userId = 4,
-            restaurantName = "마노디셰프1231231212231231313131313123",
-            restaurantLocation = "서울특별시 송파구 송파대로 570 타워 730 B1",
-            recruitmentLimit = 10,
-            currentNumberPeople = 5,
-            detail = "This is a party description. This is a party description. This is a party description. This is a party description. This is a party description. This is a party description.",
-            link = "",
-            category = "음식점>이탈리아 음식 12313123131312312"
-        )
-        PartyItem(party = dummyParty, onJoinClick = {})
     }
 }
