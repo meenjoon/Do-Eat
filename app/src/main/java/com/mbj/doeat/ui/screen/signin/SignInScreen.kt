@@ -20,10 +20,8 @@ import androidx.compose.material.CheckboxDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +38,7 @@ import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import com.mbj.doeat.R
 import com.mbj.doeat.data.remote.model.LoginRequest
+import com.mbj.doeat.ui.component.LoadingView
 import com.mbj.doeat.ui.theme.Yellow700
 import com.mbj.doeat.ui.screen.signin.viewmodel.SignInViewModel
 
@@ -48,96 +47,117 @@ fun SignInScreen(
     viewModel: SignInViewModel = hiltViewModel(),
     navHostController: NavHostController
 ) {
-    var isAutoLogin by remember { mutableStateOf(viewModel.isAutoLoginEnabled()) }
+    viewModel.checkAccessTokenAndNavigate(navHostController)
+
     val context = LocalContext.current
 
+    val isAutoLogin by viewModel.isAutoLoginState.collectAsState()
+    val isLoadingView by viewModel.isLoadingView.collectAsState()
+
     val kakaoCallback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
+        viewModel.setLoadingState(true)
         when {
             error != null -> {
                 Log.e("Kakao", "카카오 계정 로그인 실패", error)
             }
+
             token != null -> {
                 loginWithKakaoNickName(viewModel, navHostController)
                 Log.d("Kakao", "token : ${token.accessToken}")
             }
         }
     }
-    viewModel.checkAccessTokenAndNavigate(navHostController)
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 로그인 버튼
-        Box(
+        Column(
             modifier = Modifier
-                .width(200.dp)
-                .height(55.dp)
-                .clip(MaterialTheme.shapes.medium)
-                .background(Yellow700)
-                .clickable {
-                    loginKakao(context, kakaoCallback)
-                }
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
+            // 로그인 버튼
+            Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .width(200.dp)
+                    .height(55.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(Yellow700)
+                    .clickable {
+                        loginKakao(context, kakaoCallback)
+                    }
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.signin_kakao),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
+                Row(
                     modifier = Modifier
-                        .size(40.dp)
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.signin_kakao),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(40.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Text(
+                        text = "카카오 로그인",
+                        style = MaterialTheme.typography.body1,
+                        color = Color.Black,
+                    )
+                }
+            }
+
+            // 자동 로그인 체크 박스
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Checkbox(
+                    checked = isAutoLogin,
+                    onCheckedChange = { isChecked ->
+                        viewModel.setAutoLoginEnabled(isChecked)
+                    },
+                    modifier = Modifier.padding(end = 8.dp),
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = Yellow700,
+                        checkmarkColor = Color.Black
+                    )
                 )
 
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Text(
-                    text = "카카오 로그인",
-                    style = MaterialTheme.typography.body1,
-                    color = Color.Black,
-                )
+                Text(text = "자동 로그인")
             }
         }
 
-        // 자동 로그인 체크 박스
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(8.dp)
-        ) {
-            Checkbox(
-                checked = isAutoLogin,
-                onCheckedChange = { isChecked ->
-                    viewModel.setAutoLoginEnabled(isChecked)
-                    isAutoLogin = isChecked
-                },
-                modifier = Modifier.padding(end = 8.dp),
-                colors = CheckboxDefaults.colors(
-                    checkedColor = Yellow700,
-                    checkmarkColor = Color.Black
-                )
-            )
-
-            Text(text = "자동 로그인")
-        }
+        LoadingView(
+            isLoading = isLoadingView,
+        )
     }
 }
 
-private fun loginWithKakaoNickName(viewModel: SignInViewModel, navHostController: NavHostController) {
+private fun loginWithKakaoNickName(
+    viewModel: SignInViewModel,
+    navHostController: NavHostController
+) {
     UserApiClient.instance.me { user, error ->
         when {
             error != null -> {
                 Log.e("Kakao", "사용자 정보 실패", error)
             }
+
             user != null -> {
                 if (user.id != null && user.kakaoAccount?.profile?.nickname != null && user.kakaoAccount!!.profile?.thumbnailImageUrl != null) {
-                    val loginRequest = LoginRequest(user.id!!, user.kakaoAccount?.profile?.nickname!!, user.kakaoAccount?.profile?.thumbnailImageUrl!!)
+                    val loginRequest = LoginRequest(
+                        user.id!!,
+                        user.kakaoAccount?.profile?.nickname!!,
+                        user.kakaoAccount?.profile?.thumbnailImageUrl!!
+                    )
                     viewModel.signIn(loginRequest, navHostController)
                 }
             }

@@ -12,6 +12,7 @@ val Beige50 = Color(0xFFFFF1F1)
 val Beige100 = Color(0xFFEBDFDF)
 val Remon400 = Color(0xFFF4FF7F)
 val Pink500 = Color(0xFFFF7F7F)
+val Black700 = Color(0x77000000)
 
 val randomColors = listOf(
     Color.Red,

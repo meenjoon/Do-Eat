@@ -16,12 +16,20 @@ import javax.inject.Inject
 import com.kakao.sdk.user.UserApiClient
 import com.mbj.doeat.data.remote.model.FindUserRequest
 import com.mbj.doeat.util.UserDataStore.saveLoginResponse
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 @HiltViewModel
 class SignInViewModel @Inject constructor(
     private val defaultDBRepository: DefaultDBRepository,
     private val userPreferenceRepository: UserPreferenceRepository
 ) : ViewModel() {
+
+    private val _isAutoLoginState = MutableStateFlow<Boolean>(userPreferenceRepository.getSaveAutoLoginState())
+    val isAutoLoginState: StateFlow<Boolean> = _isAutoLoginState
+
+    private val _isLoadingView = MutableStateFlow<Boolean>(false)
+    val isLoadingView: StateFlow<Boolean> = _isLoadingView
 
     fun signIn(
         loginRequest: LoginRequest,
@@ -49,11 +57,16 @@ class SignInViewModel @Inject constructor(
     fun checkAccessTokenAndNavigate(navHostController: NavHostController) {
         viewModelScope.launch {
             UserApiClient.instance.accessTokenInfo { tokenInfo, error ->
+                setLoadingState(true)
                 if (tokenInfo != null) {
                     val isAutoLogin = userPreferenceRepository.getSaveAutoLoginState()
                     if (isAutoLogin) {
                         findUserAndNavigateHome(tokenInfo.id!!, navHostController)
+                    } else {
+                        setLoadingState(false)
                     }
+                } else {
+                    setLoadingState(false)
                 }
             }
         }
@@ -80,11 +93,12 @@ class SignInViewModel @Inject constructor(
         }
     }
 
-    fun setAutoLoginEnabled(boolean: Boolean) {
-        userPreferenceRepository.saveAutoLoginState(boolean)
+    fun setAutoLoginEnabled(isChecked: Boolean) {
+        userPreferenceRepository.saveAutoLoginState(isChecked)
+        _isAutoLoginState.value = isChecked
     }
 
-    fun isAutoLoginEnabled(): Boolean {
-        return userPreferenceRepository.getSaveAutoLoginState()
+    fun setLoadingState(isLoading: Boolean) {
+        _isLoadingView.value = isLoading
     }
 }
