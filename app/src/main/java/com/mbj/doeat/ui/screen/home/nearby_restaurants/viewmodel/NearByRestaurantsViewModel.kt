@@ -49,8 +49,8 @@ class NearByRestaurantsViewModel @Inject constructor(
     private val _searchResultCollapse = MutableSharedFlow<Boolean>()
     val searchResultCollapse: SharedFlow<Boolean> = _searchResultCollapse
 
-    private val _searchResultCollapseCount = MutableStateFlow<Int>(0)
-    val searchResultCollapseCount: StateFlow<Int> = _searchResultCollapseCount
+    private val _showSearchResultCollapse = MutableStateFlow<Boolean>(false)
+    val showSearchResultCollapse: StateFlow<Boolean> = _showSearchResultCollapse
 
     init {
         viewModelScope.launch {
@@ -106,7 +106,7 @@ class NearByRestaurantsViewModel @Inject constructor(
     fun toggleSearchResultCollapsed() {
         viewModelScope.launch {
             _searchResultCollapse.emit(true)
-            _searchResultCollapseCount.value = _searchResultCollapseCount.value + 1
+            _showSearchResultCollapse.value = !_showSearchResultCollapse.value
         }
     }
 }
