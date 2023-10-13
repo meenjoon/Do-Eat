@@ -53,7 +53,7 @@ fun PartyItem(
                     overflow = TextOverflow.Ellipsis,
                     color = Color.Black,
                     modifier = Modifier
-                        .fillMaxWidth(0.6f)
+                        .fillMaxWidth(0.55f)
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -101,7 +101,7 @@ fun PartyItem(
                     fontSize = 22.sp,
                     color = Color.Black,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier
+                    modifier = Modifier.fillMaxWidth(0.22f)
                 )
 
                 Spacer(modifier = Modifier.width(40.dp))
