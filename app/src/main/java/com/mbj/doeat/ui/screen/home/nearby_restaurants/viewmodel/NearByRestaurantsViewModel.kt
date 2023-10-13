@@ -28,8 +28,8 @@ class NearByRestaurantsViewModel @Inject constructor(
     private val _isLocationPermissionDenied = MutableSharedFlow<Boolean>()
     val isLocationPermissionDenied: SharedFlow<Boolean> = _isLocationPermissionDenied.asSharedFlow()
 
-    private val _isLocationPermissionDeniedCount = MutableStateFlow<Int>(0)
-    val isLocationPermissionDeniedCount: StateFlow<Int> = _isLocationPermissionDeniedCount
+    private val _showLocationPermissionDeniedToast = MutableStateFlow<Boolean>(false)
+    val showLocationPermissionDeniedToast: StateFlow<Boolean> = _showLocationPermissionDeniedToast
 
     private val _searchResult = MutableSharedFlow<SearchResult>()
     val searchResult: SharedFlow<SearchResult> = _searchResult.asSharedFlow()
@@ -43,14 +43,14 @@ class NearByRestaurantsViewModel @Inject constructor(
     private val _isSearchInvalid = MutableSharedFlow<Boolean>()
     val isSearchInvalid: SharedFlow<Boolean> = _isSearchInvalid.asSharedFlow()
 
-    private val _isSearchInvalidCount = MutableStateFlow<Int>(0)
-    val isSearchInvalidCount: StateFlow<Int> = _isSearchInvalidCount
+    private val _showSearchInvalidToast = MutableStateFlow<Boolean>(false)
+    val showSearchInvalidToast: StateFlow<Boolean> = _showSearchInvalidToast
 
     private val _searchResultCollapse = MutableSharedFlow<Boolean>()
     val searchResultCollapse: SharedFlow<Boolean> = _searchResultCollapse
 
-    private val _searchResultCollapseCount = MutableStateFlow<Int>(0)
-    val searchResultCollapseCount: StateFlow<Int> = _searchResultCollapseCount
+    private val _showSearchResultCollapse = MutableStateFlow<Boolean>(false)
+    val showSearchResultCollapse: StateFlow<Boolean> = _showSearchResultCollapse
 
     init {
         viewModelScope.launch {
@@ -67,7 +67,7 @@ class NearByRestaurantsViewModel @Inject constructor(
     fun setLocationPermissionDenied() {
         viewModelScope.launch {
             _isLocationPermissionDenied.emit(true)
-            _isLocationPermissionDeniedCount.value = _isLocationPermissionDeniedCount.value + 1
+            _showLocationPermissionDeniedToast.value = !_showLocationPermissionDeniedToast.value
         }
     }
 
@@ -98,7 +98,7 @@ class NearByRestaurantsViewModel @Inject constructor(
         viewModelScope.launch {
             if (searchResult.items.isEmpty()) {
                 _isSearchInvalid.emit(true)
-                _isSearchInvalidCount.value = _isSearchInvalidCount.value + 1
+                _showSearchInvalidToast.value = !_showSearchInvalidToast.value
             }
         }
     }
@@ -106,7 +106,7 @@ class NearByRestaurantsViewModel @Inject constructor(
     fun toggleSearchResultCollapsed() {
         viewModelScope.launch {
             _searchResultCollapse.emit(true)
-            _searchResultCollapseCount.value = _searchResultCollapseCount.value + 1
+            _showSearchResultCollapse.value = !_showSearchResultCollapse.value
         }
     }
 }

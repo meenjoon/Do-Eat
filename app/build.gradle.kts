@@ -34,6 +34,7 @@ android {
         buildConfigField("String", "NAVER_OEPNAPI_BASE_URL", properties.getProperty("naver_openapi_base_url"))
         buildConfigField("String", "NAVER_OEPNAPI_CLIENT_ID", properties.getProperty("naver_openapi_client_id"))
         buildConfigField("String", "NAVER_OEPNAPI_CLIENT_SECRET", properties.getProperty("naver_openapi_client_secret"))
+        buildConfigField("String", "NAVER_SEARCH_BASE_URL", properties.getProperty("naver_search_base_url"))
         buildConfigField("String", "DOEAT_BASE_URL", properties.getProperty("doeat_base_url"))
 
         manifestPlaceholders["KAKAO_SIGNIN_NATIVE_KEY"] = KAKAO_SIGNIN_NATIVE_KEY
@@ -112,4 +113,7 @@ dependencies {
     // Kotlin Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.1")
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0")
+
+    // WebView
+    implementation("com.google.accompanist:accompanist-webview:0.24.13-rc")
 }

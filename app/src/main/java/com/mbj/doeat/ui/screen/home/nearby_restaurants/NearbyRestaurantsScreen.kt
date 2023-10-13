@@ -67,12 +67,15 @@ import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
 import com.mbj.doeat.ui.component.MainAppBar
 import com.mbj.doeat.ui.component.RoundedLine
 import com.mbj.doeat.ui.component.ToastMessage
+import com.mbj.doeat.ui.graph.DetailScreen
 import com.mbj.doeat.ui.model.SearchWidgetState
 import com.mbj.doeat.ui.screen.home.nearby_restaurants.viewmodel.NearByRestaurantsViewModel
 import com.mbj.doeat.ui.theme.Yellow700
 import com.mbj.doeat.ui.theme.randomColors
 import com.mbj.doeat.util.MapConverter.formatLatLng
 import com.mbj.doeat.util.MapConverter.removeHtmlTags
+import com.mbj.doeat.util.NavigationUtils
+import com.mbj.doeat.util.UrlUtils.encodeUrl
 
 @OptIn(ExperimentalNaverMapApi::class, ExperimentalMaterialApi::class)
 @Composable
@@ -94,7 +97,14 @@ fun NearbyRestaurantsScreen(
     val searchTextState by viewModel.searchTextState.collectAsState()
     val searchResultState by viewModel.searchResult.collectAsState(initial = SearchResult(emptyList()))
     val searchResultCollapseState by viewModel.searchResultCollapse.collectAsState(initial = false)
-    val searchResultCollapseCountState by viewModel.searchResultCollapseCount.collectAsState()
+    val showSearchResultCollapseState by viewModel.showSearchResultCollapse.collectAsState()
+    val showLocationPermissionDeniedToastState =
+        viewModel.showLocationPermissionDeniedToast.collectAsState().value
+    val isLocationPermissionDeniedState =
+        viewModel.isLocationPermissionDenied.collectAsState(initial = false).value
+    val showSearchInvalidToastState = viewModel.showSearchInvalidToast.collectAsState().value
+    val isSearchInvalidState = viewModel.isSearchInvalid.collectAsState(initial = false).value
+
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
         position = CameraPosition(myLocationInfoState, 11.0)
     }
@@ -144,7 +154,7 @@ fun NearbyRestaurantsScreen(
                     .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
                     .offset(y = 15.dp)
             ) {
-                MyBottomSheetContent(viewModel, cameraPositionState)
+                MyBottomSheetContent(viewModel, cameraPositionState, navController)
             }
         },
         sheetPeekHeight = 150.dp,
@@ -175,7 +185,12 @@ fun NearbyRestaurantsScreen(
             )
         }
     ) {
-        CollapseBottomSheetIfRequired(bottomSheetState, searchResultCollapseState, searchResultCollapseCountState)
+        CollapseBottomSheetIfRequired(
+            bottomSheetState = bottomSheetState,
+            collapseOnEvent = showSearchResultCollapseState,
+            shouldCollapse = searchResultCollapseState
+        )
+
         Box(
             modifier = Modifier.fillMaxSize(),
         ) {
@@ -184,17 +199,27 @@ fun NearbyRestaurantsScreen(
                     searchResultState.items.forEachIndexed { index, searchItem ->
                         val iconTintColor = randomColors[index % randomColors.size]
                         Marker(
-                            state = MarkerState(position = formatLatLng(searchItem.mapy, searchItem.mapx)),
+                            state = MarkerState(
+                                position = formatLatLng(
+                                    searchItem.mapy,
+                                    searchItem.mapx
+                                )
+                            ),
                             captionText = removeHtmlTags(searchItem.title),
                             iconTintColor = iconTintColor
                         )
                     }
                     cameraPositionState.move(
-                        CameraUpdate.scrollAndZoomTo(formatLatLng(searchResultState.items.first().mapy, searchResultState.items.first().mapx), 18.0)
+                        CameraUpdate.scrollAndZoomTo(
+                            formatLatLng(
+                                searchResultState.items.first().mapy,
+                                searchResultState.items.first().mapx
+                            ), 18.0
+                        )
                             .animate(CameraAnimation.Easing)
                     )
                 }
-                if(myLocationInfoState != LatLng(37.532600, 127.024612)) {
+                if (myLocationInfoState != LatLng(37.532600, 127.024612)) {
                     Marker(
                         state = MarkerState(position = myLocationInfoState),
                         captionText = "내 위치",
@@ -227,14 +252,14 @@ fun NearbyRestaurantsScreen(
                     .padding(16.dp)
                     .align(Alignment.BottomStart)
                     .offset(y = (-190).dp),
-                showMessage = viewModel.isLocationPermissionDenied.collectAsState(initial = false).value,
-                clickCount = viewModel.isLocationPermissionDeniedCount.collectAsState().value,
+                showToast = showLocationPermissionDeniedToastState,
+                showMessage = isLocationPermissionDeniedState,
                 message = "위치 권한이 거부되었습니다.\n허용 후 다시 시도해주세요."
             )
             ToastMessage(
                 modifier = Modifier.padding(16.dp),
-                showMessage = viewModel.isSearchInvalid.collectAsState(initial = false).value,
-                clickCount = viewModel.isSearchInvalidCount.collectAsState().value,
+                showToast = showSearchInvalidToastState,
+                showMessage = isSearchInvalidState,
                 message = "올바른 지역을 입력해주세요."
             )
         }
@@ -261,7 +286,11 @@ fun updateMyLocation(
 }
 
 @Composable
-fun MyBottomSheetContent(viewModel: NearByRestaurantsViewModel, cameraPositionState: CameraPositionState) {
+fun MyBottomSheetContent(
+    viewModel: NearByRestaurantsViewModel,
+    cameraPositionState: CameraPositionState,
+    navController: NavHostController
+) {
     val searchResult by viewModel.searchResult.collectAsState(initial = SearchResult(emptyList()))
     Column(
         modifier = Modifier
@@ -289,7 +318,11 @@ fun MyBottomSheetContent(viewModel: NearByRestaurantsViewModel, cameraPositionSt
                 items = searchResult.items,
                 key = { searchItem -> searchItem.hashCode() }
             ) { searchItem ->
-                MyBottomSheetContentItem(searchItem = searchItem, cameraPositionState = cameraPositionState)
+                MyBottomSheetContentItem(
+                    searchItem = searchItem,
+                    cameraPositionState = cameraPositionState,
+                    navController = navController
+                )
             }
         }
     }
@@ -297,7 +330,11 @@ fun MyBottomSheetContent(viewModel: NearByRestaurantsViewModel, cameraPositionSt
 
 @OptIn(ExperimentalNaverMapApi::class)
 @Composable
-fun MyBottomSheetContentItem(searchItem: SearchItem,cameraPositionState: CameraPositionState,) {
+fun MyBottomSheetContentItem(
+    searchItem: SearchItem,
+    cameraPositionState: CameraPositionState,
+    navController: NavHostController
+) {
     Spacer(modifier = Modifier.height(16.dp))
     Column(modifier = Modifier.clickable {
         cameraPositionState.move(
@@ -313,11 +350,14 @@ fun MyBottomSheetContentItem(searchItem: SearchItem,cameraPositionState: CameraP
                 modifier = Modifier
                     .padding(start = 10.dp, end = 10.dp)
             ) {
-                Text(text = removeHtmlTags(searchItem.title),
+                Text(
+                    text = removeHtmlTags(searchItem.title),
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold)
+                    fontWeight = FontWeight.Bold
+                )
                 Spacer(modifier = Modifier.width(5.dp))
-                Text(text = searchItem.category,
+                Text(
+                    text = searchItem.category,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Gray
@@ -329,21 +369,28 @@ fun MyBottomSheetContentItem(searchItem: SearchItem,cameraPositionState: CameraP
                 modifier = Modifier
                     .padding(start = 10.dp, end = 10.dp)
             ) {
-                Text(text = searchItem.roadAddress,
-                    fontSize = 16.sp)
+                Text(
+                    text = searchItem.roadAddress,
+                    fontSize = 16.sp
+                )
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
-        LongRectangleButtonWithParams(text = "상세보기",
+        LongRectangleButtonWithParams(
+            text = "상세보기",
             height = 40.dp,
             useFillMaxWidth = true,
             padding = PaddingValues(start = 30.dp, end = 30.dp, top = 10.dp, bottom = 10.dp),
             backgroundColor = Yellow700,
             contentColor = Color.Black
         ) {
-            /**
-             * 상세보기 버튼을 클릭했을 때 실행할 동작 TODO
-             */
+            val encodedLink = encodeUrl(searchItem.link)
+            val titleWithoutHtmlTags = removeHtmlTags(searchItem.title)
+            NavigationUtils.navigate(
+                navController, DetailScreen.Detail.navigateWithArg(
+                    searchItem.copy(title = titleWithoutHtmlTags, link = encodedLink)
+                )
+            )
         }
         Divider(
             modifier = Modifier.fillMaxWidth(),
@@ -393,10 +440,10 @@ fun handleLocationPermission(
 @Composable
 fun CollapseBottomSheetIfRequired(
     bottomSheetState: BottomSheetState,
+    collapseOnEvent: Boolean,
     shouldCollapse: Boolean,
-    eventCount: Int
 ) {
-    LaunchedEffect(eventCount) {
+    LaunchedEffect(collapseOnEvent) {
         if (shouldCollapse) {
             bottomSheetState.collapse()
         }
