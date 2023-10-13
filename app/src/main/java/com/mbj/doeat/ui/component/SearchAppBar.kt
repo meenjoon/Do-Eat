@@ -2,6 +2,8 @@ package com.mbj.doeat.ui.component
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -15,8 +17,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mbj.doeat.ui.model.SearchWidgetState
+import com.mbj.doeat.ui.theme.Beige100
 import com.mbj.doeat.ui.theme.Yellow700
 
 @Composable
@@ -88,9 +92,12 @@ fun DefaultAppBar(
 @Composable
 fun SearchAppBar(
     text: String,
+    height: Dp ? = null,
+    leftAndRightPaddingDp: Dp ? = null,
     backgroundColor: Color,
     contentColor: Color,
     searchAppBarText: String,
+    roundedCornerShape: RoundedCornerShape? = null,
     onTextChange: (String) -> Unit,
     onCloseClicked: () -> Unit,
     onSearchClicked: (String) -> Unit,
@@ -98,9 +105,11 @@ fun SearchAppBar(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp),
+            .height(height ?: 56.dp)
+            .padding(leftAndRightPaddingDp ?: 0.dp),
         elevation = AppBarDefaults.TopAppBarElevation,
-        color = backgroundColor
+        color = backgroundColor,
+        shape = roundedCornerShape ?: RoundedCornerShape(0.dp)
     ) {
         TextField(modifier = Modifier
             .fillMaxWidth(),
@@ -160,7 +169,7 @@ fun SearchAppBar(
                 }
             ),
             colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = Yellow700,
+                backgroundColor = backgroundColor,
                 cursorColor = contentColor.copy(alpha = ContentAlpha.medium)
             ))
     }
@@ -182,7 +191,7 @@ fun DefaultAppBarPreview() {
 fun SearchAppBarPreview() {
     SearchAppBar(
         text = "",
-        backgroundColor = Yellow700,
+        backgroundColor = Beige100,
         contentColor = Color.Black,
         searchAppBarText = "힌트 메세지",
         onTextChange = {},
