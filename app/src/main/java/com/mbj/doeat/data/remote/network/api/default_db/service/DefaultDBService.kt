@@ -24,4 +24,7 @@ interface DefaultDBService {
 
     @POST("user/find")
     suspend fun findUser(@Body findUserRequest: FindUserRequest): ApiResponse<LoginResponse>
+
+    @GET("party/all")
+    suspend fun getAllPartyList(): ApiResponse<List<Party>>
 }

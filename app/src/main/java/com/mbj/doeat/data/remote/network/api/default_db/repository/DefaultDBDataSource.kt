@@ -109,4 +109,24 @@ class DefaultDBDataSource @Inject constructor(
     }.onCompletion {
         onComplete()
     }.flowOn(defaultDispatcher)
+
+    override fun getAllPartyList(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit
+    ): Flow<ApiResponse<List<Party>>> = flow {
+        try {
+            val response = defaultDBService.getAllPartyList()
+            response.onSuccess {
+                emit(response)
+            }.onError { code, message ->
+                onError("code: $code, message: $message")
+            }.onException {
+                onError(it.message)
+            }
+        } catch (e: Exception) {
+            onError(e.message)
+        }
+    }.onCompletion {
+        onComplete()
+    }.flowOn(defaultDispatcher)
 }

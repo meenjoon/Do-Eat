@@ -61,4 +61,14 @@ class DefaultDBRepository @Inject constructor(
             onError = onError
         )
     }
+
+    override fun getAllPartyList(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit
+    ): Flow<ApiResponse<List<Party>>> {
+        return defaultDBDataSource.getAllPartyList(
+            onComplete = onComplete,
+            onError = onError
+        )
+    }
 }
