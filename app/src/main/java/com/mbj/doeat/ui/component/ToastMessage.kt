@@ -14,16 +14,16 @@ import kotlinx.coroutines.launch
 @Composable
 fun ToastMessage(
     modifier: Modifier = Modifier,
+    showToast: Boolean,
     showMessage: Boolean,
     message: String,
-    clickCount: Int,
     duration: SnackbarDuration = SnackbarDuration.Short
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(clickCount) {
+    LaunchedEffect(showToast) {
         if (showMessage) {
             scope.launch {
                 snackbarHostState.showSnackbar(

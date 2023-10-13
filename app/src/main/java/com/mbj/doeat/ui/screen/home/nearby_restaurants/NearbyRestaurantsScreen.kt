@@ -75,7 +75,6 @@ import com.mbj.doeat.ui.theme.randomColors
 import com.mbj.doeat.util.MapConverter.formatLatLng
 import com.mbj.doeat.util.MapConverter.removeHtmlTags
 import com.mbj.doeat.util.NavigationUtils
-import com.mbj.doeat.util.UrlUtils
 import com.mbj.doeat.util.UrlUtils.encodeUrl
 
 @OptIn(ExperimentalNaverMapApi::class, ExperimentalMaterialApi::class)
@@ -99,6 +98,11 @@ fun NearbyRestaurantsScreen(
     val searchResultState by viewModel.searchResult.collectAsState(initial = SearchResult(emptyList()))
     val searchResultCollapseState by viewModel.searchResultCollapse.collectAsState(initial = false)
     val searchResultCollapseCountState by viewModel.searchResultCollapseCount.collectAsState()
+    val showLocationPermissionDeniedToastState = viewModel.showLocationPermissionDeniedToast.collectAsState().value
+    val isLocationPermissionDeniedState = viewModel.isLocationPermissionDenied.collectAsState(initial = false).value
+    val showSearchInvalidToastState = viewModel.showSearchInvalidToast.collectAsState().value
+    val isSearchInvalidState = viewModel.isSearchInvalid.collectAsState(initial = false).value
+
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
         position = CameraPosition(myLocationInfoState, 11.0)
     }
@@ -231,14 +235,14 @@ fun NearbyRestaurantsScreen(
                     .padding(16.dp)
                     .align(Alignment.BottomStart)
                     .offset(y = (-190).dp),
-                showMessage = viewModel.isLocationPermissionDenied.collectAsState(initial = false).value,
-                clickCount = viewModel.isLocationPermissionDeniedCount.collectAsState().value,
+                showToast = showLocationPermissionDeniedToastState,
+                showMessage = isLocationPermissionDeniedState,
                 message = "위치 권한이 거부되었습니다.\n허용 후 다시 시도해주세요."
             )
             ToastMessage(
                 modifier = Modifier.padding(16.dp),
-                showMessage = viewModel.isSearchInvalid.collectAsState(initial = false).value,
-                clickCount = viewModel.isSearchInvalidCount.collectAsState().value,
+                showToast = showSearchInvalidToastState,
+                showMessage = isSearchInvalidState,
                 message = "올바른 지역을 입력해주세요."
             )
         }
