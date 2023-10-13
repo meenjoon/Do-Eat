@@ -63,6 +63,7 @@ import com.mbj.doeat.BuildConfig
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.SearchItem
 import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
+import com.mbj.doeat.ui.component.ToastMessage
 import com.mbj.doeat.ui.component.YesNoDialog
 import com.mbj.doeat.ui.screen.home.detail.viewmodel.DetailViewModel
 import com.mbj.doeat.ui.theme.Beige100
@@ -125,6 +126,7 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
         sheetPeekHeight = 0.dp,
         content = { padding ->
             ExpandBottomSheetIfRequired(bottomSheetState, isBottomSheetExpandedState)
+
             DetailContent(
                 viewModel = viewModel,
                 navController = navController,
@@ -136,6 +138,7 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
                 onClick = onClick,
                 padding = padding
             )
+
             YesNoDialog(
                 showDialog = showCreatePartyDialogState,
                 onYesClick = { viewModel.postParty(navHostController = navController) },
@@ -226,6 +229,13 @@ fun DetailContent(
                     tint = Yellow700
                 )
             }
+
+            ToastMessage(
+                modifier = Modifier.padding(16.dp).align(Alignment.TopCenter),
+                showToast = viewModel.showValidRecruitmentCount.collectAsState().value,
+                showMessage = viewModel.isValidRecruitmentCount.collectAsState(initial = false).value,
+                message = "모집인원을 입력해주세요."
+            )
         }
 
         Text(

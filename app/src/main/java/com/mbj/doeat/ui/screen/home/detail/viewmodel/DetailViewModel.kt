@@ -12,8 +12,11 @@ import com.mbj.doeat.ui.graph.Graph
 import com.mbj.doeat.ui.screen.home.detail.getUrl
 import com.mbj.doeat.util.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -38,6 +41,12 @@ class DetailViewModel @Inject constructor(private val defaultDBRepository: Defau
 
     private val _showCreatePartyDialog = MutableStateFlow<Boolean>(false)
     val showCreatePartyDialog: StateFlow<Boolean> = _showCreatePartyDialog
+
+    private val _isValidRecruitmentCount = MutableSharedFlow<Boolean>()
+    val isValidRecruitmentCount: SharedFlow<Boolean> = _isValidRecruitmentCount.asSharedFlow()
+
+    private val _showValidRecruitmentCount = MutableStateFlow<Boolean>(false)
+    val showValidRecruitmentCount: StateFlow<Boolean> = _showValidRecruitmentCount
 
     init {
         viewModelScope.launch {
@@ -69,26 +78,31 @@ class DetailViewModel @Inject constructor(private val defaultDBRepository: Defau
 
     fun postParty(navHostController: NavHostController) {
         viewModelScope.launch {
-            defaultDBRepository.postParty(
-                PartyPostRequest(
-                    userId = UserDataStore.getLoginResponse()?.userId!!,
-                    restaurantName = searchItem.value?.title ?: "",
-                    category = searchItem.value?.category ?: "",
-                    restaurantLocation = searchItem.value?.roadAddress ?: "",
-                    recruitmentLimit = recruitmentCount.value.toInt(),
-                    currentNumberPeople = 1,
-                    detail = recruitmentDetails.value,
-                    link = getUrl(searchItem.value)
-                ),
-                onComplete = {
-                },
-                onError = {
-                }
-            ).collectLatest { party ->
-                if (party is ApiResultSuccess) {
-                    navHostController.navigate(Graph.HOME) {
-                        popUpTo(navHostController.graph.id) {
-                            inclusive = true
+            if (recruitmentCount.value == "") {
+                _showCreatePartyDialog.value = false
+                toggleValidToggleRecruitmentCountState()
+            } else {
+                defaultDBRepository.postParty(
+                    PartyPostRequest(
+                        userId = UserDataStore.getLoginResponse()?.userId!!,
+                        restaurantName = searchItem.value?.title ?: "",
+                        category = searchItem.value?.category ?: "",
+                        restaurantLocation = searchItem.value?.roadAddress ?: "",
+                        recruitmentLimit = recruitmentCount.value.toInt(),
+                        currentNumberPeople = 1,
+                        detail = recruitmentDetails.value,
+                        link = getUrl(searchItem.value)
+                    ),
+                    onComplete = {
+                    },
+                    onError = {
+                    }
+                ).collectLatest { party ->
+                    if (party is ApiResultSuccess) {
+                        navHostController.navigate(Graph.HOME) {
+                            popUpTo(navHostController.graph.id) {
+                                inclusive = true
+                            }
                         }
                     }
                 }
@@ -110,5 +124,12 @@ class DetailViewModel @Inject constructor(private val defaultDBRepository: Defau
 
     fun changeShowCreatePartyDialog(showDialog: Boolean) {
         _showCreatePartyDialog.value = showDialog
+    }
+
+    private fun toggleValidToggleRecruitmentCountState() {
+        viewModelScope.launch {
+            _isValidRecruitmentCount.emit(true)
+            _showValidRecruitmentCount.value = !_showValidRecruitmentCount.value
+        }
     }
 }
