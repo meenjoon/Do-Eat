@@ -62,6 +62,7 @@ import com.google.accompanist.web.rememberWebViewState
 import com.mbj.doeat.BuildConfig
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.SearchItem
+import com.mbj.doeat.ui.component.LoadingView
 import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
 import com.mbj.doeat.ui.component.ToastMessage
 import com.mbj.doeat.ui.component.YesNoDialog
@@ -178,84 +179,95 @@ fun DetailContent(
     onClick: () -> Unit,
     padding: PaddingValues
 ) {
-    Column(
-        modifier = Modifier.fillMaxSize()
+    val isPostLoadingViewState by viewModel.isPostLoadingView.collectAsState()
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.Start
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
-            BackButton(navController)
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxHeight(0.5f)
-                .fillMaxWidth()
-                .padding(start = 4.dp, end = 4.dp)
-        ) {
-            WebView(
-                state = webViewState,
-                navigator = webViewNavigator,
-                client = webViewClient,
-                chromeClient = webChromeClient,
-                onCreated = { webView ->
-                    with(webView) {
-                        settings.run {
-                            javaScriptEnabled = true
-                            domStorageEnabled = true
-                            javaScriptCanOpenWindowsAutomatically = false
-                        }
-                    }
-                },
-                modifier = Modifier.fillMaxSize()
-            )
-
-            IconButton(
-                onClick = {
-                    if (webViewNavigator.canGoBack) {
-                        webViewNavigator.navigateBack()
-                    }
-                },
+            Row(
                 modifier = Modifier
-                    .padding(16.dp)
-                    .align(Alignment.TopStart)
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.Start
             ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "뒤로 가기",
-                    tint = Yellow700
+                BackButton(navController)
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight(0.5f)
+                    .fillMaxWidth()
+                    .padding(start = 4.dp, end = 4.dp)
+            ) {
+                WebView(
+                    state = webViewState,
+                    navigator = webViewNavigator,
+                    client = webViewClient,
+                    chromeClient = webChromeClient,
+                    onCreated = { webView ->
+                        with(webView) {
+                            settings.run {
+                                javaScriptEnabled = true
+                                domStorageEnabled = true
+                                javaScriptCanOpenWindowsAutomatically = false
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
+
+                IconButton(
+                    onClick = {
+                        if (webViewNavigator.canGoBack) {
+                            webViewNavigator.navigateBack()
+                        }
+                    },
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.TopStart)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "뒤로 가기",
+                        tint = Yellow700
+                    )
+                }
+
+                ToastMessage(
+                    modifier = Modifier.padding(16.dp).align(Alignment.TopCenter),
+                    showToast = viewModel.showValidRecruitmentCount.collectAsState().value,
+                    showMessage = viewModel.isValidRecruitmentCount.collectAsState(initial = false).value,
+                    message = "모집인원을 입력해주세요."
                 )
             }
 
-            ToastMessage(
-                modifier = Modifier.padding(16.dp).align(Alignment.TopCenter),
-                showToast = viewModel.showValidRecruitmentCount.collectAsState().value,
-                showMessage = viewModel.isValidRecruitmentCount.collectAsState(initial = false).value,
-                message = "모집인원을 입력해주세요."
+            Text(
+                text = "현재 개설된 파티",
+                fontWeight = FontWeight.Bold,
+                fontSize = 28.sp,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 10.dp, bottom = 10.dp)
             )
+
+            PartiesSection(
+                viewModel = viewModel,
+                partyListState = partyListState
+            ) {
+            }
+
+            CreatePartyButton(onClick = {
+                viewModel.toggleBottomSheetState()
+            })
         }
 
-        Text(
-            text = "현재 개설된 파티",
-            fontWeight = FontWeight.Bold,
-            fontSize = 28.sp,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(top = 10.dp, bottom = 10.dp)
+        LoadingView(
+            isLoading = isPostLoadingViewState,
         )
-
-        PartiesSection(
-            viewModel = viewModel,
-            partyListState = partyListState
-        ) {
-        }
-
-        CreatePartyButton(onClick = {
-            viewModel.toggleBottomSheetState()
-        })
     }
 }
 

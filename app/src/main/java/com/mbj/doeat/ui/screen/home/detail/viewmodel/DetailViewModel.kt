@@ -48,6 +48,9 @@ class DetailViewModel @Inject constructor(private val defaultDBRepository: Defau
     private val _showValidRecruitmentCount = MutableStateFlow<Boolean>(false)
     val showValidRecruitmentCount: StateFlow<Boolean> = _showValidRecruitmentCount
 
+    private val _isPostLoadingView = MutableStateFlow<Boolean>(false)
+    val isPostLoadingView: StateFlow<Boolean> = _isPostLoadingView
+
     init {
         viewModelScope.launch {
             searchItem.collectLatest { searchItem ->
@@ -82,6 +85,7 @@ class DetailViewModel @Inject constructor(private val defaultDBRepository: Defau
                 _showCreatePartyDialog.value = false
                 toggleValidToggleRecruitmentCountState()
             } else {
+                setPostLoadingState(true)
                 defaultDBRepository.postParty(
                     PartyPostRequest(
                         userId = UserDataStore.getLoginResponse()?.userId!!,
@@ -99,6 +103,7 @@ class DetailViewModel @Inject constructor(private val defaultDBRepository: Defau
                     }
                 ).collectLatest { party ->
                     if (party is ApiResultSuccess) {
+                        setPostLoadingState(false)
                         navHostController.navigate(Graph.HOME) {
                             popUpTo(navHostController.graph.id) {
                                 inclusive = true
@@ -131,5 +136,9 @@ class DetailViewModel @Inject constructor(private val defaultDBRepository: Defau
             _isValidRecruitmentCount.emit(true)
             _showValidRecruitmentCount.value = !_showValidRecruitmentCount.value
         }
+    }
+
+    private fun setPostLoadingState(isLoading: Boolean) {
+        _isPostLoadingView.value = isLoading
     }
 }
