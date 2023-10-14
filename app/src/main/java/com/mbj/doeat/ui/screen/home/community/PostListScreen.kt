@@ -24,7 +24,9 @@ fun PostListScreen(name: String, onClick: () -> Unit) {
 
     val viewModel: PostListViewModel = hiltViewModel()
 
-    val partyListState by viewModel.partyList.collectAsState()
+    val partyListState by  viewModel.partyList.collectAsState()
+    val searchFilterTextState by viewModel.searchBarText.collectAsState()
+    val filteredPartyList = viewModel.getFilteredPartyList(partyListState, searchFilterTextState)
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -33,14 +35,16 @@ fun PostListScreen(name: String, onClick: () -> Unit) {
             Spacer(modifier = Modifier.height(15.dp))
 
             SearchAppBar(
-                text = "",
+                text = searchFilterTextState,
                 height = 70.dp,
                 leftAndRightPaddingDp = 8.dp,
                 backgroundColor = Remon400,
                 contentColor = Color.Black,
                 searchAppBarText = "파티를 검색해주세요.",
                 roundedCornerShape = RoundedCornerShape(8.dp),
-                onTextChange = {},
+                onTextChange = { newText ->
+                    viewModel.updateSearchBarText(newText)
+                },
                 onCloseClicked = {},
                 onSearchClicked = {}
             )
@@ -49,7 +53,7 @@ fun PostListScreen(name: String, onClick: () -> Unit) {
 
             PartyList(
                 viewModel = viewModel,
-                partyListState = partyListState.sortedByDescending { it.postId },
+                partyListState = filteredPartyList.sortedByDescending { it.postId },
                 modifier = Modifier.fillMaxHeight(0.9f)
             ) {
             }

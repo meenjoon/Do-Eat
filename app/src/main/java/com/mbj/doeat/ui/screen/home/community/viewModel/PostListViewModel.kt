@@ -23,6 +23,9 @@ class PostListViewModel @Inject constructor(private val defaultDBRepository: Def
         initialValue = emptyList()
     )
 
+    private val _searchBarText = MutableStateFlow("")
+    val searchBarText: StateFlow<String> = _searchBarText
+
     private fun getAllPartyList(): Flow<List<Party>> {
         return defaultDBRepository.getAllPartyList(
             onComplete = { },
@@ -35,6 +38,17 @@ class PostListViewModel @Inject constructor(private val defaultDBRepository: Def
                 }
 
             }
+        }
+    }
+
+    fun updateSearchBarText(newText: String) {
+        _searchBarText.value = newText
+    }
+
+    fun getFilteredPartyList(partyList: List<Party>, searchText: String): List<Party> {
+        val searchTextLower = searchText.lowercase()
+        return partyList.filter { party ->
+            party.restaurantName.lowercase().contains(searchTextLower)
         }
     }
 }
