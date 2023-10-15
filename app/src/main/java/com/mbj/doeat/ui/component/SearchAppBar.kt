@@ -20,8 +20,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mbj.doeat.ui.model.SearchWidgetState
-import com.mbj.doeat.ui.theme.Beige100
-import com.mbj.doeat.ui.theme.Yellow700
+import com.mbj.doeat.ui.theme.Color.Companion.Beige100
+import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 
 @Composable
 fun MainAppBar(

@@ -17,7 +17,7 @@ import com.google.accompanist.web.WebView
 import com.google.accompanist.web.rememberWebViewNavigator
 import com.google.accompanist.web.rememberWebViewState
 import com.mbj.doeat.BuildConfig
-import com.mbj.doeat.ui.theme.Yellow700
+import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 import com.mbj.doeat.util.UrlUtils
 
 @Composable

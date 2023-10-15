@@ -70,8 +70,9 @@ import com.mbj.doeat.ui.component.ToastMessage
 import com.mbj.doeat.ui.graph.DetailScreen
 import com.mbj.doeat.ui.model.SearchWidgetState
 import com.mbj.doeat.ui.screen.home.nearby_restaurants.viewmodel.NearByRestaurantsViewModel
-import com.mbj.doeat.ui.theme.Yellow700
-import com.mbj.doeat.ui.theme.randomColors
+import com.mbj.doeat.ui.theme.Color.Companion.NormalColorInverted
+import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
+import com.mbj.doeat.ui.theme.Color.Companion.RandomColors
 import com.mbj.doeat.util.MapConverter.formatLatLng
 import com.mbj.doeat.util.MapConverter.removeHtmlTags
 import com.mbj.doeat.util.NavigationUtils
@@ -146,7 +147,7 @@ fun NearbyRestaurantsScreen(
                     .fillMaxWidth()
                     .height(500.dp)
                     .background(
-                        color = Color.White,
+                        color = NormalColorInverted,
                         shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)
                     )
                     .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
@@ -195,7 +196,7 @@ fun NearbyRestaurantsScreen(
             NaverMap(cameraPositionState = cameraPositionState) {
                 if (searchResultState.items.isNotEmpty()) {
                     searchResultState.items.forEachIndexed { index, searchItem ->
-                        val iconTintColor = randomColors[index % randomColors.size]
+                        val iconTintColor = RandomColors[index % RandomColors.size]
                         Marker(
                             state = MarkerState(
                                 position = formatLatLng(

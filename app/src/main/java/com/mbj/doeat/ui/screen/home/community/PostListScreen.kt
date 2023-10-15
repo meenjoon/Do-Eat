@@ -21,7 +21,7 @@ import com.mbj.doeat.ui.component.PartyItem
 import com.mbj.doeat.ui.component.SearchAppBar
 import com.mbj.doeat.ui.graph.DetailScreen
 import com.mbj.doeat.ui.screen.home.community.viewModel.PostListViewModel
-import com.mbj.doeat.ui.theme.Remon400
+import com.mbj.doeat.ui.theme.Color.Companion.Remon400
 import com.mbj.doeat.util.MapConverter
 import com.mbj.doeat.util.NavigationUtils
 import com.mbj.doeat.util.UrlUtils

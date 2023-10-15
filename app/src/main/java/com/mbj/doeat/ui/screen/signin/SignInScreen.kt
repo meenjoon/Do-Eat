@@ -39,8 +39,8 @@ import com.kakao.sdk.user.UserApiClient
 import com.mbj.doeat.R
 import com.mbj.doeat.data.remote.model.LoginRequest
 import com.mbj.doeat.ui.component.LoadingView
-import com.mbj.doeat.ui.theme.Yellow700
 import com.mbj.doeat.ui.screen.signin.viewmodel.SignInViewModel
+import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 
 @Composable
 fun SignInScreen(

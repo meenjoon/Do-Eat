@@ -27,7 +27,6 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.rememberBottomSheetState
@@ -57,8 +56,10 @@ import com.mbj.doeat.ui.component.ReusableWebView
 import com.mbj.doeat.ui.component.ToastMessage
 import com.mbj.doeat.ui.component.YesNoDialog
 import com.mbj.doeat.ui.screen.home.detail.detail_home.viewmodel.DetailViewModel
-import com.mbj.doeat.ui.theme.Gray200
-import com.mbj.doeat.ui.theme.Remon400
+import com.mbj.doeat.ui.theme.Color.Companion.Gray200
+import com.mbj.doeat.ui.theme.Color.Companion.NormalColor
+import com.mbj.doeat.ui.theme.Color.Companion.NormalColorInverted
+import com.mbj.doeat.ui.theme.Color.Companion.Remon400
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -85,7 +86,7 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
                     .fillMaxWidth()
                     .height(650.dp)
                     .background(
-                        color = Color.White,
+                        color = NormalColorInverted,
                         shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)
                     )
                     .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
@@ -302,7 +303,6 @@ fun DetailBottomSheet(
             text = "같이 갈 사람 구하기",
             fontSize = 26.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
         )
 
         Spacer(modifier = Modifier.padding(top = 10.dp))
@@ -319,14 +319,12 @@ fun DetailBottomSheet(
             text = "맛집",
             fontSize = 17.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
         )
 
         Text(
             text = party?.title ?: "제목이 제공되지 않습니다.",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
         )
 
         Spacer(modifier = Modifier.padding(top = 10.dp))
@@ -335,7 +333,6 @@ fun DetailBottomSheet(
             text = "장소",
             fontSize = 17.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
         )
 
         Text(
@@ -353,9 +350,8 @@ fun DetailBottomSheet(
             color = if (recruitmentCount.isEmpty()) {
                 Color.Red
             } else {
-                Color.Black
+                NormalColor
             }
-
         )
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
@@ -368,16 +364,13 @@ fun DetailBottomSheet(
                 }
             },
             textStyle = TextStyle(fontSize = 17.sp),
-            label = { Text("모집 인원") },
             modifier = Modifier.fillMaxWidth(),
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                errorLabelColor = Color.Red,
-                cursorColor = Color.Black,
-                unfocusedLabelColor = if (recruitmentCount.isEmpty()) Color.Red else Color.Black,
-                focusedLabelColor = Color.Black,
+                cursorColor = NormalColor,
                 errorBorderColor = Color.Red,
-                focusedBorderColor = Color.Black,
-                unfocusedBorderColor = if (recruitmentCount.isEmpty()) Color.Red else Color.Black
+                focusedBorderColor = NormalColor,
+                unfocusedBorderColor = if (recruitmentCount.isEmpty()) Color.Red else NormalColor,
+                textColor = NormalColor
             ),
             keyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Number
@@ -391,7 +384,6 @@ fun DetailBottomSheet(
             text = "세부사항",
             fontSize = 17.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
         )
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
@@ -407,12 +399,13 @@ fun DetailBottomSheet(
                 .fillMaxWidth()
                 .fillMaxHeight(0.7f),
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color.Black,
-                unfocusedBorderColor = Color.Black,
+                focusedBorderColor = NormalColor,
+                unfocusedBorderColor = NormalColor,
                 errorLabelColor = Color.Red,
-                unfocusedLabelColor = Color.Black,
-                focusedLabelColor = Color.Black,
-                cursorColor = Color.Black
+                unfocusedLabelColor = NormalColor,
+                focusedLabelColor = NormalColor,
+                cursorColor = NormalColor,
+                textColor = NormalColor
             )
         )
         LongRectangleButtonWithParams(

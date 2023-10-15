@@ -17,10 +17,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mbj.doeat.ui.theme.Beige50
+import com.mbj.doeat.ui.theme.Color.Companion.Beige50
+import com.mbj.doeat.ui.theme.Color.Companion.Pink500
+import com.mbj.doeat.ui.theme.Color.Companion.Remon400
 import com.mbj.doeat.ui.theme.DoEatTheme
-import com.mbj.doeat.ui.theme.Pink500
-import com.mbj.doeat.ui.theme.Remon400
 
 
 @Composable

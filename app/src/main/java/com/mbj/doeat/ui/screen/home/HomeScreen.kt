@@ -13,8 +13,8 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.mbj.doeat.ui.graph.BottomBarScreen
 import com.mbj.doeat.ui.graph.HomeNavGraph
-import com.mbj.doeat.ui.theme.Yellow700
-import com.mbj.doeat.ui.theme.Gray200
+import com.mbj.doeat.ui.theme.Color.Companion.Gray200
+import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 import com.mbj.doeat.util.NavigationUtils
 
 @Composable

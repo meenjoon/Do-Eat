@@ -21,8 +21,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mbj.doeat.data.remote.model.Party
-import com.mbj.doeat.ui.theme.Beige100
-import com.mbj.doeat.ui.theme.Remon400
+import com.mbj.doeat.ui.theme.Color.Companion.Beige100
+import com.mbj.doeat.ui.theme.Color.Companion.Remon400
 
 @Composable
 fun PartyItem(
