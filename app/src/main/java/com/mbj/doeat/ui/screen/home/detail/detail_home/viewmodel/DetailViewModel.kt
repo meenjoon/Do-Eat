@@ -1,4 +1,4 @@
-package com.mbj.doeat.ui.screen.home.detail.viewmodel
+package com.mbj.doeat.ui.screen.home.detail.detail_home.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,7 +9,7 @@ import com.mbj.doeat.data.remote.model.SearchItem
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
 import com.mbj.doeat.data.remote.network.api.default_db.repository.DefaultDBRepository
 import com.mbj.doeat.ui.graph.Graph
-import com.mbj.doeat.ui.screen.home.detail.getUrl
+import com.mbj.doeat.ui.screen.home.detail.detail_home.getUrl
 import com.mbj.doeat.util.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow

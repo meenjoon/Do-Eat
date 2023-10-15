@@ -1,4 +1,4 @@
-package com.mbj.doeat.ui.screen.home.detail
+package com.mbj.doeat.ui.screen.home.detail.detail_home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -62,7 +62,7 @@ import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
 import com.mbj.doeat.ui.component.PartyList
 import com.mbj.doeat.ui.component.ToastMessage
 import com.mbj.doeat.ui.component.YesNoDialog
-import com.mbj.doeat.ui.screen.home.detail.viewmodel.DetailViewModel
+import com.mbj.doeat.ui.screen.home.detail.detail_home.viewmodel.DetailViewModel
 import com.mbj.doeat.ui.theme.Gray200
 import com.mbj.doeat.ui.theme.Remon400
 import com.mbj.doeat.ui.theme.Yellow700

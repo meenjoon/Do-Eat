@@ -8,7 +8,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.mbj.doeat.data.remote.model.SearchItem
-import com.mbj.doeat.ui.screen.home.detail.DetailScreen
+import com.mbj.doeat.ui.screen.home.detail.detail_home.DetailScreen
 import com.mbj.doeat.util.SerializationUtils
 
 fun NavGraphBuilder.detailsNavGraph(navController: NavHostController) {
