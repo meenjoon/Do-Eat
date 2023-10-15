@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.BottomSheetScaffold
@@ -59,7 +61,7 @@ import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.SearchItem
 import com.mbj.doeat.ui.component.LoadingView
 import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
-import com.mbj.doeat.ui.component.PartyList
+import com.mbj.doeat.ui.component.PartyItem
 import com.mbj.doeat.ui.component.ToastMessage
 import com.mbj.doeat.ui.component.YesNoDialog
 import com.mbj.doeat.ui.screen.home.detail.detail_home.viewmodel.DetailViewModel
@@ -301,10 +303,16 @@ fun PartiesSection(viewModel: DetailViewModel, partyListState: List<Party>, onCl
                     NoPartiesAvailable()
                 }
             } else {
-                PartyList(
-                    viewModel = viewModel, partyListState = partyListState,
+                LazyColumn(
                     modifier = Modifier.weight(1f)
                 ) {
+                    items(
+                        items = partyListState,
+                        key = { party -> party.postId }
+                    ) { party ->
+                        PartyItem(party = party,
+                            onChatJoinClick = {})
+                    }
                 }
             }
             CreatePartyButton(onClick = {

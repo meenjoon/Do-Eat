@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +20,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.ui.theme.Beige100
 import com.mbj.doeat.ui.theme.Remon400
@@ -30,7 +27,8 @@ import com.mbj.doeat.ui.theme.Remon400
 @Composable
 fun PartyItem(
     party: Party,
-    onJoinClick: (Party) -> Unit
+    onDetailInfoClick: (() -> Unit)? = null,
+    onChatJoinClick: (Party) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -38,6 +36,11 @@ fun PartyItem(
             .padding(8.dp)
             .background(Beige100, shape = RoundedCornerShape(12.dp))
             .border(1.dp, Color.Gray, shape = RoundedCornerShape(12.dp))
+            .clickable {
+                if (onDetailInfoClick != null) {
+                    onDetailInfoClick()
+                }
+            }
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -91,7 +94,7 @@ fun PartyItem(
                     .fillMaxWidth()
                     .padding(top = 20.dp)
                     .clickable {
-                        onJoinClick(party)
+                        onChatJoinClick(party)
                     },
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
@@ -117,29 +120,10 @@ fun PartyItem(
                             /**
                              * 채팅방 참가하기 TODO
                              */
-                            onJoinClick
+                            onChatJoinClick
                         }
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun PartyList(
-    viewModel: ViewModel,
-    partyListState: List<Party>,
-    modifier: Modifier,
-    onClick: () -> Unit
-) {
-    LazyColumn(
-        modifier = modifier
-    ) {
-        items(
-            items = partyListState,
-            key = { party -> party.postId }
-        ) { party ->
-            PartyItem(party = party, onJoinClick = {})
         }
     }
 }
