@@ -8,12 +8,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mbj.doeat.ui.component.PartyList
 import com.mbj.doeat.ui.component.SearchAppBar
 import com.mbj.doeat.ui.screen.home.community.viewModel.PostListViewModel
@@ -24,8 +24,8 @@ fun PostListScreen(name: String, onClick: () -> Unit) {
 
     val viewModel: PostListViewModel = hiltViewModel()
 
-    val partyListState by  viewModel.partyList.collectAsState()
-    val searchFilterTextState by viewModel.searchBarText.collectAsState()
+    val partyListState by  viewModel.partyList.collectAsStateWithLifecycle()
+    val searchFilterTextState by viewModel.searchBarText.collectAsStateWithLifecycle()
     val filteredPartyList = viewModel.getFilteredPartyList(partyListState, searchFilterTextState)
 
     Box(

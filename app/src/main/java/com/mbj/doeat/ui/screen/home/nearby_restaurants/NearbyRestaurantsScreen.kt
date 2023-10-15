@@ -33,7 +33,6 @@ import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mbj.doeat.R
 import com.mbj.doeat.ui.component.Image
@@ -92,18 +92,16 @@ fun NearbyRestaurantsScreen(
         Manifest.permission.ACCESS_FINE_LOCATION
     )
 
-    val myLocationInfoState by viewModel.location.collectAsState()
-    val searchWidgetState by viewModel.searchWidgetState.collectAsState()
-    val searchTextState by viewModel.searchTextState.collectAsState()
-    val searchResultState by viewModel.searchResult.collectAsState(initial = SearchResult(emptyList()))
-    val searchResultCollapseState by viewModel.searchResultCollapse.collectAsState(initial = false)
-    val showSearchResultCollapseState by viewModel.showSearchResultCollapse.collectAsState()
-    val showLocationPermissionDeniedToastState =
-        viewModel.showLocationPermissionDeniedToast.collectAsState().value
-    val isLocationPermissionDeniedState =
-        viewModel.isLocationPermissionDenied.collectAsState(initial = false).value
-    val showSearchInvalidToastState = viewModel.showSearchInvalidToast.collectAsState().value
-    val isSearchInvalidState = viewModel.isSearchInvalid.collectAsState(initial = false).value
+    val myLocationInfoState by viewModel.location.collectAsStateWithLifecycle()
+    val searchWidgetState by viewModel.searchWidgetState.collectAsStateWithLifecycle()
+    val searchTextState by viewModel.searchTextState.collectAsStateWithLifecycle()
+    val searchResultState by viewModel.searchResult.collectAsStateWithLifecycle(initialValue = SearchResult(emptyList()))
+    val searchResultCollapseState by viewModel.searchResultCollapse.collectAsStateWithLifecycle(initialValue = false)
+    val showSearchResultCollapseState by viewModel.showSearchResultCollapse.collectAsStateWithLifecycle()
+    val showLocationPermissionDeniedToastState by viewModel.showLocationPermissionDeniedToast.collectAsStateWithLifecycle()
+    val isLocationPermissionDeniedState by viewModel.isLocationPermissionDenied.collectAsStateWithLifecycle(initialValue = false)
+    val showSearchInvalidToastState by viewModel.showSearchInvalidToast.collectAsStateWithLifecycle()
+    val isSearchInvalidState by viewModel.isSearchInvalid.collectAsStateWithLifecycle(initialValue = false)
 
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
         position = CameraPosition(myLocationInfoState, 11.0)
@@ -291,7 +289,7 @@ fun MyBottomSheetContent(
     cameraPositionState: CameraPositionState,
     navController: NavHostController
 ) {
-    val searchResult by viewModel.searchResult.collectAsState(initial = SearchResult(emptyList()))
+    val searchResult by viewModel.searchResult.collectAsStateWithLifecycle(initialValue = SearchResult(emptyList()))
     Column(
         modifier = Modifier
             .fillMaxSize()
