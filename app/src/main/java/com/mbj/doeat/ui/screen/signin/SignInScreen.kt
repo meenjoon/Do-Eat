@@ -20,7 +20,6 @@ import androidx.compose.material.CheckboxDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
@@ -51,8 +51,8 @@ fun SignInScreen(
 
     val context = LocalContext.current
 
-    val isAutoLogin by viewModel.isAutoLoginState.collectAsState()
-    val isLoadingView by viewModel.isLoadingView.collectAsState()
+    val isAutoLogin by viewModel.isAutoLoginState.collectAsStateWithLifecycle()
+    val isLoadingView by viewModel.isLoadingView.collectAsStateWithLifecycle()
 
     val kakaoCallback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
         viewModel.setLoadingState(true)

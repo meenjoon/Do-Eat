@@ -33,7 +33,6 @@ import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.text.isDigitsOnly
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.google.accompanist.web.AccompanistWebChromeClient
 import com.google.accompanist.web.AccompanistWebViewClient
@@ -74,12 +74,12 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
     val viewModel: DetailViewModel = hiltViewModel()
     viewModel.updateSearchItem(searchItem)
 
-    val searchItemState by viewModel.searchItem.collectAsState()
-    val partyListState by viewModel.partyList.collectAsState()
-    val recruitmentCountState by viewModel.recruitmentCount.collectAsState()
-    val recruitmentDetailsState by viewModel.recruitmentDetails.collectAsState()
-    val isBottomSheetExpandedState by viewModel.isBottomSheetExpanded.collectAsState()
-    val showCreatePartyDialogState by viewModel.showCreatePartyDialog.collectAsState()
+    val searchItemState by viewModel.searchItem.collectAsStateWithLifecycle()
+    val partyListState by viewModel.partyList.collectAsStateWithLifecycle()
+    val recruitmentCountState by viewModel.recruitmentCount.collectAsStateWithLifecycle()
+    val recruitmentDetailsState by viewModel.recruitmentDetails.collectAsStateWithLifecycle()
+    val isBottomSheetExpandedState by viewModel.isBottomSheetExpanded.collectAsStateWithLifecycle()
+    val showCreatePartyDialogState by viewModel.showCreatePartyDialog.collectAsStateWithLifecycle()
 
     val webViewClient = AccompanistWebViewClient()
     val webChromeClient = AccompanistWebChromeClient()
@@ -174,7 +174,9 @@ fun DetailContent(
     onClick: () -> Unit,
     padding: PaddingValues
 ) {
-    val isPostLoadingViewState by viewModel.isPostLoadingView.collectAsState()
+    val isPostLoadingViewState by viewModel.isPostLoadingView.collectAsStateWithLifecycle()
+    val showValidRecruitmentCountState by viewModel.showValidRecruitmentCount.collectAsStateWithLifecycle()
+    val isValidRecruitmentCountState by viewModel.isValidRecruitmentCount.collectAsStateWithLifecycle(initialValue = false)
 
     Box(
         modifier = Modifier
@@ -233,9 +235,11 @@ fun DetailContent(
                 }
 
                 ToastMessage(
-                    modifier = Modifier.padding(16.dp).align(Alignment.TopCenter),
-                    showToast = viewModel.showValidRecruitmentCount.collectAsState().value,
-                    showMessage = viewModel.isValidRecruitmentCount.collectAsState(initial = false).value,
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.TopCenter),
+                    showToast = showValidRecruitmentCountState,
+                    showMessage = isValidRecruitmentCountState,
                     message = "모집인원을 입력해주세요."
                 )
             }
