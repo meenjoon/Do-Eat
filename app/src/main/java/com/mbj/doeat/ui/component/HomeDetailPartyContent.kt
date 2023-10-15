@@ -26,7 +26,7 @@ import com.mbj.doeat.ui.theme.Color.Companion.Gray200
 import com.mbj.doeat.ui.theme.Color.Companion.Remon400
 
 @Composable
-fun PartyItem(
+fun HomeDetailPartyContent(
     party: Party,
     onDetailInfoClick: (() -> Unit)? = null,
     onChatJoinClick: (Party) -> Unit

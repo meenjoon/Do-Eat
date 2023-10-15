@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.mbj.doeat.ui.component.PartyItem
+import com.mbj.doeat.ui.component.HomeDetailPartyContent
 import com.mbj.doeat.ui.component.SearchAppBar
 import com.mbj.doeat.ui.graph.DetailScreen
 import com.mbj.doeat.ui.screen.home.community.viewModel.PostListViewModel
@@ -65,7 +65,7 @@ fun PostListScreen(name: String, navController: NavHostController, onClick: () -
                     items = filteredPartyList.sortedByDescending { it.postId },
                     key = { party -> party.postId }
                 ) { party ->
-                    PartyItem(party = party,
+                    HomeDetailPartyContent(party = party,
                         onDetailInfoClick = {
                             val encodedLink = UrlUtils.encodeUrl(party.link)
                             val titleWithoutHtmlTags = MapConverter.removeHtmlTags(party.restaurantName)

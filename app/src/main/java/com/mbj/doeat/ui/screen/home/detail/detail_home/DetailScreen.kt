@@ -51,7 +51,7 @@ import com.mbj.doeat.data.remote.model.SearchItem
 import com.mbj.doeat.ui.component.BackButton
 import com.mbj.doeat.ui.component.LoadingView
 import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
-import com.mbj.doeat.ui.component.PartyItem
+import com.mbj.doeat.ui.component.HomeDetailPartyContent
 import com.mbj.doeat.ui.component.ReusableWebView
 import com.mbj.doeat.ui.component.ToastMessage
 import com.mbj.doeat.ui.component.YesNoDialog
@@ -238,7 +238,7 @@ fun PartiesSection(viewModel: DetailViewModel, partyListState: List<Party>, onCl
                         items = partyListState,
                         key = { party -> party.postId }
                     ) { party ->
-                        PartyItem(party = party,
+                        HomeDetailPartyContent(party = party,
                             onChatJoinClick = {})
                     }
                 }
