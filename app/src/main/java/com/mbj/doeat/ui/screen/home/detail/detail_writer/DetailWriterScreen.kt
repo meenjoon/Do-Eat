@@ -22,7 +22,7 @@ import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.ui.component.BackButton
 import com.mbj.doeat.ui.component.LoadingView
 import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
-import com.mbj.doeat.ui.component.PartyDetailItem
+import com.mbj.doeat.ui.component.PartyDetailContent
 import com.mbj.doeat.ui.component.ReusableWebView
 import com.mbj.doeat.ui.component.YesNoDialog
 import com.mbj.doeat.ui.screen.home.detail.detail_writer.viewmodel.DetailWriterViewModel
@@ -74,7 +74,7 @@ fun DetailWriterScreen(party: Party, navController: NavHostController, onClick: 
                     webViewModifier = Modifier.fillMaxHeight(0.5f),
                 ) {}
 
-                PartyDetailItem(partyItemState!!)
+                PartyDetailContent(partyItemState!!)
             }
 
             YesNoDialog(

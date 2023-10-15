@@ -29,7 +29,7 @@ import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 import com.mbj.doeat.ui.theme.DoEatTheme
 
 @Composable
-fun PartyDetailItem(party: Party) {
+fun PartyDetailContent(party: Party) {
     val scrollState = rememberLazyListState()
 
     Column(
@@ -107,7 +107,7 @@ fun PartyDetailItem(party: Party) {
 @Composable
 fun PartyDetailWriterItemPreview() {
     DoEatTheme {
-        PartyDetailItem(
+        PartyDetailContent(
             party = Party(
                 postId = 2,
                 userId = 2,
