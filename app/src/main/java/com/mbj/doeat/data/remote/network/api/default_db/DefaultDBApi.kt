@@ -33,4 +33,9 @@ interface DefaultDBApi {
         onComplete: () -> Unit,
         onError: (message: String?) -> Unit
     ): Flow<ApiResponse<LoginResponse>>
+
+    fun getAllPartyList(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit
+    ): Flow<ApiResponse<List<Party>>>
 }
