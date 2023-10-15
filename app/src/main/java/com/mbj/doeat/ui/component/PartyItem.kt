@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.ui.theme.Color.Companion.Beige100
+import com.mbj.doeat.ui.theme.Color.Companion.Gray200
 import com.mbj.doeat.ui.theme.Color.Companion.Remon400
 
 @Composable
@@ -74,18 +75,26 @@ fun PartyItem(
 
             Text(
                 text = party.restaurantLocation,
-                fontSize = 11.sp,
+                fontSize = 12.sp,
                 color = Color.Black,
                 modifier = Modifier.padding(top = 4.dp)
 
             )
 
             Text(
-                text = party.detail,
+                text = if (party.detail == "") {
+                    "세부사항이 없습니다."
+                } else {
+                    party.detail
+                },
                 fontSize = 14.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                color = Color.Gray,
+                color = if (party.detail == "") {
+                    Gray200
+                } else {
+                    Color.Black
+                },
                 modifier = Modifier.padding(top = 8.dp)
             )
 
