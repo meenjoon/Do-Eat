@@ -1,7 +1,6 @@
 package com.mbj.doeat.ui.screen.home.detail.detail_home
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,6 +49,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.SearchItem
+import com.mbj.doeat.ui.component.BackButton
 import com.mbj.doeat.ui.component.LoadingView
 import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
 import com.mbj.doeat.ui.component.PartyItem
@@ -208,17 +208,6 @@ fun DetailContent(
             isLoading = isPostLoadingViewState,
         )
     }
-}
-
-@Composable
-fun BackButton(navController: NavHostController) {
-    Icon(
-        imageVector = Icons.Default.ArrowBack,
-        contentDescription = "뒤로 가기",
-        modifier = Modifier.clickable {
-            navController.popBackStack()
-        }
-    )
 }
 
 @Composable
