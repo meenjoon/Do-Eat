@@ -16,7 +16,7 @@ fun NavGraphBuilder.detailsNavGraph(navController: NavHostController) {
         route = DetailScreen.Detail.routeWithArgName(),
         arguments = DetailScreen.Detail.arguments
     ) { navBackStackEntry ->
-        val searchItem = DetailScreen.Detail.findArgument(navBackStackEntry)
+        val searchItem = DetailScreen.Detail.findArgument<SearchItem>(navBackStackEntry)
         DetailScreen(
             searchItem = searchItem!!,
             navController = navController,
@@ -36,13 +36,13 @@ sealed class DetailScreen(val route: String, val argName: String) {
         return "$route/{$argName}"
     }
 
-    fun navigateWithArg(argValue: SearchItem?): String {
+    inline fun <reified T> navigateWithArg(argValue: T?): String {
         val arg = SerializationUtils.toJson(argValue)
         return "$route/$arg"
     }
 
-    fun findArgument(navBackStackEntry: NavBackStackEntry): SearchItem? {
+    inline fun <reified T> findArgument(navBackStackEntry: NavBackStackEntry): T? {
         val searchItemString = navBackStackEntry.arguments?.getString(argName)
-        return SerializationUtils.fromJson<SearchItem>(searchItemString)
+        return SerializationUtils.fromJson<T>(searchItemString)
     }
 }
