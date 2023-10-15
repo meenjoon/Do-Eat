@@ -38,6 +38,7 @@ fun HomeNavGraph(
         composable(route = BottomBarScreen.Community.route) {
             PostListScreen(
                 name = BottomBarScreen.Community.route,
+                navController = navController,
                 onClick = { }
             )
         }

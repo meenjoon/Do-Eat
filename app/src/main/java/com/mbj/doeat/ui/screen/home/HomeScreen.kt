@@ -13,8 +13,9 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.mbj.doeat.ui.graph.BottomBarScreen
 import com.mbj.doeat.ui.graph.HomeNavGraph
-import com.mbj.doeat.ui.theme.Yellow700
-import com.mbj.doeat.ui.theme.Gray200
+import com.mbj.doeat.ui.theme.Color.Companion.Gray200
+import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
+import com.mbj.doeat.util.NavigationUtils
 
 @Composable
 fun HomeScreen(
@@ -86,15 +87,7 @@ fun RowScope.AddItem(
         },
         selected = selected,
         onClick = {
-            navController.navigate(screen.route) {
-                navController.graph.startDestinationRoute?.let {
-                    popUpTo(it) {
-                        saveState = true
-                    }
-                }
-                launchSingleTop = true
-                restoreState = true
-            }
+            NavigationUtils.navigate(controller = navController, routeName = screen.route)
         }
     )
 }

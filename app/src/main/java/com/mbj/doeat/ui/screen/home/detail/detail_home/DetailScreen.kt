@@ -1,7 +1,6 @@
-package com.mbj.doeat.ui.screen.home.detail
+package com.mbj.doeat.ui.screen.home.detail.detail_home
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.BottomSheetScaffold
@@ -22,12 +23,10 @@ import androidx.compose.material.BottomSheetState
 import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.rememberBottomSheetState
@@ -47,26 +46,20 @@ import androidx.core.text.isDigitsOnly
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.google.accompanist.web.AccompanistWebChromeClient
-import com.google.accompanist.web.AccompanistWebViewClient
-import com.google.accompanist.web.WebView
-import com.google.accompanist.web.WebViewNavigator
-import com.google.accompanist.web.WebViewState
-import com.google.accompanist.web.rememberWebViewNavigator
-import com.google.accompanist.web.rememberWebViewState
-import com.mbj.doeat.BuildConfig
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.SearchItem
+import com.mbj.doeat.ui.component.BackButton
 import com.mbj.doeat.ui.component.LoadingView
 import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
-import com.mbj.doeat.ui.component.PartyList
+import com.mbj.doeat.ui.component.HomeDetailPartyContent
+import com.mbj.doeat.ui.component.ReusableWebView
 import com.mbj.doeat.ui.component.ToastMessage
 import com.mbj.doeat.ui.component.YesNoDialog
-import com.mbj.doeat.ui.screen.home.detail.viewmodel.DetailViewModel
-import com.mbj.doeat.ui.theme.Gray200
-import com.mbj.doeat.ui.theme.Remon400
-import com.mbj.doeat.ui.theme.Yellow700
-import com.mbj.doeat.util.UrlUtils
+import com.mbj.doeat.ui.screen.home.detail.detail_home.viewmodel.DetailViewModel
+import com.mbj.doeat.ui.theme.Color.Companion.Gray200
+import com.mbj.doeat.ui.theme.Color.Companion.NormalColor
+import com.mbj.doeat.ui.theme.Color.Companion.NormalColorInverted
+import com.mbj.doeat.ui.theme.Color.Companion.Remon400
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -81,11 +74,6 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
     val isBottomSheetExpandedState by viewModel.isBottomSheetExpanded.collectAsStateWithLifecycle()
     val showCreatePartyDialogState by viewModel.showCreatePartyDialog.collectAsStateWithLifecycle()
 
-    val webViewClient = AccompanistWebViewClient()
-    val webChromeClient = AccompanistWebChromeClient()
-    val webViewState = initializeWebView(searchItemState)
-    val webViewNavigator = rememberWebViewNavigator()
-
     val bottomSheetState = rememberBottomSheetState(
         initialValue = BottomSheetValue.Collapsed
     )
@@ -98,7 +86,7 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
                     .fillMaxWidth()
                     .height(650.dp)
                     .background(
-                        color = Color.White,
+                        color = NormalColorInverted,
                         shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)
                     )
                     .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
@@ -125,11 +113,8 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
 
             DetailContent(
                 viewModel = viewModel,
+                searchItem = searchItemState!!,
                 navController = navController,
-                webViewClient = webViewClient,
-                webChromeClient = webChromeClient,
-                webViewState = webViewState,
-                webViewNavigator = webViewNavigator,
                 partyListState = partyListState,
                 onClick = onClick,
                 padding = padding
@@ -149,27 +134,10 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
 }
 
 @Composable
-fun initializeWebView(searchItemState: SearchItem?) = rememberWebViewState(
-    url = getUrl(searchItemState),
-    additionalHttpHeaders = emptyMap()
-)
-
-fun getUrl(searchItemState: SearchItem?): String {
-    return if (searchItemState?.link == "") {
-        "${BuildConfig.NAVER_SEARCH_BASE_URL}search.naver?query=${searchItemState?.title}"
-    } else {
-        UrlUtils.decodeUrl(searchItemState?.link ?: "")
-    }
-}
-
-@Composable
 fun DetailContent(
     viewModel: DetailViewModel,
+    searchItem: SearchItem,
     navController: NavHostController,
-    webViewClient: AccompanistWebViewClient,
-    webChromeClient: AccompanistWebChromeClient,
-    webViewState: WebViewState,
-    webViewNavigator: WebViewNavigator,
     partyListState: List<Party>,
     onClick: () -> Unit,
     padding: PaddingValues
@@ -200,38 +168,11 @@ fun DetailContent(
                     .fillMaxWidth()
                     .padding(start = 4.dp, end = 4.dp)
             ) {
-                WebView(
-                    state = webViewState,
-                    navigator = webViewNavigator,
-                    client = webViewClient,
-                    chromeClient = webChromeClient,
-                    onCreated = { webView ->
-                        with(webView) {
-                            settings.run {
-                                javaScriptEnabled = true
-                                domStorageEnabled = true
-                                javaScriptCanOpenWindowsAutomatically = false
-                            }
-                        }
-                    },
-                    modifier = Modifier.fillMaxSize()
-                )
-
-                IconButton(
-                    onClick = {
-                        if (webViewNavigator.canGoBack) {
-                            webViewNavigator.navigateBack()
-                        }
-                    },
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .align(Alignment.TopStart)
+                ReusableWebView(
+                    url = searchItem.link,
+                    restaurantName = searchItem.title,
+                    webViewModifier = Modifier.fillMaxSize(),
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "뒤로 가기",
-                        tint = Yellow700
-                    )
                 }
 
                 ToastMessage(
@@ -271,17 +212,6 @@ fun DetailContent(
 }
 
 @Composable
-fun BackButton(navController: NavHostController) {
-    Icon(
-        imageVector = Icons.Default.ArrowBack,
-        contentDescription = "뒤로 가기",
-        modifier = Modifier.clickable {
-            navController.popBackStack()
-        }
-    )
-}
-
-@Composable
 fun PartiesSection(viewModel: DetailViewModel, partyListState: List<Party>, onClick: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -301,10 +231,16 @@ fun PartiesSection(viewModel: DetailViewModel, partyListState: List<Party>, onCl
                     NoPartiesAvailable()
                 }
             } else {
-                PartyList(
-                    viewModel = viewModel, partyListState = partyListState,
+                LazyColumn(
                     modifier = Modifier.weight(1f)
                 ) {
+                    items(
+                        items = partyListState,
+                        key = { party -> party.postId }
+                    ) { party ->
+                        HomeDetailPartyContent(party = party,
+                            onChatJoinClick = {})
+                    }
                 }
             }
             CreatePartyButton(onClick = {
@@ -367,7 +303,6 @@ fun DetailBottomSheet(
             text = "같이 갈 사람 구하기",
             fontSize = 26.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
         )
 
         Spacer(modifier = Modifier.padding(top = 10.dp))
@@ -384,14 +319,12 @@ fun DetailBottomSheet(
             text = "맛집",
             fontSize = 17.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
         )
 
         Text(
             text = party?.title ?: "제목이 제공되지 않습니다.",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
         )
 
         Spacer(modifier = Modifier.padding(top = 10.dp))
@@ -400,7 +333,6 @@ fun DetailBottomSheet(
             text = "장소",
             fontSize = 17.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
         )
 
         Text(
@@ -418,9 +350,8 @@ fun DetailBottomSheet(
             color = if (recruitmentCount.isEmpty()) {
                 Color.Red
             } else {
-                Color.Black
+                NormalColor
             }
-
         )
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
@@ -433,16 +364,13 @@ fun DetailBottomSheet(
                 }
             },
             textStyle = TextStyle(fontSize = 17.sp),
-            label = { Text("모집 인원") },
             modifier = Modifier.fillMaxWidth(),
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                errorLabelColor = Color.Red,
-                cursorColor = Color.Black,
-                unfocusedLabelColor = if (recruitmentCount.isEmpty()) Color.Red else Color.Black,
-                focusedLabelColor = Color.Black,
+                cursorColor = NormalColor,
                 errorBorderColor = Color.Red,
-                focusedBorderColor = Color.Black,
-                unfocusedBorderColor = if (recruitmentCount.isEmpty()) Color.Red else Color.Black
+                focusedBorderColor = NormalColor,
+                unfocusedBorderColor = if (recruitmentCount.isEmpty()) Color.Red else NormalColor,
+                textColor = NormalColor
             ),
             keyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Number
@@ -456,7 +384,6 @@ fun DetailBottomSheet(
             text = "세부사항",
             fontSize = 17.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
         )
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
@@ -472,12 +399,13 @@ fun DetailBottomSheet(
                 .fillMaxWidth()
                 .fillMaxHeight(0.7f),
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color.Black,
-                unfocusedBorderColor = Color.Black,
+                focusedBorderColor = NormalColor,
+                unfocusedBorderColor = NormalColor,
                 errorLabelColor = Color.Red,
-                unfocusedLabelColor = Color.Black,
-                focusedLabelColor = Color.Black,
-                cursorColor = Color.Black
+                unfocusedLabelColor = NormalColor,
+                focusedLabelColor = NormalColor,
+                cursorColor = NormalColor,
+                textColor = NormalColor
             )
         )
         LongRectangleButtonWithParams(

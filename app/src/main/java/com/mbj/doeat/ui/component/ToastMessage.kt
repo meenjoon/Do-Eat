@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.mbj.doeat.ui.theme.Yellow700
+import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 import kotlinx.coroutines.launch
 
 @Composable

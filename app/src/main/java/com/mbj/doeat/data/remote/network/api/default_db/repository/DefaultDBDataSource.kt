@@ -4,6 +4,7 @@ import com.mbj.doeat.data.remote.model.FindUserRequest
 import com.mbj.doeat.data.remote.model.LoginRequest
 import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.model.Party
+import com.mbj.doeat.data.remote.model.PartyPostIdRequestDto
 import com.mbj.doeat.data.remote.model.PartyPostRequest
 import com.mbj.doeat.data.remote.network.adapter.ApiResponse
 import com.mbj.doeat.data.remote.network.adapter.onError
@@ -116,6 +117,27 @@ class DefaultDBDataSource @Inject constructor(
     ): Flow<ApiResponse<List<Party>>> = flow {
         try {
             val response = defaultDBService.getAllPartyList()
+            response.onSuccess {
+                emit(response)
+            }.onError { code, message ->
+                onError("code: $code, message: $message")
+            }.onException {
+                onError(it.message)
+            }
+        } catch (e: Exception) {
+            onError(e.message)
+        }
+    }.onCompletion {
+        onComplete()
+    }.flowOn(defaultDispatcher)
+
+    override fun partyDelete(
+        partyPostIdRequestDto: PartyPostIdRequestDto,
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit
+    ): Flow<ApiResponse<Unit>> = flow {
+        try {
+            val response = defaultDBService.partyDelete(partyPostIdRequestDto)
             response.onSuccess {
                 emit(response)
             }.onError { code, message ->
