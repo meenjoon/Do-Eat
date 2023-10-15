@@ -88,6 +88,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview:1.3.2")
     implementation("androidx.compose.material:material:1.0.1")
     implementation("androidx.activity:activity-compose:1.6.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
 
     // Navigation
     implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
