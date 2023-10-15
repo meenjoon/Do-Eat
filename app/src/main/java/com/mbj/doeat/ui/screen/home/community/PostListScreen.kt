@@ -19,8 +19,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mbj.doeat.ui.component.PartyItem
 import com.mbj.doeat.ui.component.SearchAppBar
+import com.mbj.doeat.ui.graph.DetailScreen
 import com.mbj.doeat.ui.screen.home.community.viewModel.PostListViewModel
 import com.mbj.doeat.ui.theme.Remon400
+import com.mbj.doeat.util.MapConverter
+import com.mbj.doeat.util.NavigationUtils
+import com.mbj.doeat.util.UrlUtils
 
 @Composable
 fun PostListScreen(name: String, navController: NavHostController, onClick: () -> Unit) {
@@ -62,7 +66,18 @@ fun PostListScreen(name: String, navController: NavHostController, onClick: () -
                     key = { party -> party.postId }
                 ) { party ->
                     PartyItem(party = party,
-                        onDetailInfoClick = {},
+                        onDetailInfoClick = {
+                            val encodedLink = UrlUtils.encodeUrl(party.link)
+                            val titleWithoutHtmlTags = MapConverter.removeHtmlTags(party.restaurantName)
+                            NavigationUtils.navigate(
+                                navController, DetailScreen.DetailWriter.navigateWithArg(
+                                    party.copy(
+                                        restaurantName = titleWithoutHtmlTags,
+                                        link = encodedLink
+                                    )
+                                )
+                            )
+                        },
                         onChatJoinClick = {})
                 }
             }
