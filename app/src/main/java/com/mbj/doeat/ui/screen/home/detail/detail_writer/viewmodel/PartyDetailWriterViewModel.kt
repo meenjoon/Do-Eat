@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class DetailWriterViewModel @Inject constructor(private val defaultDBRepository: DefaultDBRepository) : ViewModel() {
+class PartyDetailWriterViewModel @Inject constructor(private val defaultDBRepository: DefaultDBRepository) : ViewModel() {
 
     private val _partyItem = MutableStateFlow<Party?>(null)
     val partyItem: StateFlow<Party?> = _partyItem

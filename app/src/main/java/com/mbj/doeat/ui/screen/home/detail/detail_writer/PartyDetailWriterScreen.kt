@@ -25,14 +25,14 @@ import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
 import com.mbj.doeat.ui.component.PartyDetailContent
 import com.mbj.doeat.ui.component.ReusableWebView
 import com.mbj.doeat.ui.component.YesNoDialog
-import com.mbj.doeat.ui.screen.home.detail.detail_writer.viewmodel.DetailWriterViewModel
+import com.mbj.doeat.ui.screen.home.detail.detail_writer.viewmodel.PartyDetailWriterViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.Red500
 import com.mbj.doeat.ui.theme.button1
 
 @Composable
-fun DetailWriterScreen(party: Party, navController: NavHostController, onClick: () -> Unit) {
+fun PartyDetailWriterScreen(party: Party, navController: NavHostController, onClick: () -> Unit) {
 
-    val viewModel: DetailWriterViewModel = hiltViewModel()
+    val viewModel: PartyDetailWriterViewModel = hiltViewModel()
     viewModel.updateSearchItem(party)
 
     val partyItemState by viewModel.partyItem.collectAsStateWithLifecycle()

@@ -10,7 +10,7 @@ import androidx.navigation.navArgument
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.SearchItem
 import com.mbj.doeat.ui.screen.home.detail.detail_home.DetailScreen
-import com.mbj.doeat.ui.screen.home.detail.detail_writer.DetailWriterScreen
+import com.mbj.doeat.ui.screen.home.detail.detail_writer.PartyDetailWriterScreen
 import com.mbj.doeat.util.SerializationUtils
 
 fun NavGraphBuilder.detailsNavGraph(navController: NavHostController) {
@@ -31,7 +31,7 @@ fun NavGraphBuilder.detailsNavGraph(navController: NavHostController) {
         arguments = DetailScreen.DetailWriter.arguments
     ) { navBackStackEntry ->
         val party = DetailScreen.DetailWriter.findArgument<Party>(navBackStackEntry)
-        DetailWriterScreen(
+        PartyDetailWriterScreen(
             party = party!!,
             navController = navController,
             onClick = { }
@@ -41,7 +41,7 @@ fun NavGraphBuilder.detailsNavGraph(navController: NavHostController) {
 
 sealed class DetailScreen(val route: String, val argName: String) {
     object Detail : DetailScreen(route = "DETAIL", argName = "searchItem")
-    object DetailWriter : DetailScreen(route = "DETAIL_WRITER", argName = "searchItem")
+    object DetailWriter : DetailScreen(route = "DETAIL_WRITER", argName = "party")
 
     val arguments: List<NamedNavArgument> = listOf(
         navArgument(argName) { type = NavType.StringType }
