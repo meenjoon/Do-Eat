@@ -8,8 +8,8 @@ import com.mbj.doeat.data.remote.model.PartyPostRequest
 import com.mbj.doeat.data.remote.model.SearchItem
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
 import com.mbj.doeat.data.remote.network.api.default_db.repository.DefaultDBRepository
+import com.mbj.doeat.ui.component.getUrl
 import com.mbj.doeat.ui.graph.Graph
-import com.mbj.doeat.ui.screen.home.detail.detail_home.getUrl
 import com.mbj.doeat.util.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -95,7 +95,7 @@ class DetailViewModel @Inject constructor(private val defaultDBRepository: Defau
                         recruitmentLimit = recruitmentCount.value.toInt(),
                         currentNumberPeople = 1,
                         detail = recruitmentDetails.value,
-                        link = getUrl(searchItem.value)
+                        link = getUrl(searchItem.value?.link, searchItem.value?.title!!)
                     ),
                     onComplete = {
                     },

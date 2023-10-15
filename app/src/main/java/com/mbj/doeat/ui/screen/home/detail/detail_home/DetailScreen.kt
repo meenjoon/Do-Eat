@@ -24,7 +24,6 @@ import androidx.compose.material.BottomSheetState
 import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
@@ -49,26 +48,17 @@ import androidx.core.text.isDigitsOnly
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.google.accompanist.web.AccompanistWebChromeClient
-import com.google.accompanist.web.AccompanistWebViewClient
-import com.google.accompanist.web.WebView
-import com.google.accompanist.web.WebViewNavigator
-import com.google.accompanist.web.WebViewState
-import com.google.accompanist.web.rememberWebViewNavigator
-import com.google.accompanist.web.rememberWebViewState
-import com.mbj.doeat.BuildConfig
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.SearchItem
 import com.mbj.doeat.ui.component.LoadingView
 import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
 import com.mbj.doeat.ui.component.PartyItem
+import com.mbj.doeat.ui.component.ReusableWebView
 import com.mbj.doeat.ui.component.ToastMessage
 import com.mbj.doeat.ui.component.YesNoDialog
 import com.mbj.doeat.ui.screen.home.detail.detail_home.viewmodel.DetailViewModel
 import com.mbj.doeat.ui.theme.Gray200
 import com.mbj.doeat.ui.theme.Remon400
-import com.mbj.doeat.ui.theme.Yellow700
-import com.mbj.doeat.util.UrlUtils
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -82,11 +72,6 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
     val recruitmentDetailsState by viewModel.recruitmentDetails.collectAsStateWithLifecycle()
     val isBottomSheetExpandedState by viewModel.isBottomSheetExpanded.collectAsStateWithLifecycle()
     val showCreatePartyDialogState by viewModel.showCreatePartyDialog.collectAsStateWithLifecycle()
-
-    val webViewClient = AccompanistWebViewClient()
-    val webChromeClient = AccompanistWebChromeClient()
-    val webViewState = initializeWebView(searchItemState)
-    val webViewNavigator = rememberWebViewNavigator()
 
     val bottomSheetState = rememberBottomSheetState(
         initialValue = BottomSheetValue.Collapsed
@@ -127,11 +112,8 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
 
             DetailContent(
                 viewModel = viewModel,
+                searchItem = searchItemState!!,
                 navController = navController,
-                webViewClient = webViewClient,
-                webChromeClient = webChromeClient,
-                webViewState = webViewState,
-                webViewNavigator = webViewNavigator,
                 partyListState = partyListState,
                 onClick = onClick,
                 padding = padding
@@ -151,27 +133,10 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
 }
 
 @Composable
-fun initializeWebView(searchItemState: SearchItem?) = rememberWebViewState(
-    url = getUrl(searchItemState),
-    additionalHttpHeaders = emptyMap()
-)
-
-fun getUrl(searchItemState: SearchItem?): String {
-    return if (searchItemState?.link == "") {
-        "${BuildConfig.NAVER_SEARCH_BASE_URL}search.naver?query=${searchItemState?.title}"
-    } else {
-        UrlUtils.decodeUrl(searchItemState?.link ?: "")
-    }
-}
-
-@Composable
 fun DetailContent(
     viewModel: DetailViewModel,
+    searchItem: SearchItem,
     navController: NavHostController,
-    webViewClient: AccompanistWebViewClient,
-    webChromeClient: AccompanistWebChromeClient,
-    webViewState: WebViewState,
-    webViewNavigator: WebViewNavigator,
     partyListState: List<Party>,
     onClick: () -> Unit,
     padding: PaddingValues
@@ -202,38 +167,11 @@ fun DetailContent(
                     .fillMaxWidth()
                     .padding(start = 4.dp, end = 4.dp)
             ) {
-                WebView(
-                    state = webViewState,
-                    navigator = webViewNavigator,
-                    client = webViewClient,
-                    chromeClient = webChromeClient,
-                    onCreated = { webView ->
-                        with(webView) {
-                            settings.run {
-                                javaScriptEnabled = true
-                                domStorageEnabled = true
-                                javaScriptCanOpenWindowsAutomatically = false
-                            }
-                        }
-                    },
-                    modifier = Modifier.fillMaxSize()
-                )
-
-                IconButton(
-                    onClick = {
-                        if (webViewNavigator.canGoBack) {
-                            webViewNavigator.navigateBack()
-                        }
-                    },
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .align(Alignment.TopStart)
+                ReusableWebView(
+                    url = searchItem.link,
+                    restaurantName = searchItem.title,
+                    webViewModifier = Modifier.fillMaxSize(),
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "뒤로 가기",
-                        tint = Yellow700
-                    )
                 }
 
                 ToastMessage(
