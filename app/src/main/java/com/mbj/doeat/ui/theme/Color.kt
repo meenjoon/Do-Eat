@@ -20,6 +20,7 @@ class Color {
         val Beige100 = Color(0xFFEBDFDF)
         val Remon400 = Color(0xFFF4FF7F)
         val Pink500 = Color(0xFFFF7F7F)
+        val Red500 = Color(0xFFFB3F16)
         val Black700 = Color(0x77000000)
 
         val RandomColors = listOf(
