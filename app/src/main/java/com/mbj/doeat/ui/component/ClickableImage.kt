@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 
 @Composable
-fun Image(
+fun ClickableImage(
     painter: Painter,
     contentDescription: String,
     modifier: Modifier,

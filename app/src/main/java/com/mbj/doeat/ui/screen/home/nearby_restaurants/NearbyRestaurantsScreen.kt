@@ -49,7 +49,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mbj.doeat.R
-import com.mbj.doeat.ui.component.Image
+import com.mbj.doeat.ui.component.ClickableImage
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraAnimation
 import com.naver.maps.map.CameraPosition
@@ -225,7 +225,7 @@ fun NearbyRestaurantsScreen(
                     )
                 }
             }
-            Image(
+            ClickableImage(
                 painter = imagePainter,
                 contentDescription = "내 위치",
                 modifier = Modifier
