@@ -117,4 +117,7 @@ dependencies {
 
     // WebView
     implementation("com.google.accompanist:accompanist-webview:0.24.13-rc")
+
+    // Coil(이미지 로딩)
+    implementation ("io.coil-kt:coil-compose:2.4.0")
 }
