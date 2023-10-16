@@ -49,7 +49,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mbj.doeat.R
-import com.mbj.doeat.ui.component.ClickableImage
+import com.mbj.doeat.ui.component.image.ClickableImage
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraAnimation
 import com.naver.maps.map.CameraPosition
@@ -63,10 +63,10 @@ import com.naver.maps.map.compose.rememberCameraPositionState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.mbj.doeat.data.remote.model.SearchItem
 import com.mbj.doeat.data.remote.model.SearchResult
-import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
+import com.mbj.doeat.ui.component.button.LongRectangleButtonWithParams
 import com.mbj.doeat.ui.component.MainAppBar
-import com.mbj.doeat.ui.component.RoundedLine
-import com.mbj.doeat.ui.component.ToastMessage
+import com.mbj.doeat.ui.component.line.RoundedLine
+import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.graph.DetailScreen
 import com.mbj.doeat.ui.model.SearchWidgetState
 import com.mbj.doeat.ui.screen.home.nearby_restaurants.viewmodel.NearByRestaurantsViewModel

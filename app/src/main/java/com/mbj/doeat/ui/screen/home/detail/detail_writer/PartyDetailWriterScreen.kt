@@ -19,12 +19,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mbj.doeat.data.remote.model.Party
-import com.mbj.doeat.ui.component.BackButton
-import com.mbj.doeat.ui.component.LoadingView
-import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
+import com.mbj.doeat.ui.component.button.BackButton
+import com.mbj.doeat.ui.component.loading.LoadingView
+import com.mbj.doeat.ui.component.button.LongRectangleButtonWithParams
 import com.mbj.doeat.ui.component.PartyDetailContent
 import com.mbj.doeat.ui.component.ReusableWebView
-import com.mbj.doeat.ui.component.YesNoDialog
+import com.mbj.doeat.ui.component.dialog.YesNoDialog
 import com.mbj.doeat.ui.screen.home.detail.detail_writer.viewmodel.PartyDetailWriterViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.Red500
 import com.mbj.doeat.ui.theme.button1

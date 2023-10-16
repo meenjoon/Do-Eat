@@ -38,7 +38,7 @@ import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import com.mbj.doeat.R
 import com.mbj.doeat.data.remote.model.LoginRequest
-import com.mbj.doeat.ui.component.LoadingView
+import com.mbj.doeat.ui.component.loading.LoadingView
 import com.mbj.doeat.ui.screen.signin.viewmodel.SignInViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 

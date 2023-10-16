@@ -1,4 +1,4 @@
-package com.mbj.doeat.ui.component
+package com.mbj.doeat.ui.component.image
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
