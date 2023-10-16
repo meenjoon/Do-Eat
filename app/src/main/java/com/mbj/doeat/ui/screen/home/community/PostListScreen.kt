@@ -69,14 +69,26 @@ fun PostListScreen(name: String, navController: NavHostController, onClick: () -
                         onDetailInfoClick = {
                             val encodedLink = UrlUtils.encodeUrl(party.link)
                             val titleWithoutHtmlTags = MapConverter.removeHtmlTags(party.restaurantName)
-                            NavigationUtils.navigate(
-                                navController, DetailScreen.DetailWriter.navigateWithArg(
-                                    party.copy(
-                                        restaurantName = titleWithoutHtmlTags,
-                                        link = encodedLink
+
+                            if (viewModel.userId == party.userId) {
+                                NavigationUtils.navigate(
+                                    navController, DetailScreen.DetailWriter.navigateWithArg(
+                                        party.copy(
+                                            restaurantName = titleWithoutHtmlTags,
+                                            link = encodedLink
+                                        )
                                     )
                                 )
-                            )
+                            } else {
+                                NavigationUtils.navigate(
+                                    navController, DetailScreen.DetailParticipant.navigateWithArg(
+                                        party.copy(
+                                            restaurantName = titleWithoutHtmlTags,
+                                            link = encodedLink
+                                        )
+                                    )
+                                )
+                            }
                         },
                         onChatJoinClick = {})
                 }

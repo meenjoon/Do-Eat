@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
 import com.mbj.doeat.data.remote.network.api.default_db.repository.DefaultDBRepository
+import com.mbj.doeat.util.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PostListViewModel @Inject constructor(private val defaultDBRepository: DefaultDBRepository) : ViewModel() {
+
+    val userId = UserDataStore.getLoginResponse()?.userId
 
     val partyList = getAllPartyList().stateIn(
         scope = viewModelScope,
