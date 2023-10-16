@@ -23,6 +23,8 @@ class Color {
         val Pink500 = Color(0xFFFF7F7F)
         val Red500 = Color(0xFFFB3F16)
         val Black700 = Color(0x77000000)
+        val LightRed = Color(0XFFFFE1CC)
+        val LightYellow = Color(0XFFFFF1BF)
 
         val RandomColors = listOf(
             Color.Red,
