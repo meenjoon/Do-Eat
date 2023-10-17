@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mbj.doeat.data.remote.model.Party
@@ -22,16 +23,14 @@ import com.mbj.doeat.ui.component.PartyDetailContent
 import com.mbj.doeat.ui.component.ReusableWebView
 import com.mbj.doeat.ui.component.button.BackButton
 import com.mbj.doeat.ui.component.button.LongRectangleButtonWithParams
-import com.mbj.doeat.ui.graph.DetailScreen
 import com.mbj.doeat.ui.screen.home.detail.detail_participant.viewmodel.PartyDetailParticipantViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 import com.mbj.doeat.ui.theme.button1
-import com.mbj.doeat.util.NavigationUtils
 
 @Composable
 fun PartyDetailParticipantScreen(party: Party, navController: NavHostController, onClick: () -> Unit) {
 
-    val viewModel = PartyDetailParticipantViewModel()
+    val viewModel: PartyDetailParticipantViewModel = hiltViewModel()
     viewModel.updatePartyItem(party)
 
     val partyItemState by viewModel.partyItem.collectAsStateWithLifecycle()
@@ -47,11 +46,7 @@ fun PartyDetailParticipantScreen(party: Party, navController: NavHostController,
                 contentColor = Color.Black,
                 textStyle = MaterialTheme.typography.button1
             ) {
-                NavigationUtils.navigate(
-                    navController, DetailScreen.ChatDetail.navigateWithArg(
-                        partyItemState?.userId.toString()
-                    )
-                )
+                viewModel.enterChatRoom(navController = navController)
             }
         }
     ) { paddingValues ->
