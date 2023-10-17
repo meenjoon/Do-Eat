@@ -14,4 +14,13 @@ interface ChatDBApi {
         restaurantName: String,
         createdChatRoom: String,
     ): Flow<ApiResponse<Unit>>
+
+    fun sendMessage(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
+        postId: String,
+        message: String,
+        myUserId: String,
+        sendMessageTime: String
+    ): Flow<ApiResponse<Unit>>
 }
