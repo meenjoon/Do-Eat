@@ -1,5 +1,8 @@
 package com.mbj.doeat.data.remote.network.api.chat_db.repository
 
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.mbj.doeat.data.remote.model.ChatItem
 import com.mbj.doeat.data.remote.network.adapter.ApiResponse
@@ -79,4 +82,44 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
     }.onCompletion {
         onComplete()
     }.flowOn(defaultDispatcher)
+
+    override fun addChatDetailEventListener(
+        postId: String,
+        onChatItemAdded: (ChatItem) -> Unit
+    ): ChildEventListener {
+        val chatDetailEventListener = object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                val chatId = snapshot.key
+                val messageData = snapshot.getValue(ChatItem::class.java)
+
+                val chatItem = messageData?.copy(chatId = chatId)
+                chatItem?.let { onChatItemAdded(it) }
+            }
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+            }
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+            }
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+
+        }
+        groupChatsRef.child(postId).child("messages").addChildEventListener(chatDetailEventListener)
+
+        return chatDetailEventListener
+    }
+
+    override fun removeChatDetailEventListener(
+        postId: String,
+        chatDetailEventListener: ChildEventListener?
+    ) {
+        chatDetailEventListener?.let {
+            groupChatsRef.child(postId).child("messages").removeEventListener(it)
+        }
+    }
 }

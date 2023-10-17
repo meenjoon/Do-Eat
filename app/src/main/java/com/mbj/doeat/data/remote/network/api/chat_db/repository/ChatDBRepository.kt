@@ -1,5 +1,7 @@
 package com.mbj.doeat.data.remote.network.api.chat_db.repository
 
+import com.google.firebase.database.ChildEventListener
+import com.mbj.doeat.data.remote.model.ChatItem
 import com.mbj.doeat.data.remote.network.adapter.ApiResponse
 import com.mbj.doeat.data.remote.network.api.chat_db.ChatDBApi
 import kotlinx.coroutines.flow.Flow
@@ -43,6 +45,26 @@ class ChatDBRepository @Inject constructor(private val chatDBDataSource: ChatDBD
             message,
             myUserId,
             sendMessageTime
+        )
+    }
+
+    override fun addChatDetailEventListener(
+        postId: String,
+        onChatItemAdded: (ChatItem) -> Unit
+    ): ChildEventListener {
+        return chatDBDataSource.addChatDetailEventListener(
+            postId,
+            onChatItemAdded
+        )
+    }
+
+    override fun removeChatDetailEventListener(
+        postId: String,
+        chatDetailEventListener: ChildEventListener?
+    ) {
+        return chatDBDataSource.removeChatDetailEventListener(
+            postId,
+            chatDetailEventListener
         )
     }
 }
