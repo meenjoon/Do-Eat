@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.database.ChildEventListener
 import com.mbj.doeat.data.remote.model.ChatItem
+import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.network.api.chat_db.repository.ChatDBRepository
 import com.mbj.doeat.util.DateUtils
 import com.mbj.doeat.util.UserDataStore
@@ -29,10 +30,14 @@ class ChatDetailViewModel @Inject constructor(private val chatDBRepository: Chat
     private val _chatItemList = MutableStateFlow<List<ChatItem>>(emptyList())
     val chatItemList: StateFlow<List<ChatItem>> = _chatItemList
 
+    private val _chatRoomItem = MutableStateFlow<ChatRoom?>(null)
+    val chatRoomItem: StateFlow<ChatRoom?> = _chatRoomItem
+
     private var chatDetailEventListener: ChildEventListener? = null
 
     init {
         addChatDetailEventListener()
+        getChatRoomItem()
     }
 
     fun updatePostId(postId: String) {
@@ -66,6 +71,22 @@ class ChatDetailViewModel @Inject constructor(private val chatDBRepository: Chat
                         val currentList = _chatItemList.value
                         val newList = currentList.toMutableList().apply { add(chatItem) }
                         _chatItemList.value = newList
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getChatRoomItem() {
+        viewModelScope.launch {
+            postId.collectLatest { postId ->
+                if (postId != "") {
+                    chatDBRepository.getChatRoomItem(
+                        onComplete = { },
+                        onError = { },
+                        postId = postId.substring(1, postId.length - 1)
+                    ) { chatRoomItem ->
+                        _chatRoomItem.value = chatRoomItem
                     }
                 }
             }

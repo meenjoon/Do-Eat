@@ -32,6 +32,7 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
 
     val sendMessageState by viewModel.sendMessage.collectAsStateWithLifecycle()
     val chatItemListState by viewModel.chatItemList.collectAsStateWithLifecycle()
+    val chatRoomItemState by viewModel.chatRoomItem.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier
@@ -59,7 +60,7 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
                 )
             ) {
                 items(chatItemListState) { message ->
-                    ChatContent(message)
+                    ChatContent(message, chatRoomItemState)
                 }
             }
         }

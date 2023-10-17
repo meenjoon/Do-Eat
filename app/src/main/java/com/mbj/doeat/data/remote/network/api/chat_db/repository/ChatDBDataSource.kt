@@ -40,7 +40,7 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
 
             if (dataSnapshot.value != null) {
                 val memberRef = chatRoomDB.child("members")
-                memberRef.child(myUserId).setValue(true)
+                memberRef.child(myUserId).setValue("guest")
                 emit(ApiResultSuccess(Unit))
             } else {
                 val newChatRoomRef = groupChatsRef.child(postId)
@@ -48,8 +48,12 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
                 newChatRoomRef.child("createdChatRoomDate").setValue(createdChatRoom)
                 newChatRoomRef.child("postId").setValue(postId)
                 val membersRef = newChatRoomRef.child("members")
-                membersRef.child(myUserId).setValue(true)
-                membersRef.child(postUserId).setValue(true)
+                if (myUserId == postUserId) {
+                    membersRef.child(myUserId).setValue("master")
+                } else {
+                    membersRef.child(myUserId).setValue("guest")
+                    membersRef.child(postUserId).setValue("master")
+                }
                 emit(ApiResultSuccess(Unit))
             }
         } catch (e: Exception) {
