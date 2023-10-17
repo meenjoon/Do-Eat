@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.SearchItem
+import com.mbj.doeat.ui.screen.home.chat.ChatDetailScreen
 import com.mbj.doeat.ui.screen.home.detail.detail_home.DetailScreen
 import com.mbj.doeat.ui.screen.home.detail.detail_participant.PartyDetailParticipantScreen
 import com.mbj.doeat.ui.screen.home.detail.detail_writer.PartyDetailWriterScreen
@@ -50,13 +51,25 @@ fun NavGraphBuilder.detailsNavGraph(navController: NavHostController) {
             onClick = { }
         )
     }
+
+    composable(
+        route = DetailScreen.ChatDetail.routeWithArgName(),
+        arguments = DetailScreen.ChatDetail.arguments
+    ) { navBackStackEntry ->
+        val postId = navBackStackEntry.arguments?.get("postId").toString()
+        ChatDetailScreen(
+            postId = postId,
+            navController = navController,
+            onClick = { }
+        )
+    }
 }
 
 sealed class DetailScreen(val route: String, val argName: String) {
     object Detail : DetailScreen(route = "DETAIL", argName = "searchItem")
     object DetailWriter : DetailScreen(route = "DETAIL_WRITER", argName = "party")
-
     object DetailParticipant : DetailScreen(route = "DETAIL_PARTICIPANT", argName = "party")
+    object ChatDetail : DetailScreen(route = "CHAT_DETAIL", argName = "postId")
 
     val arguments: List<NamedNavArgument> = listOf(
         navArgument(argName) { type = NavType.StringType }

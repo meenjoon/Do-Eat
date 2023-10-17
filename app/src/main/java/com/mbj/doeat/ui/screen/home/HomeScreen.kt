@@ -36,7 +36,7 @@ fun HomeScreen(
 fun BottomBar(navController: NavHostController) {
     val screens = listOf(
         BottomBarScreen.NearbyRestaurants,
-        BottomBarScreen.Chat,
+        BottomBarScreen.ChatRoom,
         BottomBarScreen.Community,
         BottomBarScreen.MenuRecommendation,
         BottomBarScreen.Setting,

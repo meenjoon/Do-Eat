@@ -18,13 +18,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mbj.doeat.data.remote.model.Party
-import com.mbj.doeat.ui.component.BackButton
-import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
 import com.mbj.doeat.ui.component.PartyDetailContent
 import com.mbj.doeat.ui.component.ReusableWebView
+import com.mbj.doeat.ui.component.button.BackButton
+import com.mbj.doeat.ui.component.button.LongRectangleButtonWithParams
+import com.mbj.doeat.ui.graph.DetailScreen
 import com.mbj.doeat.ui.screen.home.detail.detail_participant.viewmodel.PartyDetailParticipantViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 import com.mbj.doeat.ui.theme.button1
+import com.mbj.doeat.util.NavigationUtils
 
 @Composable
 fun PartyDetailParticipantScreen(party: Party, navController: NavHostController, onClick: () -> Unit) {
@@ -44,7 +46,13 @@ fun PartyDetailParticipantScreen(party: Party, navController: NavHostController,
                 backgroundColor = Yellow700,
                 contentColor = Color.Black,
                 textStyle = MaterialTheme.typography.button1
-            ) { }
+            ) {
+                NavigationUtils.navigate(
+                    navController, DetailScreen.ChatDetail.navigateWithArg(
+                        partyItemState?.userId.toString()
+                    )
+                )
+            }
         }
     ) { paddingValues ->
         Box {
