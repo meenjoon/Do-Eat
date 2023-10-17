@@ -44,6 +44,7 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
                 val newChatRoomRef = groupChatsRef.child(postId)
                 newChatRoomRef.child("name").setValue(restaurantName)
                 newChatRoomRef.child("createdChatRoomDate").setValue(createdChatRoom)
+                newChatRoomRef.child("postId").setValue(postId)
                 val membersRef = newChatRoomRef.child("members")
                 membersRef.child(myUserId).setValue(true)
                 membersRef.child(postUserId).setValue(true)
