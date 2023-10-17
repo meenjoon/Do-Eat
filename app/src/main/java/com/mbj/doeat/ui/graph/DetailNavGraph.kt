@@ -9,7 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.SearchItem
-import com.mbj.doeat.ui.screen.home.chat.ChatDetailScreen
+import com.mbj.doeat.ui.screen.home.chat_detail.ChatDetailScreen
 import com.mbj.doeat.ui.screen.home.detail.detail_home.DetailScreen
 import com.mbj.doeat.ui.screen.home.detail.detail_participant.PartyDetailParticipantScreen
 import com.mbj.doeat.ui.screen.home.detail.detail_writer.PartyDetailWriterScreen

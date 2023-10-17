@@ -1,4 +1,4 @@
-package com.mbj.doeat.ui.screen.home.chat
+package com.mbj.doeat.ui.screen.home.chat_detail
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
