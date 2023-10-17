@@ -3,6 +3,7 @@ package com.mbj.doeat.ui.screen.signin.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import com.google.firebase.database.FirebaseDatabase
 import com.mbj.doeat.data.local.user_pref.repository.UserPreferenceRepository
 import com.mbj.doeat.data.remote.model.LoginRequest
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
@@ -15,6 +16,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.kakao.sdk.user.UserApiClient
 import com.mbj.doeat.data.remote.model.FindUserRequest
+import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.util.UserDataStore.saveLoginResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,6 +46,7 @@ class SignInViewModel @Inject constructor(
             ).collectLatest { loginResponse ->
                 if (loginResponse is ApiResultSuccess) {
                     saveLoginResponse(loginResponse.data)
+                    saveUserToFirebaseDatabase(loginResponse.data)
                     NavigationUtils.navigate(
                         controller = navHostController,
                         routeName = Graph.HOME,
@@ -83,6 +86,7 @@ class SignInViewModel @Inject constructor(
             ).collectLatest { findUserResponse ->
                 if (findUserResponse is ApiResultSuccess) {
                     saveLoginResponse(findUserResponse.data)
+                    saveUserToFirebaseDatabase(findUserResponse.data)
                     NavigationUtils.navigate(
                         controller = navHostController,
                         routeName = Graph.HOME,
@@ -100,5 +104,12 @@ class SignInViewModel @Inject constructor(
 
     fun setLoadingState(isLoading: Boolean) {
         _isLoadingView.value = isLoading
+    }
+
+    private fun saveUserToFirebaseDatabase(loginResponse: LoginResponse) {
+        val database = FirebaseDatabase.getInstance()
+        val usersRef = database.getReference("users")
+
+        usersRef.child(loginResponse.userId.toString()).setValue(loginResponse)
     }
 }
