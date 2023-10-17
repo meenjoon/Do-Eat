@@ -76,6 +76,7 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
             )
             chatItem.chatId = groupChatsRef.child(postId).child("messages").push().key
             groupChatsRef.child(postId).child("messages").child(chatItem.chatId!!).setValue(chatItem)
+            groupChatsRef.child(postId).child("lastMessage").setValue(message)
             emit(ApiResultSuccess(Unit))
         } catch (e: Exception) {
             onError(e.message)
