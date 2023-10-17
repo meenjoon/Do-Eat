@@ -1,6 +1,7 @@
 package com.mbj.doeat.ui.component.button
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -14,12 +15,15 @@ import com.mbj.doeat.ui.component.image.IconComponentImageVector
 
 @Composable
 fun CommonIconButton(
-    imageVector: ImageVector
+    imageVector: ImageVector,
+    onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .background(Color.Yellow, CircleShape)
-            .size(33.dp), contentAlignment = Alignment.Center
+            .size(33.dp)
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
     ) {
         IconComponentImageVector(icon = imageVector, size = 15.dp, tint = Color.Black)
     }

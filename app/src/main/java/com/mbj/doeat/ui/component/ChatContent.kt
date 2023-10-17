@@ -16,6 +16,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
@@ -144,6 +146,8 @@ fun ChatRowPreview() {
 
             CustomTextField(
                 text = message, onValueChange = { message = it },
+                trailingIconImageVector = Icons.Default.Send,
+                onClick = { },
                 modifier = Modifier
                     .padding(horizontal = 20.dp, vertical = 20.dp)
                     .align(BottomCenter)
