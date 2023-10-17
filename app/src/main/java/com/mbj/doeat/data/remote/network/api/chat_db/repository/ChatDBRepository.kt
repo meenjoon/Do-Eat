@@ -2,6 +2,7 @@ package com.mbj.doeat.data.remote.network.api.chat_db.repository
 
 import com.google.firebase.database.ChildEventListener
 import com.mbj.doeat.data.remote.model.ChatItem
+import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.network.adapter.ApiResponse
 import com.mbj.doeat.data.remote.network.api.chat_db.ChatDBApi
 import kotlinx.coroutines.flow.Flow
@@ -45,6 +46,20 @@ class ChatDBRepository @Inject constructor(private val chatDBDataSource: ChatDBD
             message,
             myUserId,
             sendMessageTime
+        )
+    }
+
+    override fun getChatRoomItem(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
+        postId: String,
+        onChatRoomItem: (ChatRoom?) -> Unit
+    ) {
+        return chatDBDataSource.getChatRoomItem(
+            onComplete,
+            onError,
+            postId,
+            onChatRoomItem
         )
     }
 

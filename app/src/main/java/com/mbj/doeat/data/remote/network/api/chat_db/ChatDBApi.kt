@@ -2,6 +2,7 @@ package com.mbj.doeat.data.remote.network.api.chat_db
 
 import com.google.firebase.database.ChildEventListener
 import com.mbj.doeat.data.remote.model.ChatItem
+import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.network.adapter.ApiResponse
 import kotlinx.coroutines.flow.Flow
 
@@ -25,6 +26,13 @@ interface ChatDBApi {
         myUserId: String,
         sendMessageTime: String
     ): Flow<ApiResponse<Unit>>
+
+    fun getChatRoomItem(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
+        postId: String,
+        onChatRoomItem: (ChatRoom?) -> Unit
+    )
 
     fun addChatDetailEventListener(
         postId: String,

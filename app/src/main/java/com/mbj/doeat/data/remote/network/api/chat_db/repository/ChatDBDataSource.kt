@@ -4,7 +4,9 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.mbj.doeat.data.remote.model.ChatItem
+import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.network.adapter.ApiResponse
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
 import com.mbj.doeat.data.remote.network.api.chat_db.ChatDBApi
@@ -84,6 +86,30 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
     }.onCompletion {
         onComplete()
     }.flowOn(defaultDispatcher)
+
+    override fun getChatRoomItem(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
+        postId: String,
+        onChatRoomItem: (ChatRoom?) -> Unit
+    ) {
+        try {
+            groupChatsRef.child(postId)
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        val chatRoomData = dataSnapshot.getValue(ChatRoom::class.java)
+                        val chatRoomItem = chatRoomData?.copy(postId = postId)
+                        onChatRoomItem(chatRoomItem)
+                    }
+
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        onChatRoomItem(null)
+                    }
+                })
+        } catch (e: Exception) {
+            onChatRoomItem(null)
+        }
+    }
 
     override fun addChatDetailEventListener(
         postId: String,
