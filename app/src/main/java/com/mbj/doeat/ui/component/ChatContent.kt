@@ -40,6 +40,7 @@ import com.mbj.doeat.ui.component.textfield.CustomTextField
 import com.mbj.doeat.ui.theme.Color.Companion.LightRed
 import com.mbj.doeat.ui.theme.Color.Companion.LightYellow
 import com.mbj.doeat.ui.theme.DoEatTheme
+import com.mbj.doeat.util.DateUtils.getFormattedElapsedTime
 import com.mbj.doeat.util.UserDataStore
 
 @Composable
@@ -110,7 +111,7 @@ fun ChatContent(
             }
 
             Text(
-                text = chat.lastSentTime!!,
+                text = getFormattedElapsedTime(chat.lastSentTime!!),
                 style = TextStyle(
                     color = Gray,
                     fontSize = 12.sp
