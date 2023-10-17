@@ -44,11 +44,13 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
         ) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start
             ) {
-                BackButton(navController)
+                BackButton(
+                    modifier = Modifier.padding(8.dp),
+                    navController = navController
+                )
             }
 
             LazyColumn(

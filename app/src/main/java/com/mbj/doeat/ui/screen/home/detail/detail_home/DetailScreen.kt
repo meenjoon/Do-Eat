@@ -159,7 +159,7 @@ fun DetailContent(
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.Start
             ) {
-                BackButton(navController)
+                BackButton(navController = navController)
             }
 
             Box(

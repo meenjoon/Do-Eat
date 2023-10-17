@@ -9,11 +9,11 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 
 @Composable
-fun BackButton(navController: NavHostController) {
+fun BackButton(modifier: Modifier = Modifier,navController: NavHostController) {
     Icon(
         imageVector = Icons.Default.ArrowBack,
         contentDescription = "뒤로 가기",
-        modifier = Modifier.clickable {
+        modifier = modifier.clickable {
             navController.popBackStack()
         }
     )

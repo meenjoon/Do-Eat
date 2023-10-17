@@ -65,7 +65,7 @@ fun PartyDetailWriterScreen(party: Party, navController: NavHostController, onCl
                         .padding(8.dp),
                     horizontalArrangement = Arrangement.Start
                 ) {
-                    BackButton(navController)
+                    BackButton(navController = navController)
                 }
 
                 ReusableWebView(
