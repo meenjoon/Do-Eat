@@ -48,12 +48,11 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
     fun enterChatRoom(navController: NavHostController) {
         viewModelScope.launch {
             val myUserInfo = UserDataStore.getLoginResponse()
-            val isChatRoomFull =
-                chatRoomItem.value?.members?.count() == partyItem.value?.recruitmentLimit
-            val isUserInChatRoom =
-                chatRoomItem.value?.members?.contains(partyItem.value?.userId.toString()) == true
-            toggleEnterChatRoomToggle()
-            if (isUserInChatRoom) {
+
+            val isChatRoomFull = chatRoomItem.value?.members?.count() == partyItem.value?.recruitmentLimit
+            val isUserInChatRoom = chatRoomItem.value?.members?.contains(myUserInfo?.userId.toString()) == true
+
+            if (isUserInChatRoom || !isChatRoomFull) {
                 chatDBRepository.enterChatRoom(
                     onComplete = { },
                     onError = { },
