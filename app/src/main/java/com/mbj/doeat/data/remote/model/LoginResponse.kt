@@ -5,8 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class LoginResponse(
-    @SerialName("userId") val userId: Long,
-    @SerialName("kakaoUserId") val kakaoUserId: Long,
-    @SerialName("userNickname") val userNickname: String,
-    @SerialName("userImageUrl") val userImageUrl: String
+    @SerialName("userId") val userId: Long? = 0,
+    @SerialName("kakaoUserId") val kakaoUserId: Long? = 0,
+    @SerialName("userNickname") val userNickname: String? = "",
+    @SerialName("userImageUrl") val userImageUrl: String? = ""
 )
