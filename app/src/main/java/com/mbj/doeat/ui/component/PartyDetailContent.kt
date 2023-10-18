@@ -28,38 +28,44 @@ import com.mbj.doeat.ui.theme.Color.Companion.NormalColor
 import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 
 @Composable
-fun PartyDetailContent(party: Party, chatRoom: ChatRoom) {
+fun PartyDetailContent(party: Party?, chatRoom: ChatRoom?) {
     val scrollState = rememberLazyListState()
 
-    val isPartyFull = chatRoom.members?.count() == party.recruitmentLimit
+    val isPartyFull = chatRoom?.members?.count() == party?.recruitmentLimit
 
     Column(
         modifier = Modifier
             .padding(16.dp)
             .fillMaxWidth()
     ) {
-        Text(
-            text = party.restaurantName,
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.h4,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+        party?.restaurantName?.let {
+            Text(
+                text = it,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.h4,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        Text(
-            text = party.category,
-            style = MaterialTheme.typography.subtitle1,
-            color = Color.Gray,
-        )
+        if (party != null) {
+            Text(
+                text = party.category,
+                style = MaterialTheme.typography.subtitle1,
+                color = Color.Gray,
+            )
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Text(
-            text = party.restaurantLocation,
-            style = MaterialTheme.typography.body1,
-        )
+        if (party != null) {
+            Text(
+                text = party.restaurantLocation,
+                style = MaterialTheme.typography.body1,
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -72,38 +78,42 @@ fun PartyDetailContent(party: Party, chatRoom: ChatRoom) {
                 .padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 4.dp)
         ) {
             item {
-                Text(
-                    text = if (party.detail == "") {
-                        "세부사항이 없습니다."
-                    } else {
-                        party.detail
-                    },
-                    style = MaterialTheme.typography.body1,
-                    color = if (party.detail == "") {
-                        Gray200
-                    } else {
-                        NormalColor
-                    },
-                    letterSpacing = 2.sp,
-                    lineHeight = 20.sp
-                )
+                if (party != null) {
+                    Text(
+                        text = if (party.detail == "") {
+                            "세부사항이 없습니다."
+                        } else {
+                            party.detail
+                        },
+                        style = MaterialTheme.typography.body1,
+                        color = if (party.detail == "") {
+                            Gray200
+                        } else {
+                            NormalColor
+                        },
+                        letterSpacing = 2.sp,
+                        lineHeight = 20.sp
+                    )
+                }
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(
-            text = "${chatRoom.members?.count() ?: 1} / ${party.recruitmentLimit}",
-            fontSize = 26.sp,
-            color = if (isPartyFull) {
-                Color.Red
-            } else {
-                Yellow700
-            },
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentWidth(Alignment.CenterHorizontally)
-        )
+        if (party != null) {
+            Text(
+                text = "${chatRoom?.members?.count() ?: 1} / ${party.recruitmentLimit}",
+                fontSize = 26.sp,
+                color = if (isPartyFull) {
+                    Color.Red
+                } else {
+                    Yellow700
+                },
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+            )
+        }
     }
 }

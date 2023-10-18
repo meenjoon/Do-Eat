@@ -87,9 +87,7 @@ fun PartyDetailParticipantScreen(
                     webViewModifier = Modifier.fillMaxHeight(0.5f),
                 ) {}
 
-                if (chatRoomItem != null) {
-                    PartyDetailContent(partyItemState!!, chatRoomItem!!)
-                }
+                PartyDetailContent(party = partyItemState, chatRoom = chatRoomItem)
             }
 
             ToastMessage(
