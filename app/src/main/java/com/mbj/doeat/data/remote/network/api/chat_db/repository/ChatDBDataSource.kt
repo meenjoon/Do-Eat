@@ -1,6 +1,5 @@
 package com.mbj.doeat.data.remote.network.api.chat_db.repository
 
-import android.util.Log
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -87,7 +86,8 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
                 lastSentTime = DateUtils.getCurrentTime()
             )
             chatItem.chatId = groupChatsRef.child(postId).child("messages").push().key
-            groupChatsRef.child(postId).child("messages").child(chatItem.chatId!!).setValue(chatItem)
+            val newChatItem = chatItem.copy(chatId = chatItem.chatId)
+            groupChatsRef.child(postId).child("messages").child(chatItem.chatId!!).setValue(newChatItem)
             groupChatsRef.child(postId).child("lastMessage").setValue(message)
             emit(ApiResultSuccess(Unit))
         } catch (e: Exception) {
@@ -137,12 +137,10 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
                         .addListenerForSingleValueEvent(object : ValueEventListener {
                             override fun onDataChange(snapshot: DataSnapshot) {
                                 val userData = snapshot.getValue(LoginResponse::class.java)
-                                Log.d("@@ userData", "${userData}")
                                 onPeopleRetrieved(userData)
                             }
 
                             override fun onCancelled(error: DatabaseError) {
-                                TODO("Not yet implemented")
                             }
                         })
                 }
