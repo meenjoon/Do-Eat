@@ -42,7 +42,11 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
 
             if (dataSnapshot.value != null) {
                 val memberRef = chatRoomDB.child("members")
-                memberRef.child(myUserId).setValue("guest")
+                if (myUserId == postUserId) {
+                    memberRef.child(myUserId).setValue("master")
+                } else {
+                    memberRef.child(myUserId).setValue("guest")
+                }
                 emit(ApiResultSuccess(Unit))
             } else {
                 val newChatRoomRef = groupChatsRef.child(postId)
