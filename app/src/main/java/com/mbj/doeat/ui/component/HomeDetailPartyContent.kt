@@ -31,7 +31,7 @@ fun HomeDetailPartyContent(
     party: Party,
     chatRoomList: List<ChatRoom>?,
     onDetailInfoClick: (() -> Unit)? = null,
-    onChatJoinClick: (Party) -> Unit
+    onChatJoinClick: () -> Unit
 ) {
     val chatRoom = chatRoomList?.find { it.postId == party.postId.toString() }
     val isPartyFull = chatRoom?.members?.count() == party.recruitmentLimit
@@ -107,10 +107,7 @@ fun HomeDetailPartyContent(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 20.dp)
-                    .clickable {
-                        onChatJoinClick(party)
-                    },
+                    .padding(top = 20.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -136,10 +133,7 @@ fun HomeDetailPartyContent(
                         .background(Remon400, shape = RoundedCornerShape(4.dp))
                         .padding(4.dp)
                         .clickable {
-                            /**
-                             * 채팅방 참가하기 TODO
-                             */
-                            onChatJoinClick
+                            onChatJoinClick()
                         }
                 )
             }
