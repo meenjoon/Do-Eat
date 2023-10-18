@@ -9,6 +9,7 @@ data class ChatRoom(
     @SerialName("name") val name: String? = null,
     @SerialName("createdChatRoomDate") val createdChatRoomDate: String? = null,
     @SerialName("members") val members: Map<String, String>? = null,
+    @SerialName("messages") val messages: Map<String, ChatItem>? = null,
     @SerialName("lastMessage") val lastMessage: String? = null,
 )
 

@@ -34,6 +34,12 @@ interface ChatDBApi {
         onChatRoomItem: (ChatRoom?) -> Unit
     )
 
+    fun getAllChatRoomItem(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
+        onChatRoomItemList: (List<ChatRoom>?) -> Unit
+    )
+
     fun leaveChatRoom(
         onComplete: () -> Unit,
         onError: (message: String?) -> Unit,

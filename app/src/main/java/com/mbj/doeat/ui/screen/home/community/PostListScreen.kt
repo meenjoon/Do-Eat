@@ -34,6 +34,7 @@ fun PostListScreen(name: String, navController: NavHostController, onClick: () -
     val partyListState by viewModel.partyList.collectAsStateWithLifecycle()
     val searchFilterTextState by viewModel.searchBarText.collectAsStateWithLifecycle()
     val filteredPartyList = viewModel.getFilteredPartyList(partyListState, searchFilterTextState)
+    val chatRoomItemListState by viewModel.chatRoomItemList.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -65,7 +66,9 @@ fun PostListScreen(name: String, navController: NavHostController, onClick: () -
                     items = filteredPartyList.sortedByDescending { it.postId },
                     key = { party -> party.postId }
                 ) { party ->
-                    HomeDetailPartyContent(party = party,
+                    HomeDetailPartyContent(
+                        party = party,
+                        chatRoomList = chatRoomItemListState,
                         onDetailInfoClick = {
                             val encodedLink = UrlUtils.encodeUrl(party.link)
                             val titleWithoutHtmlTags = MapConverter.removeHtmlTags(party.restaurantName)

@@ -238,8 +238,8 @@ fun PartiesSection(viewModel: DetailViewModel, partyListState: List<Party>, onCl
                         items = partyListState,
                         key = { party -> party.postId }
                     ) { party ->
-                        HomeDetailPartyContent(party = party,
-                            onChatJoinClick = {})
+//                        HomeDetailPartyContent(party = party,
+//                            onChatJoinClick = {})
                     }
                 }
             }
