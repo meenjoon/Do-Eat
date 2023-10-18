@@ -9,8 +9,8 @@ import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
 import com.mbj.doeat.data.remote.network.api.chat_db.repository.ChatDBRepository
+import com.mbj.doeat.ui.graph.BottomBarScreen
 import com.mbj.doeat.util.DateUtils
-import com.mbj.doeat.util.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -130,6 +130,11 @@ class ChatDetailViewModel @Inject constructor(private val chatDBRepository: Chat
                 ). collectLatest { response ->
                     if (response is ApiResultSuccess) {
                         navController.popBackStack()
+                        navController.navigate(BottomBarScreen.Community.route) {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
+                        }
                     }
                 }
             }
