@@ -42,5 +42,9 @@ class Color {
         val NormalColorInverted: Color
             @Composable
             get() = if (darkTheme) Color.Black else Color.White
+
+        val ChatDetailBottomSheetColor: Color
+            @Composable
+            get() = if (darkTheme) Color.Gray else Beige50
     }
 }
