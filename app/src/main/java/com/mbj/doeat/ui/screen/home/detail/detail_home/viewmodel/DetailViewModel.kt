@@ -3,13 +3,19 @@ package com.mbj.doeat.ui.screen.home.detail.detail_home.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.PartyPostRequest
 import com.mbj.doeat.data.remote.model.SearchItem
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
+import com.mbj.doeat.data.remote.network.api.chat_db.repository.ChatDBRepository
 import com.mbj.doeat.data.remote.network.api.default_db.repository.DefaultDBRepository
 import com.mbj.doeat.ui.component.getUrl
+import com.mbj.doeat.ui.graph.DetailScreen
 import com.mbj.doeat.ui.graph.Graph
+import com.mbj.doeat.util.MapConverter
+import com.mbj.doeat.util.NavigationUtils
+import com.mbj.doeat.util.UrlUtils
 import com.mbj.doeat.util.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -22,13 +28,19 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class DetailViewModel @Inject constructor(private val defaultDBRepository: DefaultDBRepository) : ViewModel() {
+class DetailViewModel @Inject constructor(
+    private val defaultDBRepository: DefaultDBRepository,
+    private val chatDBRepository: ChatDBRepository
+) : ViewModel() {
 
     private val _partyList = MutableStateFlow<List<Party>>((emptyList()))
     val partyList: StateFlow<List<Party>> = _partyList
 
     private val _searchItem = MutableStateFlow<SearchItem?>(null)
     val searchItem: StateFlow<SearchItem?> = _searchItem
+
+    private val _chatRoomItemList = MutableStateFlow<List<ChatRoom>?>(emptyList())
+    val chatRoomItemList: StateFlow<List<ChatRoom>?> = _chatRoomItemList
 
     private val _recruitmentCount = MutableStateFlow("")
     val recruitmentCount: StateFlow<String> = _recruitmentCount
@@ -51,30 +63,44 @@ class DetailViewModel @Inject constructor(private val defaultDBRepository: Defau
     private val _isPostLoadingView = MutableStateFlow<Boolean>(false)
     val isPostLoadingView: StateFlow<Boolean> = _isPostLoadingView
 
+    val userId = UserDataStore.getLoginResponse()?.userId
+
     init {
-        viewModelScope.launch {
-            searchItem.collectLatest { searchItem ->
-                if (searchItem != null) {
-                    getPartiesByLocation(restaurantLocation = searchItem.roadAddress)
-                }
-            }
-        }
+        getPartiesByLocation()
+        getAllChatRoomItem()
     }
 
     fun updateSearchItem(inputSearchItem: SearchItem) {
         _searchItem.value = inputSearchItem
     }
 
-    private suspend fun getPartiesByLocation(restaurantLocation: String) {
-        defaultDBRepository.getPartiesByLocation(
-            restaurantLocation,
-            onComplete = {
-            },
-            onError = {
+    private fun getPartiesByLocation() {
+        viewModelScope.launch {
+            searchItem.collectLatest { searchItem ->
+                if (searchItem != null) {
+                    defaultDBRepository.getPartiesByLocation(
+                        searchItem.roadAddress,
+                        onComplete = {
+                        },
+                        onError = {
+                        }
+                    ).collectLatest { responsePartyList ->
+                        if (responsePartyList is ApiResultSuccess) {
+                            _partyList.value = responsePartyList.data
+                        }
+                    }
+                }
             }
-        ).collectLatest { responsePartyList ->
-            if (responsePartyList is ApiResultSuccess) {
-                _partyList.value = responsePartyList.data
+        }
+    }
+
+    private fun getAllChatRoomItem() {
+        viewModelScope.launch {
+            chatDBRepository.getAllChatRoomItem(
+                onComplete = { },
+                onError = { }
+            ) { chatRoomItemList ->
+                _chatRoomItemList.value = chatRoomItemList
             }
         }
     }
@@ -112,6 +138,32 @@ class DetailViewModel @Inject constructor(private val defaultDBRepository: Defau
                     }
                 }
             }
+        }
+    }
+
+    fun onDetailInfoClick(party: Party, navController: NavHostController) {
+
+        val encodedLink = UrlUtils.encodeUrl(party.link)
+        val titleWithoutHtmlTags = MapConverter.removeHtmlTags(party.restaurantName)
+
+        if (userId == party.userId) {
+            NavigationUtils.navigate(
+                navController, DetailScreen.DetailWriter.navigateWithArg(
+                    party.copy(
+                        restaurantName = titleWithoutHtmlTags,
+                        link = encodedLink
+                    )
+                )
+            )
+        } else {
+            NavigationUtils.navigate(
+                navController, DetailScreen.DetailParticipant.navigateWithArg(
+                    party.copy(
+                        restaurantName = titleWithoutHtmlTags,
+                        link = encodedLink
+                    )
+                )
+            )
         }
     }
 

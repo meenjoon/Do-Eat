@@ -46,6 +46,7 @@ import androidx.core.text.isDigitsOnly
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.SearchItem
 import com.mbj.doeat.ui.component.button.BackButton
@@ -73,6 +74,7 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
     val recruitmentDetailsState by viewModel.recruitmentDetails.collectAsStateWithLifecycle()
     val isBottomSheetExpandedState by viewModel.isBottomSheetExpanded.collectAsStateWithLifecycle()
     val showCreatePartyDialogState by viewModel.showCreatePartyDialog.collectAsStateWithLifecycle()
+    val chatRoomItemListState by viewModel.chatRoomItemList.collectAsStateWithLifecycle()
 
     val bottomSheetState = rememberBottomSheetState(
         initialValue = BottomSheetValue.Collapsed
@@ -111,14 +113,17 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
         content = { padding ->
             ExpandBottomSheetIfRequired(bottomSheetState, isBottomSheetExpandedState)
 
-            DetailContent(
-                viewModel = viewModel,
-                searchItem = searchItemState!!,
-                navController = navController,
-                partyListState = partyListState,
-                onClick = onClick,
-                padding = padding
-            )
+            chatRoomItemListState?.let {
+                DetailContent(
+                    viewModel = viewModel,
+                    searchItem = searchItemState!!,
+                    navController = navController,
+                    partyListState = partyListState,
+                    chatRoomItemList = it,
+                    onClick = onClick,
+                    padding = padding
+                )
+            }
 
             YesNoDialog(
                 showDialog = showCreatePartyDialogState,
@@ -139,6 +144,7 @@ fun DetailContent(
     searchItem: SearchItem,
     navController: NavHostController,
     partyListState: List<Party>,
+    chatRoomItemList: List<ChatRoom>,
     onClick: () -> Unit,
     padding: PaddingValues
 ) {
@@ -196,7 +202,9 @@ fun DetailContent(
 
             PartiesSection(
                 viewModel = viewModel,
-                partyListState = partyListState
+                partyListState = partyListState,
+                chatRoomItemList = chatRoomItemList,
+                navController = navController
             ) {
             }
 
@@ -212,7 +220,7 @@ fun DetailContent(
 }
 
 @Composable
-fun PartiesSection(viewModel: DetailViewModel, partyListState: List<Party>, onClick: () -> Unit) {
+fun PartiesSection(viewModel: DetailViewModel, partyListState: List<Party>, chatRoomItemList: List<ChatRoom>, navController: NavHostController , onClick: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -235,11 +243,20 @@ fun PartiesSection(viewModel: DetailViewModel, partyListState: List<Party>, onCl
                     modifier = Modifier.weight(1f)
                 ) {
                     items(
-                        items = partyListState,
+                        items = partyListState.sortedByDescending { it.postId },
                         key = { party -> party.postId }
                     ) { party ->
-//                        HomeDetailPartyContent(party = party,
-//                            onChatJoinClick = {})
+                        HomeDetailPartyContent(party = party,
+                            chatRoomList = chatRoomItemList,
+                            onDetailInfoClick = {
+                                viewModel.onDetailInfoClick(
+                                    party = party,
+                                    navController = navController
+                                )
+                            },
+                            onChatJoinClick = {
+
+                            })
                     }
                 }
             }
