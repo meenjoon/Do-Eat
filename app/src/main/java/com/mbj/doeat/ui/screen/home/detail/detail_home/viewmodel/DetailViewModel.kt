@@ -13,6 +13,7 @@ import com.mbj.doeat.data.remote.network.api.default_db.repository.DefaultDBRepo
 import com.mbj.doeat.ui.component.getUrl
 import com.mbj.doeat.ui.graph.DetailScreen
 import com.mbj.doeat.ui.graph.Graph
+import com.mbj.doeat.util.DateUtils
 import com.mbj.doeat.util.MapConverter
 import com.mbj.doeat.util.NavigationUtils
 import com.mbj.doeat.util.UrlUtils
@@ -62,6 +63,12 @@ class DetailViewModel @Inject constructor(
 
     private val _isPostLoadingView = MutableStateFlow<Boolean>(false)
     val isPostLoadingView: StateFlow<Boolean> = _isPostLoadingView
+
+    private val _isEnterChatRoom = MutableSharedFlow<Boolean>()
+    val isEnterChatRoom: SharedFlow<Boolean> = _isEnterChatRoom.asSharedFlow()
+
+    private val _showEnterChatRoom = MutableStateFlow<Boolean>(false)
+    val showEnterChatRoom: StateFlow<Boolean> = _showEnterChatRoom
 
     val userId = UserDataStore.getLoginResponse()?.userId
 
@@ -167,6 +174,38 @@ class DetailViewModel @Inject constructor(
         }
     }
 
+    fun enterChatRoom(party: Party, chatRoomItemList: List<ChatRoom>?, navController: NavHostController) {
+        viewModelScope.launch {
+            val myUserInfo = UserDataStore.getLoginResponse()
+            val chatRoom = chatRoomItemList?.find { it.postId == party.postId.toString() }
+
+            val isChatRoomFull = chatRoom?.members?.size == party.recruitmentLimit
+            val isUserInChatRoom = chatRoom?.members?.contains(myUserInfo?.userId.toString()) == true
+
+            if (isUserInChatRoom || !isChatRoomFull) {
+                chatDBRepository.enterChatRoom(
+                    onComplete = { },
+                    onError = { },
+                    postId = party.postId.toString(),
+                    postUserId = party.userId.toString(),
+                    myUserId = myUserInfo?.userId.toString(),
+                    restaurantName = party.restaurantName,
+                    createdChatRoom = DateUtils.getCurrentTime()
+                ).collectLatest { response ->
+                    if (response is ApiResultSuccess) {
+                        NavigationUtils.navigate(
+                            navController, DetailScreen.ChatDetail.navigateWithArg(
+                                party.postId.toString()
+                            )
+                        )
+                    }
+                }
+            } else if (isChatRoomFull) {
+                toggleEnterChatRoomToggle()
+            }
+        }
+    }
+
     fun changeRecruitmentCount(recruitCount: String) {
         _recruitmentCount.value = recruitCount
     }
@@ -192,5 +231,12 @@ class DetailViewModel @Inject constructor(
 
     private fun setPostLoadingState(isLoading: Boolean) {
         _isPostLoadingView.value = isLoading
+    }
+
+    private fun toggleEnterChatRoomToggle() {
+        viewModelScope.launch {
+            _isEnterChatRoom.emit(true)
+            _showEnterChatRoom.value = !showEnterChatRoom.value
+        }
     }
 }

@@ -150,6 +150,8 @@ fun DetailContent(
 ) {
     val isPostLoadingViewState by viewModel.isPostLoadingView.collectAsStateWithLifecycle()
     val showValidRecruitmentCountState by viewModel.showValidRecruitmentCount.collectAsStateWithLifecycle()
+    val showEnterChatRoomState by viewModel.showEnterChatRoom.collectAsStateWithLifecycle()
+    val isEnterChatRoomState by viewModel.isEnterChatRoom.collectAsStateWithLifecycle(initialValue = false)
     val isValidRecruitmentCountState by viewModel.isValidRecruitmentCount.collectAsStateWithLifecycle(initialValue = false)
 
     Box(
@@ -216,6 +218,15 @@ fun DetailContent(
         LoadingView(
             isLoading = isPostLoadingViewState,
         )
+
+        ToastMessage(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            showToast = showEnterChatRoomState,
+            showMessage = isEnterChatRoomState,
+            message = "현재 인원이 꽉 찼습니다."
+        )
     }
 }
 
@@ -255,7 +266,11 @@ fun PartiesSection(viewModel: DetailViewModel, partyListState: List<Party>, chat
                                 )
                             },
                             onChatJoinClick = {
-
+                                viewModel.enterChatRoom(
+                                    party = party,
+                                    chatRoomItemList = chatRoomItemList,
+                                    navController = navController
+                                )
                             })
                     }
                 }
