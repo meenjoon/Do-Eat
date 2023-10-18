@@ -3,6 +3,7 @@ package com.mbj.doeat.data.remote.network.api.chat_db.repository
 import com.google.firebase.database.ChildEventListener
 import com.mbj.doeat.data.remote.model.ChatItem
 import com.mbj.doeat.data.remote.model.ChatRoom
+import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.network.adapter.ApiResponse
 import com.mbj.doeat.data.remote.network.api.chat_db.ChatDBApi
 import kotlinx.coroutines.flow.Flow
@@ -60,6 +61,26 @@ class ChatDBRepository @Inject constructor(private val chatDBDataSource: ChatDBD
             onError,
             postId,
             onChatRoomItem
+        )
+    }
+
+    override fun getPeopleInChatRoomListener(
+        postId: String,
+        onPeopleRetrieved: (LoginResponse?) -> Unit
+    ): ChildEventListener {
+        return chatDBDataSource.getPeopleInChatRoomListener(
+            postId,
+            onPeopleRetrieved
+        )
+    }
+
+    override fun removeGetPeopleInChatRoomListener(
+        postId: String,
+        getPeopleInChatRoomListener: ChildEventListener?
+    ) {
+        return chatDBDataSource.removeGetPeopleInChatRoomListener(
+            postId,
+            getPeopleInChatRoomListener
         )
     }
 

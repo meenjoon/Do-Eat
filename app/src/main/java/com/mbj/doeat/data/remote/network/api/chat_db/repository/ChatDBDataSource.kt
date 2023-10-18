@@ -1,5 +1,6 @@
 package com.mbj.doeat.data.remote.network.api.chat_db.repository
 
+import android.util.Log
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -7,6 +8,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.mbj.doeat.data.remote.model.ChatItem
 import com.mbj.doeat.data.remote.model.ChatRoom
+import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.network.adapter.ApiResponse
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
 import com.mbj.doeat.data.remote.network.api.chat_db.ChatDBApi
@@ -112,6 +114,58 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
                 })
         } catch (e: Exception) {
             onChatRoomItem(null)
+        }
+    }
+
+    override fun getPeopleInChatRoomListener(
+        postId: String,
+        onPeopleRetrieved: (LoginResponse?) -> Unit
+    ): ChildEventListener {
+        val peopleEventListener = object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                val userId = snapshot.key
+                val userRef = database.getReference("users")
+
+                if (userId == null) {
+                    onPeopleRetrieved(null)
+                } else {
+                    userRef.child(userId)
+                        .addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(snapshot: DataSnapshot) {
+                                val userData = snapshot.getValue(LoginResponse::class.java)
+                                Log.d("@@ userData", "${userData}")
+                                onPeopleRetrieved(userData)
+                            }
+
+                            override fun onCancelled(error: DatabaseError) {
+                                TODO("Not yet implemented")
+                            }
+                        })
+                }
+            }
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+            }
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+            }
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+        }
+        groupChatsRef.child(postId).child("members").addChildEventListener(peopleEventListener)
+        return peopleEventListener
+    }
+
+    override fun removeGetPeopleInChatRoomListener(
+        postId: String,
+        getPeopleInChatRoomListener: ChildEventListener?
+    ) {
+        getPeopleInChatRoomListener?.let {
+            groupChatsRef.child(postId).child("members").removeEventListener(it)
         }
     }
 
