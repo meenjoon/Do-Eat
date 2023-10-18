@@ -37,7 +37,6 @@ class ChatDBRepository @Inject constructor(private val chatDBDataSource: ChatDBD
         onError: (message: String?) -> Unit,
         postId: String,
         message: String,
-        myUserId: String,
         sendMessageTime: String
     ): Flow<ApiResponse<Unit>> {
         return chatDBDataSource.sendMessage(
@@ -45,7 +44,6 @@ class ChatDBRepository @Inject constructor(private val chatDBDataSource: ChatDBD
             onError,
             postId,
             message,
-            myUserId,
             sendMessageTime
         )
     }
@@ -61,6 +59,20 @@ class ChatDBRepository @Inject constructor(private val chatDBDataSource: ChatDBD
             onError,
             postId,
             onChatRoomItem
+        )
+    }
+
+    override fun leaveChatRoom(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
+        postId: String,
+        chatItemList: List<ChatItem>
+    ): Flow<ApiResponse<Unit>> {
+        return chatDBDataSource.leaveChatRoom(
+            onComplete,
+            onError,
+            postId,
+            chatItemList
         )
     }
 

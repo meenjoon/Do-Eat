@@ -73,7 +73,6 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
         onError: (message: String?) -> Unit,
         postId: String,
         message: String,
-        myUserId: String,
         sendMessageTime: String
     ): Flow<ApiResponse<Unit>> = flow<ApiResponse<Unit>> {
         try {
@@ -120,6 +119,32 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
             onChatRoomItem(null)
         }
     }
+
+    override fun leaveChatRoom(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
+        postId: String,
+        chatItemList: List<ChatItem>
+    ): Flow<ApiResponse<Unit>> = flow<ApiResponse<Unit>> {
+        try {
+            val myUserInfo = UserDataStore.getLoginResponse()
+            val myUserId = myUserInfo?.userId.toString()
+            val chatRoomRef = groupChatsRef.child(postId)
+            chatRoomRef.child("members").child(myUserId).removeValue()
+
+            chatItemList.forEach { chatItem ->
+                if (chatItem.userId.toString() == myUserId) {
+                    val messageId = chatItem.chatId
+                    messageId?.let { chatRoomRef.child("messages").child(it).removeValue() }
+                }
+            }
+            emit(ApiResultSuccess(Unit))
+        } catch (e: Exception) {
+            onError(e.message)
+        }
+    }.onCompletion {
+        onComplete()
+    }.flowOn(defaultDispatcher)
 
     override fun getPeopleInChatRoomListener(
         postId: String,

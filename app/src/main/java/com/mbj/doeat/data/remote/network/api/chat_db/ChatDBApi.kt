@@ -24,7 +24,6 @@ interface ChatDBApi {
         onError: (message: String?) -> Unit,
         postId: String,
         message: String,
-        myUserId: String,
         sendMessageTime: String
     ): Flow<ApiResponse<Unit>>
 
@@ -34,6 +33,13 @@ interface ChatDBApi {
         postId: String,
         onChatRoomItem: (ChatRoom?) -> Unit
     )
+
+    fun leaveChatRoom(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
+        postId: String,
+        chatItemList: List<ChatItem>
+    ): Flow<ApiResponse<Unit>>
 
     fun getPeopleInChatRoomListener(
         postId: String,

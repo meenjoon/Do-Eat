@@ -2,6 +2,7 @@ package com.mbj.doeat.ui.screen.home.chat_detail
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,9 +21,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.rememberBottomSheetState
@@ -118,10 +121,15 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
                             Text(
                                 text = name,
                                 style = MaterialTheme.typography.h5,
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth(0.8f),
                                 textAlign = TextAlign.Center
                             )
                         }
+
+                        Icon(imageVector = Icons.Default.ExitToApp, contentDescription = "채팅방 나가기",
+                            modifier = Modifier.fillMaxWidth().padding(8.dp).clickable {
+                                viewModel.leaveChatRoom(navController)
+                            })
                     }
 
                     LazyColumn(

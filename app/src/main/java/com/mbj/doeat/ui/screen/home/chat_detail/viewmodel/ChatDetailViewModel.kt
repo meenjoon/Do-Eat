@@ -2,10 +2,12 @@ package com.mbj.doeat.ui.screen.home.chat_detail.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import com.google.firebase.database.ChildEventListener
 import com.mbj.doeat.data.remote.model.ChatItem
 import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.model.LoginResponse
+import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
 import com.mbj.doeat.data.remote.network.api.chat_db.repository.ChatDBRepository
 import com.mbj.doeat.util.DateUtils
 import com.mbj.doeat.util.UserDataStore
@@ -19,8 +21,6 @@ import javax.inject.Inject
 @HiltViewModel
 class ChatDetailViewModel @Inject constructor(private val chatDBRepository: ChatDBRepository) :
     ViewModel() {
-
-    private val myUserInfo = UserDataStore.getLoginResponse()
 
     private val _postId = MutableStateFlow("")
     val postId: StateFlow<String> = _postId
@@ -62,7 +62,6 @@ class ChatDetailViewModel @Inject constructor(private val chatDBRepository: Chat
                 onError = { },
                 postId = postId.value.substring(1, postId.value.length - 1),
                 message = message,
-                myUserId = myUserInfo?.userId.toString(),
                 sendMessageTime = DateUtils.getCurrentTime()
             ).collectLatest { }
         }
@@ -114,6 +113,23 @@ class ChatDetailViewModel @Inject constructor(private val chatDBRepository: Chat
                             }
                         }
                         _chatRoomMembers.value = newList
+                    }
+                }
+            }
+        }
+    }
+
+    fun leaveChatRoom(navController: NavHostController) {
+        viewModelScope.launch {
+            chatItemList.collectLatest { chatItemList ->
+                chatDBRepository.leaveChatRoom(
+                    onComplete = { },
+                    onError = { },
+                    postId = postId.value.substring(1, postId.value.length - 1),
+                    chatItemList = chatItemList
+                ). collectLatest { response ->
+                    if (response is ApiResultSuccess) {
+                        navController.popBackStack()
                     }
                 }
             }
