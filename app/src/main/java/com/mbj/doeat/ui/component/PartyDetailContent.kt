@@ -19,18 +19,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.ui.theme.Color.Companion.Gray200
 import com.mbj.doeat.ui.theme.Color.Companion.NormalColor
 import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
-import com.mbj.doeat.ui.theme.DoEatTheme
 
 @Composable
-fun PartyDetailContent(party: Party) {
+fun PartyDetailContent(party: Party, chatRoom: ChatRoom) {
     val scrollState = rememberLazyListState()
+
+    val isPartyFull = chatRoom.members?.count() == party.recruitmentLimit
 
     Column(
         modifier = Modifier
@@ -92,33 +93,17 @@ fun PartyDetailContent(party: Party) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "${party.currentNumberPeople} / ${party.recruitmentLimit}",
+            text = "${chatRoom.members?.count() ?: 1} / ${party.recruitmentLimit}",
             fontSize = 26.sp,
-            color = Yellow700,
+            color = if (isPartyFull) {
+                Color.Red
+            } else {
+                Yellow700
+            },
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentWidth(Alignment.CenterHorizontally)
-        )
-    }
-}
-
-@Preview
-@Composable
-fun PartyDetailWriterItemPreview() {
-    DoEatTheme {
-        PartyDetailContent(
-            party = Party(
-                postId = 2,
-                userId = 2,
-                restaurantName = "Delicious Restaurant 2",
-                category = "Italian",
-                restaurantLocation = "New York City",
-                recruitmentLimit = 8,
-                currentNumberPeople = 3,
-                detail = "A fantastic Italian restaurant in NYC.",
-                link = "https://example.com/restaurant2"
-            )
         )
     }
 }
