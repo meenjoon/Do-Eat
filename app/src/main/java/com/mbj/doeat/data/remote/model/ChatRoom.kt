@@ -11,5 +11,6 @@ data class ChatRoom(
     @SerialName("members") val members: Map<String, String>? = null,
     @SerialName("messages") val messages: Map<String, ChatItem>? = null,
     @SerialName("lastMessage") val lastMessage: String? = null,
+    @SerialName("lastMessageDate") val lastMessageDate: String? = null,
 )
 
