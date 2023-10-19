@@ -2,9 +2,11 @@ package com.mbj.doeat.util
 
 import android.os.Build
 import com.mbj.doeat.util.Constants.CURRENT_DATE_PATTERN
+import com.mbj.doeat.util.Constants.DATE_OUTPUT_PATTERN
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -26,7 +28,7 @@ object DateUtils {
     }
 
     fun getFormattedElapsedTime(createdDate: String): String {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+        val dateFormat = SimpleDateFormat(CURRENT_DATE_PATTERN, Locale.getDefault())
 
         val currentDate = dateFormat.parse(getCurrentTime())
         val startDate = dateFormat.parse(createdDate)
@@ -50,5 +52,36 @@ object DateUtils {
         }
 
         return result
+    }
+
+    fun formatCustomDate(createdDate: String): String {
+        val currentDate = Calendar.getInstance()
+        val parsedDate = SimpleDateFormat(CURRENT_DATE_PATTERN, Locale.getDefault()).parse(createdDate)
+
+        val calendar = Calendar.getInstance()
+        calendar.time = parsedDate
+
+        val outputFormat = SimpleDateFormat(DATE_OUTPUT_PATTERN, Locale.getDefault())
+
+        if (currentDate[Calendar.DATE] == calendar[Calendar.DATE]) {
+            // 오늘
+            return outputFormat.format(parsedDate)
+        }
+
+        currentDate.add(Calendar.DATE, -1)
+        if (currentDate[Calendar.DATE] == calendar[Calendar.DATE]) {
+            // 어제
+            return "어제 ${outputFormat.format(parsedDate)}"
+        }
+
+        if (currentDate[Calendar.YEAR] == calendar[Calendar.YEAR]) {
+            // 같은 년도
+            val month = SimpleDateFormat("M", Locale.getDefault()).format(parsedDate)
+            val day = SimpleDateFormat("d", Locale.getDefault()).format(parsedDate)
+            return "${month}월 ${day}일"
+        }
+
+        // 다른 년도
+        return SimpleDateFormat("yyyy.M.d.", Locale.getDefault()).format(parsedDate)
     }
 }

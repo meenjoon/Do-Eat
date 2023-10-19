@@ -33,7 +33,7 @@ import com.mbj.doeat.data.remote.model.ChatItem
 import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.ui.theme.Color.Companion.LightRed
 import com.mbj.doeat.ui.theme.Color.Companion.LightYellow
-import com.mbj.doeat.util.DateUtils.getFormattedElapsedTime
+import com.mbj.doeat.util.DateUtils.formatCustomDate
 import com.mbj.doeat.util.UserDataStore
 
 @Composable
@@ -119,7 +119,7 @@ fun ChatContent(
             }
 
             Text(
-                text = getFormattedElapsedTime(chat.lastSentTime!!),
+                text = formatCustomDate(chat.lastSentTime!!),
                 style = TextStyle(
                     color = Gray,
                     fontSize = 12.sp
