@@ -3,6 +3,7 @@ package com.mbj.doeat.ui.screen.home.detail.detail_home.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import com.google.firebase.database.ValueEventListener
 import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.PartyPostRequest
@@ -72,9 +73,11 @@ class DetailViewModel @Inject constructor(
 
     val userId = UserDataStore.getLoginResponse()?.userId
 
+    private var chatRoomsAllEventListener: ValueEventListener? = null
+
     init {
         getPartiesByLocation()
-        getAllChatRoomItem()
+        addChatRoomsAllEventListener()
     }
 
     fun updateSearchItem(inputSearchItem: SearchItem) {
@@ -101,14 +104,19 @@ class DetailViewModel @Inject constructor(
         }
     }
 
-    private fun getAllChatRoomItem() {
-        viewModelScope.launch {
-            chatDBRepository.getAllChatRoomItem(
+    private fun addChatRoomsAllEventListener() {
+        chatRoomsAllEventListener =
+            chatDBRepository.addChatRoomsAllEventListener(
                 onComplete = { },
                 onError = { }
-            ) { chatRoomItemList ->
-                _chatRoomItemList.value = chatRoomItemList
+            ) { chatRoomList ->
+                _chatRoomItemList.value = chatRoomList
             }
+    }
+
+    private fun removeChatRoomsAllEventListener() {
+        viewModelScope.launch {
+            chatDBRepository.removeChatRoomsAllEventListener(chatRoomsAllEventListener)
         }
     }
 
@@ -238,5 +246,10 @@ class DetailViewModel @Inject constructor(
             _isEnterChatRoom.emit(true)
             _showEnterChatRoom.value = !showEnterChatRoom.value
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        removeChatRoomsAllEventListener()
     }
 }

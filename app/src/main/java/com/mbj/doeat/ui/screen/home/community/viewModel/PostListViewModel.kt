@@ -3,13 +3,13 @@ package com.mbj.doeat.ui.screen.home.community.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import com.google.firebase.database.ValueEventListener
 import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
 import com.mbj.doeat.data.remote.network.api.chat_db.repository.ChatDBRepository
 import com.mbj.doeat.data.remote.network.api.default_db.repository.DefaultDBRepository
 import com.mbj.doeat.ui.graph.DetailScreen
-import com.mbj.doeat.util.DateUtils
 import com.mbj.doeat.util.DateUtils.getCurrentTime
 import com.mbj.doeat.util.MapConverter
 import com.mbj.doeat.util.NavigationUtils
@@ -55,8 +55,10 @@ class PostListViewModel @Inject constructor(
     private val _showEnterChatRoom = MutableStateFlow<Boolean>(false)
     val showEnterChatRoom: StateFlow<Boolean> = _showEnterChatRoom
 
+    private var chatRoomsAllEventListener: ValueEventListener? = null
+
     init {
-        getAllChatRoomItem()
+        addChatRoomsAllEventListener()
     }
 
     private fun getAllPartyList(): Flow<List<Party>> {
@@ -85,14 +87,21 @@ class PostListViewModel @Inject constructor(
         }
     }
 
-    private fun getAllChatRoomItem() {
+    private fun addChatRoomsAllEventListener() {
         viewModelScope.launch {
-            chatDBRepository.getAllChatRoomItem(
-                onComplete = { },
-                onError =  { }
-            ) { chatRoomItemList ->
-                _chatRoomItemList.value = chatRoomItemList
-            }
+            chatRoomsAllEventListener =
+                chatDBRepository.addChatRoomsAllEventListener(
+                    onComplete = { },
+                    onError = { }
+                ) { chatRoomList ->
+                    _chatRoomItemList.value = chatRoomList
+                }
+        }
+    }
+
+    private fun removeChatRoomsAllEventListener() {
+        viewModelScope.launch {
+            chatDBRepository.removeChatRoomsAllEventListener(chatRoomsAllEventListener)
         }
     }
 
@@ -158,5 +167,10 @@ class PostListViewModel @Inject constructor(
             _isEnterChatRoom.emit(true)
             _showEnterChatRoom.value = !showEnterChatRoom.value
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        removeChatRoomsAllEventListener()
     }
 }
