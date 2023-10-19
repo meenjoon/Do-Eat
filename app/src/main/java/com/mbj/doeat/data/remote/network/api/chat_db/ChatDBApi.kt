@@ -1,6 +1,7 @@
 package com.mbj.doeat.data.remote.network.api.chat_db
 
 import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.ValueEventListener
 import com.mbj.doeat.data.remote.model.ChatItem
 import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.model.LoginResponse
@@ -65,5 +66,14 @@ interface ChatDBApi {
     fun removeChatDetailEventListener(
         postId: String,
         chatDetailEventListener: ChildEventListener?
+    )
+
+    fun addChatRoomsAllEventListener(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
+        onChatRoomItemAdded: (List<ChatRoom>?) -> Unit): ValueEventListener
+
+    fun removeChatRoomsAllEventListener(
+        chatRoomsAllEventListener: ValueEventListener?
     )
 }

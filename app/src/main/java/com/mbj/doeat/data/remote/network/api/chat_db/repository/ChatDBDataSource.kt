@@ -264,4 +264,33 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
             groupChatsRef.child(postId).child("messages").removeEventListener(it)
         }
     }
+
+    override fun addChatRoomsAllEventListener(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
+        onChatRoomItemAdded: (List<ChatRoom>?) -> Unit
+    ): ValueEventListener {
+
+        val chatRoomsEventListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                onComplete()
+                val chatRoomList = snapshot.children.mapNotNull {
+                    it.getValue(ChatRoom::class.java)
+                }
+                onChatRoomItemAdded(chatRoomList)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                onError(null)
+            }
+        }
+        groupChatsRef.addValueEventListener(chatRoomsEventListener)
+
+        return chatRoomsEventListener
+    }
+
+    override fun removeChatRoomsAllEventListener(chatRoomsAllEventListener: ValueEventListener?) {
+        chatRoomsAllEventListener?.let { groupChatsRef.removeEventListener(it) }
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.mbj.doeat.data.remote.network.api.chat_db.repository
 
 import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.ValueEventListener
 import com.mbj.doeat.data.remote.model.ChatItem
 import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.model.LoginResponse
@@ -126,5 +127,21 @@ class ChatDBRepository @Inject constructor(private val chatDBDataSource: ChatDBD
             postId,
             chatDetailEventListener
         )
+    }
+
+    override fun addChatRoomsAllEventListener(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
+        onChatRoomItemAdded: (List<ChatRoom>?) -> Unit
+    ): ValueEventListener {
+        return chatDBDataSource.addChatRoomsAllEventListener(
+            onComplete,
+            onError,
+            onChatRoomItemAdded
+        )
+    }
+
+    override fun removeChatRoomsAllEventListener(chatRoomsAllEventListener: ValueEventListener?) {
+        return chatDBDataSource.removeChatRoomsAllEventListener(chatRoomsAllEventListener)
     }
 }
