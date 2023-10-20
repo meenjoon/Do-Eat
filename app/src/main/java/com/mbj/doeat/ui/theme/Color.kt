@@ -15,6 +15,7 @@ class Color {
         val Purple700 = Color(0xFF3700B3)
         val Teal200 = Color(0xFF03DAC5)
         val Yellow700 = Color(0xFFFFEB23)
+        val Gray50 = Color(0x94696A6F)
         val Gray200 = Color(0xFFB9B6B6)
         val Gray400 = Color(0XFFE5E6E9)
         val Beige50 = Color(0xFFFFF1F1)
