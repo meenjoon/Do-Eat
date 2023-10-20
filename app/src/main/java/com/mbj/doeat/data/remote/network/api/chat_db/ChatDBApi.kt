@@ -71,4 +71,14 @@ interface ChatDBApi {
     fun removeChatRoomsAllEventListener(
         chatRoomsAllEventListener: ValueEventListener?
     )
+
+    fun addChatRoomsEventListener(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
+        postId: String,
+        onChatRoomItemAdded: (ChatRoom?) -> Unit): ValueEventListener
+
+    fun removeChatRoomsEventListener(
+        chatRoomsEventListener: ValueEventListener?
+    )
 }

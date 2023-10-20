@@ -265,4 +265,30 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
     override fun removeChatRoomsAllEventListener(chatRoomsAllEventListener: ValueEventListener?) {
         chatRoomsAllEventListener?.let { groupChatsRef.removeEventListener(it) }
     }
+
+    override fun addChatRoomsEventListener(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
+        postId: String,
+        onChatRoomItemAdded: (ChatRoom?) -> Unit
+    ): ValueEventListener {
+        val chatRoomsEventListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                onComplete()
+                val chatRoom = snapshot.getValue(ChatRoom::class.java)
+                onChatRoomItemAdded(chatRoom)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                onError(null)
+            }
+        }
+        groupChatsRef.child(postId).addValueEventListener(chatRoomsEventListener)
+
+        return chatRoomsEventListener
+    }
+
+    override fun removeChatRoomsEventListener(chatRoomsEventListener: ValueEventListener?) {
+        chatRoomsEventListener?.let { groupChatsRef.removeEventListener(it) }
+    }
 }

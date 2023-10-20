@@ -135,4 +135,22 @@ class ChatDBRepository @Inject constructor(private val chatDBDataSource: ChatDBD
     override fun removeChatRoomsAllEventListener(chatRoomsAllEventListener: ValueEventListener?) {
         return chatDBDataSource.removeChatRoomsAllEventListener(chatRoomsAllEventListener)
     }
+
+    override fun addChatRoomsEventListener(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
+        postId: String,
+        onChatRoomItemAdded: (ChatRoom?) -> Unit
+    ): ValueEventListener {
+        return chatDBDataSource.addChatRoomsEventListener(
+            onComplete,
+            onError,
+            postId,
+            onChatRoomItemAdded
+        )
+    }
+
+    override fun removeChatRoomsEventListener(chatRoomsEventListener: ValueEventListener?) {
+        return chatDBDataSource.removeChatRoomsEventListener(chatRoomsEventListener)
+    }
 }
