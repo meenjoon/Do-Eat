@@ -315,7 +315,7 @@ fun MyBottomSheetContent(
         LazyColumn {
             items(
                 items = searchResult.items,
-                key = { searchItem -> searchItem.hashCode() }
+                key = { searchItem -> searchItem.roadAddress }
             ) { searchItem ->
                 MyBottomSheetContentItem(
                     searchItem = searchItem,
