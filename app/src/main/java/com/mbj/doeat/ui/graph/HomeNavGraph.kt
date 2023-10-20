@@ -32,6 +32,7 @@ fun HomeNavGraph(
         composable(route = BottomBarScreen.ChatRoom.route) {
             ChatRoomScreen(
                 name = BottomBarScreen.ChatRoom.route,
+                navController = navController,
                 onClick = { }
             )
         }

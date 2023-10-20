@@ -18,12 +18,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import com.mbj.doeat.ui.component.ChatRoomContent
 import com.mbj.doeat.ui.screen.home.chat_room.viewmodel.ChatRoomViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.NormalColorInverted
 
 @Composable
-fun ChatRoomScreen(name: String, onClick: () -> Unit) {
+fun ChatRoomScreen(name: String, navController: NavHostController, onClick: () -> Unit) {
 
     val viewModel: ChatRoomViewModel = hiltViewModel()
 
@@ -57,7 +58,12 @@ fun ChatRoomScreen(name: String, onClick: () -> Unit) {
                     key = { chatRoom -> chatRoom.postId.toString() }
                 ) { chatRoom ->
                     val memberImages = viewModel.chatRoomImages(userListState, chatRoom.members)
-                    ChatRoomContent(chatRoom = chatRoom, memberImages = memberImages)
+                    ChatRoomContent(chatRoom = chatRoom, memberImages = memberImages) {
+                        viewModel.enterChatRoom(
+                            chatRoom = chatRoom,
+                            navController = navController
+                        )
+                    }
                 }
             }
         }

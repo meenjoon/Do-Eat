@@ -2,6 +2,7 @@ package com.mbj.doeat.ui.screen.home.chat_room.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import com.google.firebase.database.ValueEventListener
 import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.model.InMember
@@ -9,6 +10,8 @@ import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
 import com.mbj.doeat.data.remote.network.api.chat_db.repository.ChatDBRepository
 import com.mbj.doeat.data.remote.network.api.default_db.repository.DefaultDBRepository
+import com.mbj.doeat.ui.graph.DetailScreen
+import com.mbj.doeat.util.NavigationUtils
 import com.mbj.doeat.util.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -82,6 +85,19 @@ class ChatRoomViewModel @Inject constructor(
                 matchingInMember?.let { user.userImageUrl }
             }
             ?: emptyList()
+    }
+
+    fun enterChatRoom(
+        chatRoom: ChatRoom,
+        navController: NavHostController
+    ) {
+        viewModelScope.launch {
+            NavigationUtils.navigate(
+                navController, DetailScreen.ChatDetail.navigateWithArg(
+                    chatRoom.postId.toString()
+                )
+            )
+        }
     }
 
     override fun onCleared() {

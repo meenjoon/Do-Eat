@@ -1,5 +1,6 @@
 package com.mbj.doeat.ui.component
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,7 +29,8 @@ import com.mbj.doeat.util.DateUtils.formatCustomDate
 @Composable
 fun ChatRoomContent(
     chatRoom: ChatRoom?,
-    memberImages: List<String>?
+    memberImages: List<String>?,
+    onChatJoinClick: () -> Unit
 ) {
     val currentMembers = chatRoom?.members?.size ?: 1
 
@@ -36,7 +38,10 @@ fun ChatRoomContent(
         modifier = Modifier
             .fillMaxWidth()
             .padding(5.dp)
-            .height(90.dp),
+            .height(90.dp)
+            .clickable {
+                       onChatJoinClick()
+            },
         elevation = 4.dp,
     ) {
         Row(
