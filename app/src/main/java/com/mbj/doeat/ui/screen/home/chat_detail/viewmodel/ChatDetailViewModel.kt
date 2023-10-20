@@ -118,11 +118,6 @@ class ChatDetailViewModel @Inject constructor(
             ).collectLatest { response ->
                 if (response is ApiResultSuccess) {
                     navController.popBackStack()
-                    navController.navigate(BottomBarScreen.Community.route) {
-                        popUpTo(navController.graph.id) {
-                            inclusive = true
-                        }
-                    }
                 }
             }
         }
