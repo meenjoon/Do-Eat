@@ -83,10 +83,13 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
             ) {
                 Spacer(modifier = Modifier.height(20.dp))
 
-                LazyColumn() {
-                    items(chatRoomMembersState) { chatRoomMeber ->
+                LazyColumn {
+                    items(chatRoomMembersState,
+                        key = { chatRoomMember ->
+                            chatRoomMember.userId!!
+                        }) { chatRoomMember ->
                         ChatRoomMemberItem(
-                            user = chatRoomMeber,
+                            user = chatRoomMember,
                             chatRoom = chatRoomItemState
                         )
                     }
@@ -127,9 +130,12 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
                         }
 
                         Icon(imageVector = Icons.Default.ExitToApp, contentDescription = "채팅방 나가기",
-                            modifier = Modifier.fillMaxWidth().padding(8.dp).clickable {
-                                viewModel.leaveChatRoom(navController)
-                            })
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                                .clickable {
+                                    viewModel.leaveChatRoom(navController)
+                                })
                     }
 
                     LazyColumn(
@@ -140,7 +146,9 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
                             bottom = 100.dp
                         )
                     ) {
-                        items(chatItemListState) { message ->
+                        items(chatItemListState, key = { message ->
+                            message.chatId!!
+                        }) { message ->
                             ChatContent(message, chatRoomItemState)
                         }
                     }
@@ -171,7 +179,9 @@ fun ChatRoomMemberItem(
     user: LoginResponse,
     chatRoom: ChatRoom?
 ) {
-    val isMaster = chatRoom?.members?.any { (key, value) -> value == "master" && key == user.userId.toString() } == true
+    val isMaster = chatRoom?.members?.any { (_, inMember) ->
+        inMember.userId == user.userId.toString() && inMember.guest == false
+    }
 
     Row(
         modifier = Modifier
@@ -197,7 +207,7 @@ fun ChatRoomMemberItem(
                 style = MaterialTheme.typography.body1
             )
 
-            if (isMaster) {
+            if (isMaster == true) {
                 Image(
                     painter = painterResource(id = R.drawable.crown_icon),
                     contentDescription = "방장",

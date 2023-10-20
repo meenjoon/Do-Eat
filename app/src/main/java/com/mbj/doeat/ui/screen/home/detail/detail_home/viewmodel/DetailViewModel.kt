@@ -188,9 +188,15 @@ class DetailViewModel @Inject constructor(
             val chatRoom = chatRoomItemList?.find { it.postId == party.postId.toString() }
 
             val isChatRoomFull = chatRoom?.members?.size == party.recruitmentLimit
-            val isUserInChatRoom = chatRoom?.members?.contains(myUserInfo?.userId.toString()) == true
+            val isUserInChatRoom = chatRoom?.members?.any{ it.value.userId == myUserInfo?.userId.toString()}
 
-            if (isUserInChatRoom || !isChatRoomFull) {
+            if (isUserInChatRoom == true) {
+                NavigationUtils.navigate(
+                    navController, DetailScreen.ChatDetail.navigateWithArg(
+                        party.postId.toString()
+                    )
+                )
+            } else if (!isChatRoomFull){
                 chatDBRepository.enterChatRoom(
                     onComplete = { },
                     onError = { },

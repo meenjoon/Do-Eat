@@ -49,10 +49,16 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
         viewModelScope.launch {
             val myUserInfo = UserDataStore.getLoginResponse()
 
-            val isChatRoomFull = chatRoomItem.value?.members?.count() == partyItem.value?.recruitmentLimit
-            val isUserInChatRoom = chatRoomItem.value?.members?.contains(myUserInfo?.userId.toString()) == true
+            val isChatRoomFull = chatRoomItem.value?.members?.size == partyItem.value?.recruitmentLimit
+            val isUserInChatRoom = chatRoomItem.value?.members?.any{ it.value.userId == myUserInfo?.userId.toString()}
 
-            if (isUserInChatRoom || !isChatRoomFull) {
+            if (isUserInChatRoom == true) {
+                NavigationUtils.navigate(
+                    navController, DetailScreen.ChatDetail.navigateWithArg(
+                        partyItem.value?.postId.toString()
+                    )
+                )
+            } else if (!isChatRoomFull){
                 chatDBRepository.enterChatRoom(
                     onComplete = { },
                     onError = { },

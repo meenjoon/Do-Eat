@@ -7,7 +7,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.mbj.doeat.data.remote.model.ChatItem
 import com.mbj.doeat.data.remote.model.ChatRoom
-import com.mbj.doeat.data.remote.model.LoginResponse
+import com.mbj.doeat.data.remote.model.InMember
 import com.mbj.doeat.data.remote.network.adapter.ApiResponse
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
 import com.mbj.doeat.data.remote.network.api.chat_db.ChatDBApi
@@ -36,15 +36,21 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
         createdChatRoom: String
     ): Flow<ApiResponse<Unit>> = flow {
         try {
+            val memberKey = groupChatsRef.child(postId).child("members").push().key
+
             val chatRoomDB = groupChatsRef.child(postId)
             val dataSnapshot = chatRoomDB.get().await()
 
             if (dataSnapshot.value != null) {
-                val memberRef = chatRoomDB.child("members")
+                val membersRef = chatRoomDB.child("members")
                 if (myUserId == postUserId) {
-                    memberRef.child(myUserId).setValue("master")
+                    val hostMember =
+                        InMember(inMemberId = memberKey, userId = myUserId, guest = false)
+                    membersRef.child(memberKey!!).setValue(hostMember)
                 } else {
-                    memberRef.child(myUserId).setValue("guest")
+                    val guestMember =
+                        InMember(inMemberId = memberKey, userId = myUserId, guest = true)
+                    membersRef.child(memberKey!!).setValue(guestMember)
                 }
                 emit(ApiResultSuccess(Unit))
             } else {
@@ -54,10 +60,17 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
                 newChatRoomRef.child("postId").setValue(postId)
                 val membersRef = newChatRoomRef.child("members")
                 if (myUserId == postUserId) {
-                    membersRef.child(myUserId).setValue("master")
+                    val hostMember =
+                        InMember(inMemberId = memberKey, userId = myUserId, guest = false)
+                    membersRef.child(memberKey!!).setValue(hostMember)
                 } else {
-                    membersRef.child(myUserId).setValue("guest")
-                    membersRef.child(postUserId).setValue("master")
+                    val guestMember =
+                        InMember(inMemberId = memberKey, userId = myUserId, guest = false)
+                    val hostMember =
+                        InMember(inMemberId = memberKey, userId = postUserId, guest = true)
+                    val hostKey = groupChatsRef.child(postId).child("members").push().key
+                    membersRef.child(memberKey!!).setValue(guestMember)
+                    membersRef.child(hostKey!!).setValue(hostMember)
                 }
                 emit(ApiResultSuccess(Unit))
             }
@@ -73,7 +86,7 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
         onError: (message: String?) -> Unit,
         postId: String,
         message: String,
-        sendMessageTime: String
+        sendMessageTime: String,
     ): Flow<ApiResponse<Unit>> = flow<ApiResponse<Unit>> {
         try {
             val myUserInfo = UserDataStore.getLoginResponse()
@@ -82,7 +95,7 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
                 message = message,
                 profileImage = myUserInfo?.userImageUrl,
                 nickname = myUserInfo?.userNickname,
-                lastSentTime = DateUtils.getCurrentTime()
+                lastSentTime = DateUtils.getCurrentTime(),
             )
             chatItem.chatId = groupChatsRef.child(postId).child("messages").push().key
             val newChatItem = chatItem.copy(chatId = chatItem.chatId)
@@ -127,7 +140,7 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
         onChatRoomItemList: (List<ChatRoom>?) -> Unit
     ) {
         try {
-            groupChatsRef.addListenerForSingleValueEvent(object : ValueEventListener{
+            groupChatsRef.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val chatRoomList = mutableListOf<ChatRoom>()
                     for (childSnapshot in snapshot.children) {
@@ -153,13 +166,14 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
         onComplete: () -> Unit,
         onError: (message: String?) -> Unit,
         postId: String,
+        inMemberKey: String,
         chatItemList: List<ChatItem>
     ): Flow<ApiResponse<Unit>> = flow<ApiResponse<Unit>> {
         try {
             val myUserInfo = UserDataStore.getLoginResponse()
             val myUserId = myUserInfo?.userId.toString()
             val chatRoomRef = groupChatsRef.child(postId)
-            chatRoomRef.child("members").child(myUserId).removeValue()
+            chatRoomRef.child("members").child(inMemberKey).removeValue()
 
             chatItemList.forEach { chatItem ->
                 if (chatItem.userId.toString() == myUserId) {
@@ -174,47 +188,6 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
     }.onCompletion {
         onComplete()
     }.flowOn(defaultDispatcher)
-
-    override fun getPeopleInChatRoomListener(
-        postId: String,
-        onPeopleRetrieved: (LoginResponse?) -> Unit
-    ): ChildEventListener {
-        val peopleEventListener = object : ChildEventListener {
-            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                val userId = snapshot.key
-                val userRef = database.getReference("users")
-
-                if (userId == null) {
-                    onPeopleRetrieved(null)
-                } else {
-                    userRef.child(userId)
-                        .addListenerForSingleValueEvent(object : ValueEventListener {
-                            override fun onDataChange(snapshot: DataSnapshot) {
-                                val userData = snapshot.getValue(LoginResponse::class.java)
-                                onPeopleRetrieved(userData)
-                            }
-
-                            override fun onCancelled(error: DatabaseError) {
-                            }
-                        })
-                }
-            }
-
-            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-            }
-
-            override fun onChildRemoved(snapshot: DataSnapshot) {
-            }
-
-            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-            }
-        }
-        groupChatsRef.child(postId).child("members").addChildEventListener(peopleEventListener)
-        return peopleEventListener
-    }
 
     override fun removeGetPeopleInChatRoomListener(
         postId: String,
@@ -292,5 +265,4 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
     override fun removeChatRoomsAllEventListener(chatRoomsAllEventListener: ValueEventListener?) {
         chatRoomsAllEventListener?.let { groupChatsRef.removeEventListener(it) }
     }
-
 }

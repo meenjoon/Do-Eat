@@ -55,21 +55,31 @@ class PartyDetailWriterViewModel @Inject constructor(
         viewModelScope.launch {
             val myUserInfo = UserDataStore.getLoginResponse()
 
-            chatDBRepository.enterChatRoom(
-                onComplete = { },
-                onError = { },
-                postId = partyItem.value?.postId.toString(),
-                postUserId = partyItem.value?.userId.toString(),
-                myUserId = myUserInfo?.userId.toString(),
-                restaurantName = partyItem.value?.restaurantName!!,
-                createdChatRoom = DateUtils.getCurrentTime()
-            ).collectLatest { response ->
-                if (response is ApiResultSuccess) {
-                    NavigationUtils.navigate(
-                        navController, DetailScreen.ChatDetail.navigateWithArg(
-                            partyItem.value?.postId.toString()
-                        )
+            val isUserInChatRoom = chatRoomItem.value?.members?.any{ it.value.userId == myUserInfo?.userId.toString()}
+
+            if (isUserInChatRoom == true) {
+                NavigationUtils.navigate(
+                    navController, DetailScreen.ChatDetail.navigateWithArg(
+                        partyItem.value?.postId.toString()
                     )
+                )
+            } else {
+                chatDBRepository.enterChatRoom(
+                    onComplete = { },
+                    onError = { },
+                    postId = partyItem.value?.postId.toString(),
+                    postUserId = partyItem.value?.userId.toString(),
+                    myUserId = myUserInfo?.userId.toString(),
+                    restaurantName = partyItem.value?.restaurantName!!,
+                    createdChatRoom = DateUtils.getCurrentTime()
+                ).collectLatest { response ->
+                    if (response is ApiResultSuccess) {
+                        NavigationUtils.navigate(
+                            navController, DetailScreen.ChatDetail.navigateWithArg(
+                                partyItem.value?.postId.toString()
+                            )
+                        )
+                    }
                 }
             }
         }

@@ -4,7 +4,6 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.ValueEventListener
 import com.mbj.doeat.data.remote.model.ChatItem
 import com.mbj.doeat.data.remote.model.ChatRoom
-import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.network.adapter.ApiResponse
 import kotlinx.coroutines.flow.Flow
 
@@ -45,13 +44,9 @@ interface ChatDBApi {
         onComplete: () -> Unit,
         onError: (message: String?) -> Unit,
         postId: String,
+        inMemberKey: String,
         chatItemList: List<ChatItem>
     ): Flow<ApiResponse<Unit>>
-
-    fun getPeopleInChatRoomListener(
-        postId: String,
-        onPeopleRetrieved: (LoginResponse?) -> Unit
-    ): ChildEventListener
 
     fun removeGetPeopleInChatRoomListener(
         postId: String,
