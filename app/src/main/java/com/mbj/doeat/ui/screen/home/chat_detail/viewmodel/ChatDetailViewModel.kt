@@ -4,13 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.ValueEventListener
 import com.mbj.doeat.data.remote.model.ChatItem
 import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
 import com.mbj.doeat.data.remote.network.api.chat_db.repository.ChatDBRepository
+import com.mbj.doeat.data.remote.network.api.default_db.repository.DefaultDBRepository
 import com.mbj.doeat.ui.graph.BottomBarScreen
 import com.mbj.doeat.util.DateUtils
+import com.mbj.doeat.util.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +22,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ChatDetailViewModel @Inject constructor(private val chatDBRepository: ChatDBRepository) :
+class ChatDetailViewModel @Inject constructor(
+    private val chatDBRepository: ChatDBRepository,
+    private val defaultDBRepository: DefaultDBRepository
+) :
     ViewModel() {
 
     private val _postId = MutableStateFlow("")
@@ -37,14 +43,16 @@ class ChatDetailViewModel @Inject constructor(private val chatDBRepository: Chat
     private val _chatRoomItem = MutableStateFlow<ChatRoom?>(null)
     val chatRoomItem: StateFlow<ChatRoom?> = _chatRoomItem
 
-    private var chatDetailEventListener: ChildEventListener? = null
-    private var getInPeopleListener: ChildEventListener? = null
+    private val myUserInfo = UserDataStore.getLoginResponse()
+    private var inMemberKey = ""
 
+    private var observeChatChangesListener: ChildEventListener? = null
+    private var observeParticipantsChangesListener: ValueEventListener? = null
 
     init {
-        addChatDetailEventListener()
+        observeChatChangesListener()
         getChatRoomItem()
-        getChatRoomMembers()
+        observeParticipantsChangesListener()
     }
 
     fun updatePostId(postId: String) {
@@ -62,16 +70,16 @@ class ChatDetailViewModel @Inject constructor(private val chatDBRepository: Chat
                 onError = { },
                 postId = postId.value.substring(1, postId.value.length - 1),
                 message = message,
-                sendMessageTime = DateUtils.getCurrentTime()
+                sendMessageTime = DateUtils.getCurrentTime(),
             ).collectLatest { }
         }
     }
 
-    private fun addChatDetailEventListener() {
+    private fun observeChatChangesListener() {
         viewModelScope.launch {
             postId.collectLatest { postId ->
                 if (postId != "") {
-                    chatDetailEventListener = chatDBRepository.addChatDetailEventListener(
+                    observeChatChangesListener = chatDBRepository.addChatDetailEventListener(
                         postId.substring(1, postId.length - 1)
                     ) { chatItem ->
                         val currentList = _chatItemList.value
@@ -99,67 +107,92 @@ class ChatDetailViewModel @Inject constructor(private val chatDBRepository: Chat
         }
     }
 
-    private fun getChatRoomMembers() {
+    fun leaveChatRoom(navController: NavHostController) {
+        viewModelScope.launch {
+            chatDBRepository.leaveChatRoom(
+                onComplete = { },
+                onError = { },
+                postId = postId.value.substring(1, postId.value.length - 1),
+                inMemberKey = inMemberKey,
+                chatItemList = chatItemList.value
+            ).collectLatest { response ->
+                if (response is ApiResultSuccess) {
+                    navController.popBackStack()
+                    navController.navigate(BottomBarScreen.Community.route) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun removeObserveChatChangesListener() {
+        chatDBRepository.removeChatDetailEventListener(
+            postId.value.substring(1, postId.value.length - 1),
+            observeChatChangesListener
+        )
+    }
+
+    private fun observeParticipantsChangesListener() {
         viewModelScope.launch {
             postId.collectLatest { postId ->
                 if (postId != "") {
-                    getInPeopleListener = chatDBRepository.getPeopleInChatRoomListener(
-                        postId.substring(1, postId.length - 1)
-                    ) { members ->
-                        val currentList = _chatRoomMembers.value
-                        val newList = currentList.toMutableList().apply {
-                            if (members != null) {
-                                add(members)
-                            }
+                    observeParticipantsChangesListener =
+                        chatDBRepository.addChatRoomsEventListener(
+                            onComplete = { },
+                            onError = { },
+                            postId.substring(1, postId.length - 1)
+                        ) { chatRoom ->
+                            getInMemberKey(chatRoom)
+                            getChatRoomMembers(chatRoom)
                         }
-                        _chatRoomMembers.value = newList
-                    }
                 }
             }
         }
     }
 
-    fun leaveChatRoom(navController: NavHostController) {
+    private fun removeObserveParticipantsChangesListener() {
         viewModelScope.launch {
-            chatItemList.collectLatest { chatItemList ->
-                chatDBRepository.leaveChatRoom(
-                    onComplete = { },
-                    onError = { },
-                    postId = postId.value.substring(1, postId.value.length - 1),
-                    chatItemList = chatItemList
-                ). collectLatest { response ->
-                    if (response is ApiResultSuccess) {
-                        navController.popBackStack()
-                        navController.navigate(BottomBarScreen.Community.route) {
-                            popUpTo(navController.graph.id) {
-                                inclusive = true
-                            }
-                        }
+            chatDBRepository.removeChatRoomsAllEventListener(observeParticipantsChangesListener)
+        }
+    }
+
+    private fun getChatRoomMembers(chatRoom: ChatRoom?) {
+        viewModelScope.launch {
+            defaultDBRepository.getAllUserList(
+                onComplete = { },
+                onError = { }
+            ).collectLatest { loginList ->
+                if (loginList is ApiResultSuccess) {
+                    val membersList = chatRoom?.members?.values?.map { inMember ->
+                        val userId = inMember.userId
+                        loginList.data.find { it.userId.toString() == userId }
+                    }
+                    if (!membersList.isNullOrEmpty()) {
+                        _chatRoomMembers.value = membersList as List<LoginResponse>
                     }
                 }
             }
         }
     }
 
-    private fun removeChatDetailEventListener() {
-        chatDBRepository.removeChatDetailEventListener(
-            postId.value.substring(1, postId.value.length - 1),
-            chatDetailEventListener
-        )
-    }
+    private fun getInMemberKey(chatRoom: ChatRoom?) {
+        val inMemberKeyFind = chatRoom?.members?.entries
+            ?.firstOrNull { it.value.userId == myUserInfo?.userId.toString() }
+            ?.key
 
-    private fun removeGetPeopleInChatRoomListener() {
-        chatDBRepository.removeGetPeopleInChatRoomListener(
-            postId.value.substring(1, postId.value.length - 1),
-            chatDetailEventListener
-        )
+        if (inMemberKeyFind != null) {
+            inMemberKey = inMemberKeyFind
+        }
     }
 
     override fun onCleared() {
         super.onCleared()
         viewModelScope.launch {
-            removeChatDetailEventListener()
-            removeGetPeopleInChatRoomListener()
+            removeObserveChatChangesListener()
+            removeObserveParticipantsChangesListener()
         }
     }
 }
