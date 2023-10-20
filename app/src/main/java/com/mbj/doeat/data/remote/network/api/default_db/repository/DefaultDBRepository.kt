@@ -84,4 +84,14 @@ class DefaultDBRepository @Inject constructor(
             onError = onError
         )
     }
+
+    override fun getAllUserList(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit
+    ): Flow<ApiResponse<List<LoginResponse>>> {
+        return defaultDBDataSource.getAllUserList(
+            onComplete = onComplete,
+            onError = onError
+        )
+    }
 }
