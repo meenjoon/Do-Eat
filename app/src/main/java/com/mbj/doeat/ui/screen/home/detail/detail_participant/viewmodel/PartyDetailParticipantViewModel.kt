@@ -3,6 +3,7 @@ package com.mbj.doeat.ui.screen.home.detail.detail_participant.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import com.google.firebase.database.ValueEventListener
 import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
@@ -37,8 +38,10 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
     private val _showEnterChatRoom = MutableStateFlow<Boolean>(false)
     val showEnterChatRoom: StateFlow<Boolean> = _showEnterChatRoom
 
+    private var observeChatRoomChangesListener: ValueEventListener? = null
+
     init {
-        getChatRoomItem()
+        observeChatRoomChangesListener()
     }
 
     fun updatePartyItem(inputPartyItem: Party) {
@@ -82,19 +85,26 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
         }
     }
 
-    private fun getChatRoomItem() {
+    private fun observeChatRoomChangesListener() {
         viewModelScope.launch {
             partyItem.collectLatest { partyItem ->
-                if (partyItem != null) {
-                    chatDBRepository.getChatRoomItem(
-                        onComplete = { },
-                        onError = { },
-                        postId = partyItem.postId.toString()
-                    ) { chatRoomItem ->
-                        _chatRoomItem.value = chatRoomItem
-                    }
+                if (partyItem !=  null) {
+                    observeChatRoomChangesListener =
+                        chatDBRepository.addChatRoomsEventListener(
+                            onComplete = { },
+                            onError = { },
+                            partyItem.postId.toString()
+                        ) { chatRoom ->
+                            _chatRoomItem.value = chatRoom
+                        }
                 }
             }
+        }
+    }
+
+    private fun removeObserveChatRoomChangesListener() {
+        viewModelScope.launch {
+            chatDBRepository.removeChatRoomsAllEventListener(observeChatRoomChangesListener)
         }
     }
 
@@ -103,5 +113,10 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
             _isEnterChatRoom.emit(true)
             _showEnterChatRoom.value = !showEnterChatRoom.value
         }
+    }
+
+    override fun onCleared() {
+        removeObserveChatRoomChangesListener()
+        super.onCleared()
     }
 }

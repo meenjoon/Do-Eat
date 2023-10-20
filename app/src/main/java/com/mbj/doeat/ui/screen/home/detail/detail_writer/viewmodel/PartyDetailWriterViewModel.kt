@@ -40,7 +40,7 @@ class PartyDetailWriterViewModel @Inject constructor(
     val isLoadingView: StateFlow<Boolean> = _isLoadingView
 
     init {
-        getChatRoomItem()
+//        getChatRoomItem()
     }
 
     fun updateSearchItem(inputPartyItem: Party) {
