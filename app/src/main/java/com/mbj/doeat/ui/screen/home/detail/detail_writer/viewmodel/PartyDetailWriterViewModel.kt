@@ -3,6 +3,7 @@ package com.mbj.doeat.ui.screen.home.detail.detail_writer.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import com.google.firebase.database.ValueEventListener
 import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.PartyPostIdRequestDto
@@ -39,8 +40,10 @@ class PartyDetailWriterViewModel @Inject constructor(
     private val _isLoadingView = MutableStateFlow<Boolean>(false)
     val isLoadingView: StateFlow<Boolean> = _isLoadingView
 
+    private var observeChatRoomChangesListener: ValueEventListener? = null
+
     init {
-//        getChatRoomItem()
+        observeChatRoomChangesListener()
     }
 
     fun updateSearchItem(inputPartyItem: Party) {
@@ -104,24 +107,35 @@ class PartyDetailWriterViewModel @Inject constructor(
         }
     }
 
-    private fun getChatRoomItem() {
+    private fun observeChatRoomChangesListener() {
         viewModelScope.launch {
             partyItem.collectLatest { partyItem ->
-                if (partyItem != null) {
-                    chatDBRepository.getChatRoomItem(
-                        onComplete = { },
-                        onError = { },
-                        postId = partyItem.postId.toString()
-
-                    ) { chatRoomItem ->
-                        _chatRoomItem.value = chatRoomItem
-                    }
+                if (partyItem !=  null) {
+                    observeChatRoomChangesListener =
+                        chatDBRepository.addChatRoomsEventListener(
+                            onComplete = { },
+                            onError = { },
+                            partyItem.postId.toString()
+                        ) { chatRoom ->
+                            _chatRoomItem.value = chatRoom
+                        }
                 }
             }
         }
     }
 
+    private fun removeObserveChatRoomChangesListener() {
+        viewModelScope.launch {
+            chatDBRepository.removeChatRoomsAllEventListener(observeChatRoomChangesListener)
+        }
+    }
+
     private fun setLoadingState(isLoading: Boolean) {
         _isLoadingView.value = isLoading
+    }
+
+    override fun onCleared() {
+        removeObserveChatRoomChangesListener()
+        super.onCleared()
     }
 }
