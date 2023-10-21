@@ -48,6 +48,12 @@ interface ChatDBApi {
         chatItemList: List<ChatItem>
     ): Flow<ApiResponse<Unit>>
 
+    fun deleteChatRoom(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
+        postId: String,
+    ): Flow<ApiResponse<Unit>>
+
     fun addChatDetailEventListener(
         postId: String,
         onChatItemAdded: (ChatItem) -> Unit

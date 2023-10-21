@@ -9,8 +9,7 @@ import com.mbj.doeat.data.remote.network.api.chat_db.ChatDBApi
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class ChatDBRepository @Inject constructor(private val chatDBDataSource: ChatDBDataSource) :
-    ChatDBApi {
+class ChatDBRepository @Inject constructor(private val chatDBDataSource: ChatDBDataSource) : ChatDBApi {
 
     override fun enterChatRoom(
         onComplete: () -> Unit,
@@ -87,6 +86,18 @@ class ChatDBRepository @Inject constructor(private val chatDBDataSource: ChatDBD
             postId,
             inMemberKey,
             chatItemList
+        )
+    }
+
+    override fun deleteChatRoom(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
+        postId: String
+    ): Flow<ApiResponse<Unit>> {
+        return chatDBDataSource.deleteChatRoom(
+            onComplete,
+            onError,
+            postId
         )
     }
 

@@ -189,6 +189,21 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
         onComplete()
     }.flowOn(defaultDispatcher)
 
+    override fun deleteChatRoom(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
+        postId: String,
+    ): Flow<ApiResponse<Unit>> = flow<ApiResponse<Unit>> {
+        try {
+            groupChatsRef.child(postId).removeValue()
+            emit(ApiResultSuccess(Unit))
+        } catch (e: Exception) {
+            onError(e.message)
+        }
+    }.onCompletion {
+        onComplete()
+    }.flowOn(defaultDispatcher)
+
     override fun addChatDetailEventListener(
         postId: String,
         onChatItemAdded: (ChatItem) -> Unit
