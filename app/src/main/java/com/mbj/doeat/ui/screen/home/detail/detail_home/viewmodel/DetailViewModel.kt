@@ -62,6 +62,9 @@ class DetailViewModel @Inject constructor(
     private val _showValidRecruitmentCount = MutableStateFlow<Boolean>(false)
     val showValidRecruitmentCount: StateFlow<Boolean> = _showValidRecruitmentCount
 
+    private val _errorValidRecruitmentCount = MutableStateFlow<String>("")
+    val errorValidRecruitmentCount: StateFlow<String> = _errorValidRecruitmentCount
+
     private val _isPostLoadingView = MutableStateFlow<Boolean>(false)
     val isPostLoadingView: StateFlow<Boolean> = _isPostLoadingView
 
@@ -123,9 +126,15 @@ class DetailViewModel @Inject constructor(
     fun postParty(navHostController: NavHostController) {
         viewModelScope.launch {
             if (recruitmentCount.value == "") {
-                _showCreatePartyDialog.value = false
-                toggleValidToggleRecruitmentCountState()
-            } else {
+                toggleValidToggleRecruitmentCountState("모집인원을 입력해주세요.")
+            }
+            else if(recruitmentCount.value.toInt() <= 1 ) {
+                toggleValidToggleRecruitmentCountState("모집인원을 2명 이상 입력해주세요.")
+            }
+            else if(recruitmentCount.value.toInt() > 15) {
+                toggleValidToggleRecruitmentCountState("모집인원은 15명까지 모집 가능합니다.")
+            }
+            else {
                 setPostLoadingState(true)
                 defaultDBRepository.postParty(
                     PartyPostRequest(
@@ -236,10 +245,12 @@ class DetailViewModel @Inject constructor(
         _showCreatePartyDialog.value = showDialog
     }
 
-    private fun toggleValidToggleRecruitmentCountState() {
+    private fun toggleValidToggleRecruitmentCountState(errorMessage: String) {
         viewModelScope.launch {
+            _showCreatePartyDialog.value = false
             _isValidRecruitmentCount.emit(true)
             _showValidRecruitmentCount.value = !_showValidRecruitmentCount.value
+            _errorValidRecruitmentCount.value = errorMessage
         }
     }
 
@@ -252,6 +263,10 @@ class DetailViewModel @Inject constructor(
             _isEnterChatRoom.emit(true)
             _showEnterChatRoom.value = !showEnterChatRoom.value
         }
+    }
+
+    fun validateRecruitmentCount(newValue: String): Boolean {
+        return newValue.isEmpty() || newValue.toInt() <= 1 || newValue.toInt() > 15
     }
 
     override fun onCleared() {

@@ -150,9 +150,12 @@ fun DetailContent(
 ) {
     val isPostLoadingViewState by viewModel.isPostLoadingView.collectAsStateWithLifecycle()
     val showValidRecruitmentCountState by viewModel.showValidRecruitmentCount.collectAsStateWithLifecycle()
+    val errorValidRecruitmentCountState by viewModel.errorValidRecruitmentCount.collectAsStateWithLifecycle()
     val showEnterChatRoomState by viewModel.showEnterChatRoom.collectAsStateWithLifecycle()
     val isEnterChatRoomState by viewModel.isEnterChatRoom.collectAsStateWithLifecycle(initialValue = false)
-    val isValidRecruitmentCountState by viewModel.isValidRecruitmentCount.collectAsStateWithLifecycle(initialValue = false)
+    val isValidRecruitmentCountState by viewModel.isValidRecruitmentCount.collectAsStateWithLifecycle(
+        initialValue = false
+    )
 
     Box(
         modifier = Modifier
@@ -189,7 +192,7 @@ fun DetailContent(
                         .align(Alignment.TopCenter),
                     showToast = showValidRecruitmentCountState,
                     showMessage = isValidRecruitmentCountState,
-                    message = "모집인원을 입력해주세요."
+                    message = errorValidRecruitmentCountState
                 )
             }
 
@@ -227,11 +230,26 @@ fun DetailContent(
             showMessage = isEnterChatRoomState,
             message = "현재 인원이 꽉 찼습니다."
         )
+
+        ToastMessage(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            showToast = showEnterChatRoomState,
+            showMessage = isEnterChatRoomState,
+            message = "현재 인원이 꽉 찼습니다."
+        )
     }
 }
 
 @Composable
-fun PartiesSection(viewModel: DetailViewModel, partyListState: List<Party>, chatRoomItemList: List<ChatRoom>, navController: NavHostController , onClick: () -> Unit) {
+fun PartiesSection(
+    viewModel: DetailViewModel,
+    partyListState: List<Party>,
+    chatRoomItemList: List<ChatRoom>,
+    navController: NavHostController,
+    onClick: () -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -379,7 +397,7 @@ fun DetailBottomSheet(
             text = "모집 인원*",
             fontSize = 17.sp,
             fontWeight = FontWeight.Bold,
-            color = if (recruitmentCount.isEmpty()) {
+            color = if (viewModel.validateRecruitmentCount(recruitmentCount)) {
                 Color.Red
             } else {
                 NormalColor
@@ -402,12 +420,16 @@ fun DetailBottomSheet(
                 errorBorderColor = Color.Red,
                 focusedBorderColor = NormalColor,
                 unfocusedBorderColor = if (recruitmentCount.isEmpty()) Color.Red else NormalColor,
-                textColor = NormalColor
+                textColor = if (viewModel.validateRecruitmentCount(recruitmentCount)) {
+                    Color.Red
+                } else {
+                    NormalColor
+                },
             ),
             keyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Number
             ),
-            isError = recruitmentCount.isEmpty()
+            isError = viewModel.validateRecruitmentCount(recruitmentCount)
         )
 
         Spacer(modifier = Modifier.padding(top = 10.dp))
