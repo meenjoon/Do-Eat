@@ -47,21 +47,20 @@ class ChatRoomViewModel @Inject constructor(
                 onComplete = { },
                 onError = { }
             ) { chatRoomList ->
-                val newMyChatRoomList =
-                    myUserId?.let { chatRoomList?.let { it1 -> getChatRoomsForUser(it, it1) } }
-                _myChatRoomList.value = newMyChatRoomList
+                myUserId?.let { userId ->
+                    chatRoomList?.let { chatRooms ->
+                        val sortedChatRooms = chatRooms.sortedByDescending { chatRoom ->
+                            chatRoom.lastMessageDate ?: chatRoom.createdChatRoomDate
+                        }
+                        _myChatRoomList.value = sortedChatRooms
+                    }
+                }
             }
     }
 
     private fun removeChatRoomsAllEventListener() {
         viewModelScope.launch {
             chatDBRepository.removeChatRoomsAllEventListener(chatRoomsAllEventListener)
-        }
-    }
-
-    private fun getChatRoomsForUser(userId: Long, chatRoomList: List<ChatRoom>): List<ChatRoom> {
-        return chatRoomList.filter { chatRoom ->
-            chatRoom.members?.values?.any { it.userId == userId.toString() } == true
         }
     }
 
