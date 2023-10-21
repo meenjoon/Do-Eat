@@ -90,16 +90,6 @@ class ChatDBRepository @Inject constructor(private val chatDBDataSource: ChatDBD
         )
     }
 
-    override fun removeGetPeopleInChatRoomListener(
-        postId: String,
-        getPeopleInChatRoomListener: ChildEventListener?
-    ) {
-        return chatDBDataSource.removeGetPeopleInChatRoomListener(
-            postId,
-            getPeopleInChatRoomListener
-        )
-    }
-
     override fun addChatDetailEventListener(
         postId: String,
         onChatItemAdded: (ChatItem) -> Unit

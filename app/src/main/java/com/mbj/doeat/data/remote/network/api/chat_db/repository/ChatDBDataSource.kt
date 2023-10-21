@@ -189,15 +189,6 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
         onComplete()
     }.flowOn(defaultDispatcher)
 
-    override fun removeGetPeopleInChatRoomListener(
-        postId: String,
-        getPeopleInChatRoomListener: ChildEventListener?
-    ) {
-        getPeopleInChatRoomListener?.let {
-            groupChatsRef.child(postId).child("members").removeEventListener(it)
-        }
-    }
-
     override fun addChatDetailEventListener(
         postId: String,
         onChatItemAdded: (ChatItem) -> Unit

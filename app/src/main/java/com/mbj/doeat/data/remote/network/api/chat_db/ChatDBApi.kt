@@ -48,11 +48,6 @@ interface ChatDBApi {
         chatItemList: List<ChatItem>
     ): Flow<ApiResponse<Unit>>
 
-    fun removeGetPeopleInChatRoomListener(
-        postId: String,
-        getPeopleInChatRoomListener: ChildEventListener?
-    )
-
     fun addChatDetailEventListener(
         postId: String,
         onChatItemAdded: (ChatItem) -> Unit
