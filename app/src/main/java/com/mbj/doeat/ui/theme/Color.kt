@@ -18,6 +18,7 @@ class Color {
         val Gray50 = Color(0x94696A6F)
         val Gray100 = Color(0x65E9ECF7)
         val Gray200 = Color(0xFFB9B6B6)
+        val Gray250 = Color(0xFF9E9D9D)
         val Beige50 = Color(0xFFFFF1F1)
         val Beige100 = Color(0xFFEBDFDF)
         val Remon400 = Color(0xFFF4FF7F)
@@ -47,5 +48,9 @@ class Color {
         val ChatDetailBottomSheetColor: Color
             @Composable
             get() = if (darkTheme) Color.Gray else Beige50
+
+        val chatListTextColor: Color
+            @Composable
+            get() = if (darkTheme) Gray100 else Gray250
     }
 }

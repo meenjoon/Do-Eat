@@ -23,9 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.ui.component.image.ChatRoomProfileImage
-import com.mbj.doeat.ui.theme.Color.Companion.Gray100
-import com.mbj.doeat.ui.theme.Color.Companion.Gray200
 import com.mbj.doeat.ui.theme.Color.Companion.Gray50
+import com.mbj.doeat.ui.theme.Color.Companion.chatListTextColor
 import com.mbj.doeat.util.DateUtils.formatCustomDate
 
 @Composable
@@ -42,15 +41,15 @@ fun ChatRoomContent(
             .padding(start = 5.dp, top = 5.dp, bottom = 5.dp)
             .height(90.dp)
             .clickable {
-                       onChatJoinClick()
+                onChatJoinClick()
             },
         elevation = 4.dp,
     ) {
         Row(
-            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 16.dp),
+            modifier = Modifier.padding(start = 8.dp, top = 16.dp, bottom = 16.dp),
         ) {
             Box(
-               modifier = Modifier.fillMaxHeight(1f)
+                modifier = Modifier.fillMaxHeight(1f)
             ) {
                 if (!memberImages.isNullOrEmpty()) {
                     when (memberImages.size) {
@@ -75,6 +74,7 @@ fun ChatRoomContent(
                                 modifier = Modifier
                                     .fillMaxWidth(0.2f)
                                     .fillMaxHeight(),
+                                horizontalArrangement = Arrangement.Center,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 ChatRoomProfileImage(
@@ -99,7 +99,8 @@ fun ChatRoomContent(
                             ) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.Center
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     ChatRoomProfileImage(
                                         imageUrl = memberImages[0],
@@ -133,11 +134,13 @@ fun ChatRoomContent(
 
                         else -> {
                             Column(
-                                modifier = Modifier.fillMaxWidth(0.2f)
+                                modifier = Modifier.fillMaxWidth(0.2f),
+                                verticalArrangement = Arrangement.Center
                             ) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.Center
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     ChatRoomProfileImage(
                                         imageUrl = memberImages[0],
@@ -212,7 +215,7 @@ fun ChatRoomContent(
                     Text(
                         text = it,
                         fontSize = 16.sp,
-                        color = Gray100
+                        color = chatListTextColor
                     )
                 }
             }
@@ -221,19 +224,25 @@ fun ChatRoomContent(
 
             if (chatRoom?.lastMessageDate == null) {
                 Text(
-                    text = formatCustomDate(chatRoom?.createdChatRoomDate!!),
+                    text = formatCustomDate(
+                        createdDate = chatRoom?.createdChatRoomDate!!,
+                        chatRoomDetailType = false
+                    ),
                     fontSize = 14.sp,
-                    color = Gray100,
+                    color =  chatListTextColor,
                     textAlign = TextAlign.End,
-                    modifier = Modifier.padding(end = 5.dp)
+                    modifier = Modifier.fillMaxWidth(0.8f)
                 )
             } else {
                 Text(
-                    text = formatCustomDate(chatRoom.lastMessageDate),
+                    text = formatCustomDate(
+                        createdDate = chatRoom.lastMessageDate,
+                        chatRoomDetailType = false
+                    ),
                     fontSize = 14.sp,
-                    color = Gray100,
+                    color =  chatListTextColor,
                     textAlign = TextAlign.End,
-                    modifier = Modifier.padding(end = 5.dp)
+                    modifier = Modifier.fillMaxWidth(0.8f)
                 )
             }
         }
