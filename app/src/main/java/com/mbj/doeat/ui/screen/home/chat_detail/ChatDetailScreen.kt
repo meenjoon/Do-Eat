@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.BottomSheetValue
@@ -30,7 +31,13 @@ import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,6 +57,9 @@ import com.mbj.doeat.ui.component.button.BackButton
 import com.mbj.doeat.ui.component.textfield.CustomTextField
 import com.mbj.doeat.ui.screen.home.chat_detail.viewmodel.ChatDetailViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.ChatDetailBottomSheetColor
+import com.mbj.doeat.util.Keyboard
+import com.mbj.doeat.util.keyboardAsState
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -62,6 +72,17 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
     val chatItemListState by viewModel.chatItemList.collectAsStateWithLifecycle()
     val chatRoomItemState by viewModel.chatRoomItem.collectAsStateWithLifecycle()
     val chatRoomMembersState by viewModel.chatRoomMembers.collectAsStateWithLifecycle()
+
+    var previousChatItemList by remember { mutableStateOf(chatItemListState) }
+    val listState = rememberLazyListState()
+    val isKeyboardOpen by keyboardAsState()
+    val coroutineScope = rememberCoroutineScope()
+
+    DisposableEffect(chatItemListState) {
+        onDispose {
+            previousChatItemList = chatItemListState
+        }
+    }
 
     val bottomSheetState = rememberBottomSheetState(
         initialValue = BottomSheetValue.Collapsed
@@ -139,6 +160,7 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
                     }
 
                     LazyColumn(
+                        state = listState,
                         modifier = Modifier.padding(
                             start = 15.dp,
                             top = 25.dp,
@@ -151,7 +173,15 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
                         }) { message ->
                             ChatContent(message, chatRoomItemState)
                         }
+
+                        if (isKeyboardOpen == Keyboard.Opened || previousChatItemList.size != chatItemListState.size) {
+                            coroutineScope.launch {
+                                val targetIndex = maxOf(0, chatItemListState.size - 1)
+                                listState.scrollToItem(targetIndex)
+                            }
+                        }
                     }
+                    previousChatItemList = chatItemListState
                 }
 
                 CustomTextField(
@@ -218,3 +248,4 @@ fun ChatRoomMemberItem(
         }
     }
 }
+
