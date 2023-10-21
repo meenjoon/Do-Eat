@@ -58,7 +58,7 @@ class PartyDetailWriterViewModel @Inject constructor(
         viewModelScope.launch {
             val myUserInfo = UserDataStore.getLoginResponse()
 
-            val isUserInChatRoom = chatRoomItem.value?.members?.any{ it.value.userId == myUserInfo?.userId.toString()}
+            val isUserInChatRoom = chatRoomItem.value?.members?.any { it.value.userId == myUserInfo?.userId.toString() }
 
             if (isUserInChatRoom == true) {
                 NavigationUtils.navigate(
@@ -97,6 +97,23 @@ class PartyDetailWriterViewModel @Inject constructor(
                 onError = { }
             ).collectLatest { response ->
                 if (response is ApiResultSuccess) {
+                    deleteChatRoom(
+                        postId = partyItem.value!!.postId.toString(),
+                        navHostController = navHostController
+                    )
+                }
+            }
+        }
+    }
+
+    private fun deleteChatRoom(postId: String, navHostController: NavHostController) {
+        viewModelScope.launch {
+            chatDBRepository.deleteChatRoom(
+                onComplete = { },
+                onError = { },
+                postId = postId
+            ).collectLatest { response ->
+                if (response is ApiResultSuccess) {
                     navHostController.navigate(BottomBarScreen.Community.route) {
                         popUpTo(navHostController.graph.id) {
                             inclusive = true
@@ -110,7 +127,7 @@ class PartyDetailWriterViewModel @Inject constructor(
     private fun observeChatRoomChangesListener() {
         viewModelScope.launch {
             partyItem.collectLatest { partyItem ->
-                if (partyItem !=  null) {
+                if (partyItem != null) {
                     observeChatRoomChangesListener =
                         chatDBRepository.addChatRoomsEventListener(
                             onComplete = { },
