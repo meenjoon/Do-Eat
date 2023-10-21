@@ -40,7 +40,7 @@ interface DefaultDBApi {
         onError: (message: String?) -> Unit
     ): Flow<ApiResponse<List<Party>>>
 
-    fun partyDelete(
+    fun deleteParty(
         partyPostIdRequestDto: PartyPostIdRequestDto,
         onComplete: () -> Unit,
         onError: (message: String?) -> Unit

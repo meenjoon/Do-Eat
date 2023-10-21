@@ -91,7 +91,7 @@ class PartyDetailWriterViewModel @Inject constructor(
     fun deleteParty(navHostController: NavHostController) {
         setLoadingState(true)
         viewModelScope.launch {
-            defaultDBRepository.partyDelete(
+            defaultDBRepository.deleteParty(
                 PartyPostIdRequestDto(partyItem.value?.postId!!),
                 onComplete = { },
                 onError = { }

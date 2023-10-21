@@ -131,7 +131,7 @@ class DefaultDBDataSource @Inject constructor(
         onComplete()
     }.flowOn(defaultDispatcher)
 
-    override fun partyDelete(
+    override fun deleteParty(
         partyPostIdRequestDto: PartyPostIdRequestDto,
         onComplete: () -> Unit,
         onError: (message: String?) -> Unit
