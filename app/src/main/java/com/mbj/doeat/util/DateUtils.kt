@@ -54,7 +54,7 @@ object DateUtils {
         return result
     }
 
-    fun formatCustomDate(createdDate: String): String {
+    fun formatCustomDate(createdDate: String, chatRoomDetailType: Boolean? = true): String {
         val currentDate = Calendar.getInstance()
         val parsedDate = SimpleDateFormat(CURRENT_DATE_PATTERN, Locale.getDefault()).parse(createdDate)
 
@@ -71,7 +71,11 @@ object DateUtils {
         currentDate.add(Calendar.DATE, -1)
         if (currentDate[Calendar.DATE] == calendar[Calendar.DATE]) {
             // 어제
-            return "어제 ${outputFormat.format(parsedDate)}"
+            return if(chatRoomDetailType == true) {
+                "어제 ${outputFormat.format(parsedDate)}"
+            } else {
+                "어제"
+            }
         }
 
         if (currentDate[Calendar.YEAR] == calendar[Calendar.YEAR]) {
