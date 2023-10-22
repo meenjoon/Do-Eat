@@ -33,17 +33,24 @@ class SettingViewModel @Inject constructor(
     private val _userInfo = MutableStateFlow<LoginResponse?>(null)
     val userInfo: StateFlow<LoginResponse?> = _userInfo
 
-    private val _myPartyList = MutableStateFlow<List<Party>>(emptyList())
-    val myPartyList: StateFlow<List<Party>> = _myPartyList
+    private val _myCreatedParties = MutableStateFlow<List<Party>>(emptyList())
+    val myCreatedParties: StateFlow<List<Party>> = _myCreatedParties
+
+    private val _joinedParties = MutableStateFlow<List<Party>>(emptyList())
+    val joinedParties: StateFlow<List<Party>> = _joinedParties
 
     private val _chatRoomItemList = MutableStateFlow<List<ChatRoom>?>(emptyList())
     val chatRoomItemList: StateFlow<List<ChatRoom>?> = _chatRoomItemList
+
+    private val _myJoinedChatRoomPostIds = MutableStateFlow<Set<String>?>(null)
+    private val myJoinedChatRoomPostIds: StateFlow<Set<String>?> = _myJoinedChatRoomPostIds
 
     private var chatRoomsAllEventListener: ValueEventListener? = null
 
     init {
         getUserInfo()
         getMyPartyList()
+        observeMyJoinedChatRoomPostIds()
         addChatRoomsAllEventListener()
     }
 
@@ -61,7 +68,7 @@ class SettingViewModel @Inject constructor(
                         userIdRequest = UserIdRequest(userInfo.userId!!)
                     ).collectLatest { partyList ->
                         if (partyList is ApiResultSuccess) {
-                            _myPartyList.value = partyList.data
+                            _myCreatedParties.value = partyList.data
                         }
                     }
                 }
@@ -69,18 +76,53 @@ class SettingViewModel @Inject constructor(
         }
     }
 
+    private fun getAllPartyList(postIdSet: Set<String>?) {
+        viewModelScope.launch {
+            userInfo.collectLatest { userInfo ->
+                if (userInfo != null) {
+                    defaultDBRepository.getAllPartyList(
+                        onComplete = { },
+                        onError = { },
+                    ).collectLatest { partyList ->
+                        if (partyList is ApiResultSuccess) {
+                            _joinedParties.value = filterPartiesByPostIds(partyList.data, postIdSet?: emptySet())
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeMyJoinedChatRoomPostIds() {
+        viewModelScope.launch {
+            myJoinedChatRoomPostIds.collectLatest { postIdSet ->
+                getAllPartyList(postIdSet = postIdSet)
+            }
+        }
+    }
+
     fun onDetailInfoClick(party: Party, navController: NavHostController) {
         val encodedLink = UrlUtils.encodeUrl(party.link)
         val titleWithoutHtmlTags = MapConverter.removeHtmlTags(party.restaurantName)
-
-        NavigationUtils.navigate(
-            navController, DetailScreen.DetailWriter.navigateWithArg(
-                party.copy(
-                    restaurantName = titleWithoutHtmlTags,
-                    link = encodedLink
+        if (userInfo.value?.userId == party.userId) {
+            NavigationUtils.navigate(
+                navController, DetailScreen.DetailWriter.navigateWithArg(
+                    party.copy(
+                        restaurantName = titleWithoutHtmlTags,
+                        link = encodedLink
+                    )
                 )
             )
-        )
+        } else {
+            NavigationUtils.navigate(
+                navController, DetailScreen.DetailParticipant.navigateWithArg(
+                    party.copy(
+                        restaurantName = titleWithoutHtmlTags,
+                        link = encodedLink
+                    )
+                )
+            )
+        }
     }
 
     fun enterChatRoom(
@@ -126,6 +168,20 @@ class SettingViewModel @Inject constructor(
         }
     }
 
+    private fun getMyJoinedChatRoomPostIds(chatRoomList: List<ChatRoom>, myUserId: String): Set<String> {
+        val myJoinedChatRooms = chatRoomList.filter { chatRoom ->
+            chatRoom.members?.values?.any { inMember -> inMember.userId == myUserId } == true
+        }
+        return myJoinedChatRooms.mapNotNull { it.postId }.toSet()
+    }
+
+    private fun filterPartiesByPostIds(parties: List<Party>, postIds: Set<String>): List<Party> {
+        return parties.filter { party ->
+            party.postId.toString() in postIds
+        }
+    }
+
+
     private fun addChatRoomsAllEventListener() {
         viewModelScope.launch {
             chatRoomsAllEventListener =
@@ -134,6 +190,9 @@ class SettingViewModel @Inject constructor(
                     onError = { }
                 ) { chatRoomList ->
                     _chatRoomItemList.value = chatRoomList
+                    if (chatRoomList != null) {
+                        _myJoinedChatRoomPostIds.value = getMyJoinedChatRoomPostIds(chatRoomList, userInfo.value?.userId.toString())
+                    }
                 }
         }
     }
