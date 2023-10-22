@@ -13,4 +13,8 @@ object UserDataStore {
     fun getLoginResponse(): LoginResponse? {
         return loginResponse
     }
+
+    fun removeLoginResponse() {
+        loginResponse = null
+    }
 }
