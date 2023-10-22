@@ -7,7 +7,7 @@ import androidx.navigation.compose.composable
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.mbj.doeat.R
 import com.mbj.doeat.ui.screen.home.setting.SettingScreen
-import com.mbj.doeat.ui.screen.home.chat.ChatScreen
+import com.mbj.doeat.ui.screen.home.chat_room.ChatRoomScreen
 import com.mbj.doeat.ui.screen.home.community.PostListScreen
 import com.mbj.doeat.ui.screen.home.menu_recommendation.MenuRecommendationScreen
 import com.mbj.doeat.ui.screen.home.nearby_restaurants.NearbyRestaurantsScreen
@@ -29,9 +29,10 @@ fun HomeNavGraph(
                 fusedLocationClient = fusedLocationClient
                 )
         }
-        composable(route = BottomBarScreen.Chat.route) {
-            ChatScreen(
-                name = BottomBarScreen.Chat.route,
+        composable(route = BottomBarScreen.ChatRoom.route) {
+            ChatRoomScreen(
+                name = BottomBarScreen.ChatRoom.route,
+                navController = navController,
                 onClick = { }
             )
         }
@@ -69,7 +70,7 @@ sealed class BottomBarScreen(
         icon = R.drawable.restaurant_icon
     )
 
-    object Chat : BottomBarScreen(
+    object ChatRoom : BottomBarScreen(
         route = "CHAT",
         title = "채팅",
         icon = R.drawable.chat_icon

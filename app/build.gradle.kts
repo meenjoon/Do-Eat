@@ -6,6 +6,7 @@ plugins {
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
     id("kotlinx-serialization")
+    id("com.google.gms.google-services")
 }
 
 val properties = Properties()
@@ -31,10 +32,26 @@ android {
         }
 
         buildConfigField("String", "KAKAO_NATIVE_KEY", properties.getProperty("kakao_native_key"))
-        buildConfigField("String", "NAVER_OEPNAPI_BASE_URL", properties.getProperty("naver_openapi_base_url"))
-        buildConfigField("String", "NAVER_OEPNAPI_CLIENT_ID", properties.getProperty("naver_openapi_client_id"))
-        buildConfigField("String", "NAVER_OEPNAPI_CLIENT_SECRET", properties.getProperty("naver_openapi_client_secret"))
-        buildConfigField("String", "NAVER_SEARCH_BASE_URL", properties.getProperty("naver_search_base_url"))
+        buildConfigField(
+            "String",
+            "NAVER_OEPNAPI_BASE_URL",
+            properties.getProperty("naver_openapi_base_url")
+        )
+        buildConfigField(
+            "String",
+            "NAVER_OEPNAPI_CLIENT_ID",
+            properties.getProperty("naver_openapi_client_id")
+        )
+        buildConfigField(
+            "String",
+            "NAVER_OEPNAPI_CLIENT_SECRET",
+            properties.getProperty("naver_openapi_client_secret")
+        )
+        buildConfigField(
+            "String",
+            "NAVER_SEARCH_BASE_URL",
+            properties.getProperty("naver_search_base_url")
+        )
         buildConfigField("String", "DOEAT_BASE_URL", properties.getProperty("doeat_base_url"))
 
         manifestPlaceholders["KAKAO_SIGNIN_NATIVE_KEY"] = KAKAO_SIGNIN_NATIVE_KEY
@@ -117,4 +134,12 @@ dependencies {
 
     // WebView
     implementation("com.google.accompanist:accompanist-webview:0.24.13-rc")
+
+    // Coil(이미지 로딩)
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:32.0.0"))
+    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-database-ktx")
 }

@@ -46,15 +46,16 @@ import androidx.core.text.isDigitsOnly
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.SearchItem
-import com.mbj.doeat.ui.component.BackButton
-import com.mbj.doeat.ui.component.LoadingView
-import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
+import com.mbj.doeat.ui.component.button.BackButton
+import com.mbj.doeat.ui.component.loading.LoadingView
+import com.mbj.doeat.ui.component.button.LongRectangleButtonWithParams
 import com.mbj.doeat.ui.component.HomeDetailPartyContent
 import com.mbj.doeat.ui.component.ReusableWebView
-import com.mbj.doeat.ui.component.ToastMessage
-import com.mbj.doeat.ui.component.YesNoDialog
+import com.mbj.doeat.ui.component.toast.ToastMessage
+import com.mbj.doeat.ui.component.dialog.YesNoDialog
 import com.mbj.doeat.ui.screen.home.detail.detail_home.viewmodel.DetailViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.Gray200
 import com.mbj.doeat.ui.theme.Color.Companion.NormalColor
@@ -73,6 +74,7 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
     val recruitmentDetailsState by viewModel.recruitmentDetails.collectAsStateWithLifecycle()
     val isBottomSheetExpandedState by viewModel.isBottomSheetExpanded.collectAsStateWithLifecycle()
     val showCreatePartyDialogState by viewModel.showCreatePartyDialog.collectAsStateWithLifecycle()
+    val chatRoomItemListState by viewModel.chatRoomItemList.collectAsStateWithLifecycle()
 
     val bottomSheetState = rememberBottomSheetState(
         initialValue = BottomSheetValue.Collapsed
@@ -111,14 +113,17 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
         content = { padding ->
             ExpandBottomSheetIfRequired(bottomSheetState, isBottomSheetExpandedState)
 
-            DetailContent(
-                viewModel = viewModel,
-                searchItem = searchItemState!!,
-                navController = navController,
-                partyListState = partyListState,
-                onClick = onClick,
-                padding = padding
-            )
+            chatRoomItemListState?.let {
+                DetailContent(
+                    viewModel = viewModel,
+                    searchItem = searchItemState!!,
+                    navController = navController,
+                    partyListState = partyListState,
+                    chatRoomItemList = it,
+                    onClick = onClick,
+                    padding = padding
+                )
+            }
 
             YesNoDialog(
                 showDialog = showCreatePartyDialogState,
@@ -139,12 +144,18 @@ fun DetailContent(
     searchItem: SearchItem,
     navController: NavHostController,
     partyListState: List<Party>,
+    chatRoomItemList: List<ChatRoom>,
     onClick: () -> Unit,
     padding: PaddingValues
 ) {
     val isPostLoadingViewState by viewModel.isPostLoadingView.collectAsStateWithLifecycle()
     val showValidRecruitmentCountState by viewModel.showValidRecruitmentCount.collectAsStateWithLifecycle()
-    val isValidRecruitmentCountState by viewModel.isValidRecruitmentCount.collectAsStateWithLifecycle(initialValue = false)
+    val errorValidRecruitmentCountState by viewModel.errorValidRecruitmentCount.collectAsStateWithLifecycle()
+    val showEnterChatRoomState by viewModel.showEnterChatRoom.collectAsStateWithLifecycle()
+    val isEnterChatRoomState by viewModel.isEnterChatRoom.collectAsStateWithLifecycle(initialValue = false)
+    val isValidRecruitmentCountState by viewModel.isValidRecruitmentCount.collectAsStateWithLifecycle(
+        initialValue = false
+    )
 
     Box(
         modifier = Modifier
@@ -159,7 +170,7 @@ fun DetailContent(
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.Start
             ) {
-                BackButton(navController)
+                BackButton(navController = navController)
             }
 
             Box(
@@ -181,7 +192,7 @@ fun DetailContent(
                         .align(Alignment.TopCenter),
                     showToast = showValidRecruitmentCountState,
                     showMessage = isValidRecruitmentCountState,
-                    message = "모집인원을 입력해주세요."
+                    message = errorValidRecruitmentCountState
                 )
             }
 
@@ -196,7 +207,9 @@ fun DetailContent(
 
             PartiesSection(
                 viewModel = viewModel,
-                partyListState = partyListState
+                partyListState = partyListState,
+                chatRoomItemList = chatRoomItemList,
+                navController = navController
             ) {
             }
 
@@ -208,11 +221,35 @@ fun DetailContent(
         LoadingView(
             isLoading = isPostLoadingViewState,
         )
+
+        ToastMessage(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            showToast = showEnterChatRoomState,
+            showMessage = isEnterChatRoomState,
+            message = "현재 인원이 꽉 찼습니다."
+        )
+
+        ToastMessage(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            showToast = showEnterChatRoomState,
+            showMessage = isEnterChatRoomState,
+            message = "현재 인원이 꽉 찼습니다."
+        )
     }
 }
 
 @Composable
-fun PartiesSection(viewModel: DetailViewModel, partyListState: List<Party>, onClick: () -> Unit) {
+fun PartiesSection(
+    viewModel: DetailViewModel,
+    partyListState: List<Party>,
+    chatRoomItemList: List<ChatRoom>,
+    navController: NavHostController,
+    onClick: () -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -235,11 +272,24 @@ fun PartiesSection(viewModel: DetailViewModel, partyListState: List<Party>, onCl
                     modifier = Modifier.weight(1f)
                 ) {
                     items(
-                        items = partyListState,
+                        items = partyListState.sortedByDescending { it.postId },
                         key = { party -> party.postId }
                     ) { party ->
                         HomeDetailPartyContent(party = party,
-                            onChatJoinClick = {})
+                            chatRoomList = chatRoomItemList,
+                            onDetailInfoClick = {
+                                viewModel.onDetailInfoClick(
+                                    party = party,
+                                    navController = navController
+                                )
+                            },
+                            onChatJoinClick = {
+                                viewModel.enterChatRoom(
+                                    party = party,
+                                    chatRoomItemList = chatRoomItemList,
+                                    navController = navController
+                                )
+                            })
                     }
                 }
             }
@@ -347,7 +397,7 @@ fun DetailBottomSheet(
             text = "모집 인원*",
             fontSize = 17.sp,
             fontWeight = FontWeight.Bold,
-            color = if (recruitmentCount.isEmpty()) {
+            color = if (viewModel.validateRecruitmentCount(recruitmentCount)) {
                 Color.Red
             } else {
                 NormalColor
@@ -370,12 +420,16 @@ fun DetailBottomSheet(
                 errorBorderColor = Color.Red,
                 focusedBorderColor = NormalColor,
                 unfocusedBorderColor = if (recruitmentCount.isEmpty()) Color.Red else NormalColor,
-                textColor = NormalColor
+                textColor = if (viewModel.validateRecruitmentCount(recruitmentCount)) {
+                    Color.Red
+                } else {
+                    NormalColor
+                },
             ),
             keyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Number
             ),
-            isError = recruitmentCount.isEmpty()
+            isError = viewModel.validateRecruitmentCount(recruitmentCount)
         )
 
         Spacer(modifier = Modifier.padding(top = 10.dp))

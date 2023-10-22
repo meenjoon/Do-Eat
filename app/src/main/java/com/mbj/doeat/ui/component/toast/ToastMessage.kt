@@ -1,4 +1,4 @@
-package com.mbj.doeat.ui.component
+package com.mbj.doeat.ui.component.toast
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,6 +14,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun ToastMessage(
     modifier: Modifier = Modifier,
+    backgroundColor: Color = Yellow700,
+    textColor: Color = Color.Black,
     showToast: Boolean,
     showMessage: Boolean,
     message: String,
@@ -39,13 +41,14 @@ fun ToastMessage(
         hostState = snackbarHostState,
         snackbar = {
             Snackbar(
-                backgroundColor = Yellow700,
+                backgroundColor = backgroundColor,
                 contentColor = Color.Black
             ) {
                 Text(
                     text = message,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    color = textColor
                 )
             }
         }

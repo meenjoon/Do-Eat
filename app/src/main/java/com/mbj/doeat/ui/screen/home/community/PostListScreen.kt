@@ -6,11 +6,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -19,12 +21,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mbj.doeat.ui.component.HomeDetailPartyContent
 import com.mbj.doeat.ui.component.SearchAppBar
-import com.mbj.doeat.ui.graph.DetailScreen
+import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.screen.home.community.viewModel.PostListViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.Remon400
-import com.mbj.doeat.util.MapConverter
-import com.mbj.doeat.util.NavigationUtils
-import com.mbj.doeat.util.UrlUtils
 
 @Composable
 fun PostListScreen(name: String, navController: NavHostController, onClick: () -> Unit) {
@@ -34,6 +33,9 @@ fun PostListScreen(name: String, navController: NavHostController, onClick: () -
     val partyListState by viewModel.partyList.collectAsStateWithLifecycle()
     val searchFilterTextState by viewModel.searchBarText.collectAsStateWithLifecycle()
     val filteredPartyList = viewModel.getFilteredPartyList(partyListState, searchFilterTextState)
+    val chatRoomItemListState by viewModel.chatRoomItemList.collectAsStateWithLifecycle()
+    val showEnterChatRoomState by viewModel.showEnterChatRoom.collectAsStateWithLifecycle()
+    val isEnterChatRoomState by viewModel.isEnterChatRoom.collectAsStateWithLifecycle(initialValue = false)
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -65,34 +67,33 @@ fun PostListScreen(name: String, navController: NavHostController, onClick: () -
                     items = filteredPartyList.sortedByDescending { it.postId },
                     key = { party -> party.postId }
                 ) { party ->
-                    HomeDetailPartyContent(party = party,
+                    HomeDetailPartyContent(
+                        party = party,
+                        chatRoomList = chatRoomItemListState,
                         onDetailInfoClick = {
-                            val encodedLink = UrlUtils.encodeUrl(party.link)
-                            val titleWithoutHtmlTags = MapConverter.removeHtmlTags(party.restaurantName)
-
-                            if (viewModel.userId == party.userId) {
-                                NavigationUtils.navigate(
-                                    navController, DetailScreen.DetailWriter.navigateWithArg(
-                                        party.copy(
-                                            restaurantName = titleWithoutHtmlTags,
-                                            link = encodedLink
-                                        )
-                                    )
-                                )
-                            } else {
-                                NavigationUtils.navigate(
-                                    navController, DetailScreen.DetailParticipant.navigateWithArg(
-                                        party.copy(
-                                            restaurantName = titleWithoutHtmlTags,
-                                            link = encodedLink
-                                        )
-                                    )
-                                )
-                            }
+                            viewModel.onDetailInfoClick(
+                                party = party,
+                                navController = navController
+                            )
                         },
-                        onChatJoinClick = {})
+                        onChatJoinClick = {
+                            viewModel.enterChatRoom(
+                                party = party,
+                                chatRoomItemList = chatRoomItemListState,
+                                navController = navController
+                            )
+                        })
                 }
             }
         }
+
+        ToastMessage(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            showToast = showEnterChatRoomState,
+            showMessage = isEnterChatRoomState,
+            message = "현재 인원이 꽉 찼습니다."
+        )
     }
 }

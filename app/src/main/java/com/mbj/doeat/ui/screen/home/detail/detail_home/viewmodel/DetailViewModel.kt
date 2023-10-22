@@ -3,13 +3,21 @@ package com.mbj.doeat.ui.screen.home.detail.detail_home.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import com.google.firebase.database.ValueEventListener
+import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.PartyPostRequest
 import com.mbj.doeat.data.remote.model.SearchItem
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
+import com.mbj.doeat.data.remote.network.api.chat_db.repository.ChatDBRepository
 import com.mbj.doeat.data.remote.network.api.default_db.repository.DefaultDBRepository
 import com.mbj.doeat.ui.component.getUrl
+import com.mbj.doeat.ui.graph.DetailScreen
 import com.mbj.doeat.ui.graph.Graph
+import com.mbj.doeat.util.DateUtils
+import com.mbj.doeat.util.MapConverter
+import com.mbj.doeat.util.NavigationUtils
+import com.mbj.doeat.util.UrlUtils
 import com.mbj.doeat.util.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -22,13 +30,19 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class DetailViewModel @Inject constructor(private val defaultDBRepository: DefaultDBRepository) : ViewModel() {
+class DetailViewModel @Inject constructor(
+    private val defaultDBRepository: DefaultDBRepository,
+    private val chatDBRepository: ChatDBRepository
+) : ViewModel() {
 
     private val _partyList = MutableStateFlow<List<Party>>((emptyList()))
     val partyList: StateFlow<List<Party>> = _partyList
 
     private val _searchItem = MutableStateFlow<SearchItem?>(null)
     val searchItem: StateFlow<SearchItem?> = _searchItem
+
+    private val _chatRoomItemList = MutableStateFlow<List<ChatRoom>?>(emptyList())
+    val chatRoomItemList: StateFlow<List<ChatRoom>?> = _chatRoomItemList
 
     private val _recruitmentCount = MutableStateFlow("")
     val recruitmentCount: StateFlow<String> = _recruitmentCount
@@ -48,43 +62,79 @@ class DetailViewModel @Inject constructor(private val defaultDBRepository: Defau
     private val _showValidRecruitmentCount = MutableStateFlow<Boolean>(false)
     val showValidRecruitmentCount: StateFlow<Boolean> = _showValidRecruitmentCount
 
+    private val _errorValidRecruitmentCount = MutableStateFlow<String>("")
+    val errorValidRecruitmentCount: StateFlow<String> = _errorValidRecruitmentCount
+
     private val _isPostLoadingView = MutableStateFlow<Boolean>(false)
     val isPostLoadingView: StateFlow<Boolean> = _isPostLoadingView
 
+    private val _isEnterChatRoom = MutableSharedFlow<Boolean>()
+    val isEnterChatRoom: SharedFlow<Boolean> = _isEnterChatRoom.asSharedFlow()
+
+    private val _showEnterChatRoom = MutableStateFlow<Boolean>(false)
+    val showEnterChatRoom: StateFlow<Boolean> = _showEnterChatRoom
+
+    val userId = UserDataStore.getLoginResponse()?.userId
+
+    private var chatRoomsAllEventListener: ValueEventListener? = null
+
     init {
-        viewModelScope.launch {
-            searchItem.collectLatest { searchItem ->
-                if (searchItem != null) {
-                    getPartiesByLocation(restaurantLocation = searchItem.roadAddress)
-                }
-            }
-        }
+        getPartiesByLocation()
+        addChatRoomsAllEventListener()
     }
 
     fun updateSearchItem(inputSearchItem: SearchItem) {
         _searchItem.value = inputSearchItem
     }
 
-    private suspend fun getPartiesByLocation(restaurantLocation: String) {
-        defaultDBRepository.getPartiesByLocation(
-            restaurantLocation,
-            onComplete = {
-            },
-            onError = {
+    private fun getPartiesByLocation() {
+        viewModelScope.launch {
+            searchItem.collectLatest { searchItem ->
+                if (searchItem != null) {
+                    defaultDBRepository.getPartiesByLocation(
+                        searchItem.roadAddress,
+                        onComplete = {
+                        },
+                        onError = {
+                        }
+                    ).collectLatest { responsePartyList ->
+                        if (responsePartyList is ApiResultSuccess) {
+                            _partyList.value = responsePartyList.data
+                        }
+                    }
+                }
             }
-        ).collectLatest { responsePartyList ->
-            if (responsePartyList is ApiResultSuccess) {
-                _partyList.value = responsePartyList.data
+        }
+    }
+
+    private fun addChatRoomsAllEventListener() {
+        chatRoomsAllEventListener =
+            chatDBRepository.addChatRoomsAllEventListener(
+                onComplete = { },
+                onError = { }
+            ) { chatRoomList ->
+                _chatRoomItemList.value = chatRoomList
             }
+    }
+
+    private fun removeChatRoomsAllEventListener() {
+        viewModelScope.launch {
+            chatDBRepository.removeChatRoomsAllEventListener(chatRoomsAllEventListener)
         }
     }
 
     fun postParty(navHostController: NavHostController) {
         viewModelScope.launch {
             if (recruitmentCount.value == "") {
-                _showCreatePartyDialog.value = false
-                toggleValidToggleRecruitmentCountState()
-            } else {
+                toggleValidToggleRecruitmentCountState("모집인원을 입력해주세요.")
+            }
+            else if(recruitmentCount.value.toInt() <= 1 ) {
+                toggleValidToggleRecruitmentCountState("모집인원을 2명 이상 입력해주세요.")
+            }
+            else if(recruitmentCount.value.toInt() > 15) {
+                toggleValidToggleRecruitmentCountState("모집인원은 15명까지 모집 가능합니다.")
+            }
+            else {
                 setPostLoadingState(true)
                 defaultDBRepository.postParty(
                     PartyPostRequest(
@@ -115,6 +165,70 @@ class DetailViewModel @Inject constructor(private val defaultDBRepository: Defau
         }
     }
 
+    fun onDetailInfoClick(party: Party, navController: NavHostController) {
+
+        val encodedLink = UrlUtils.encodeUrl(party.link)
+        val titleWithoutHtmlTags = MapConverter.removeHtmlTags(party.restaurantName)
+
+        if (userId == party.userId) {
+            NavigationUtils.navigate(
+                navController, DetailScreen.DetailWriter.navigateWithArg(
+                    party.copy(
+                        restaurantName = titleWithoutHtmlTags,
+                        link = encodedLink
+                    )
+                )
+            )
+        } else {
+            NavigationUtils.navigate(
+                navController, DetailScreen.DetailParticipant.navigateWithArg(
+                    party.copy(
+                        restaurantName = titleWithoutHtmlTags,
+                        link = encodedLink
+                    )
+                )
+            )
+        }
+    }
+
+    fun enterChatRoom(party: Party, chatRoomItemList: List<ChatRoom>?, navController: NavHostController) {
+        viewModelScope.launch {
+            val myUserInfo = UserDataStore.getLoginResponse()
+            val chatRoom = chatRoomItemList?.find { it.postId == party.postId.toString() }
+
+            val isChatRoomFull = chatRoom?.members?.size == party.recruitmentLimit
+            val isUserInChatRoom = chatRoom?.members?.any{ it.value.userId == myUserInfo?.userId.toString()}
+
+            if (isUserInChatRoom == true) {
+                NavigationUtils.navigate(
+                    navController, DetailScreen.ChatDetail.navigateWithArg(
+                        party.postId.toString()
+                    )
+                )
+            } else if (!isChatRoomFull){
+                chatDBRepository.enterChatRoom(
+                    onComplete = { },
+                    onError = { },
+                    postId = party.postId.toString(),
+                    postUserId = party.userId.toString(),
+                    myUserId = myUserInfo?.userId.toString(),
+                    restaurantName = party.restaurantName,
+                    createdChatRoom = DateUtils.getCurrentTime()
+                ).collectLatest { response ->
+                    if (response is ApiResultSuccess) {
+                        NavigationUtils.navigate(
+                            navController, DetailScreen.ChatDetail.navigateWithArg(
+                                party.postId.toString()
+                            )
+                        )
+                    }
+                }
+            } else if (isChatRoomFull) {
+                toggleEnterChatRoomToggle()
+            }
+        }
+    }
+
     fun changeRecruitmentCount(recruitCount: String) {
         _recruitmentCount.value = recruitCount
     }
@@ -131,14 +245,32 @@ class DetailViewModel @Inject constructor(private val defaultDBRepository: Defau
         _showCreatePartyDialog.value = showDialog
     }
 
-    private fun toggleValidToggleRecruitmentCountState() {
+    private fun toggleValidToggleRecruitmentCountState(errorMessage: String) {
         viewModelScope.launch {
+            _showCreatePartyDialog.value = false
             _isValidRecruitmentCount.emit(true)
             _showValidRecruitmentCount.value = !_showValidRecruitmentCount.value
+            _errorValidRecruitmentCount.value = errorMessage
         }
     }
 
     private fun setPostLoadingState(isLoading: Boolean) {
         _isPostLoadingView.value = isLoading
+    }
+
+    private fun toggleEnterChatRoomToggle() {
+        viewModelScope.launch {
+            _isEnterChatRoom.emit(true)
+            _showEnterChatRoom.value = !showEnterChatRoom.value
+        }
+    }
+
+    fun validateRecruitmentCount(newValue: String): Boolean {
+        return newValue.isEmpty() || newValue.toInt() <= 1 || newValue.toInt() > 15
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        removeChatRoomsAllEventListener()
     }
 }

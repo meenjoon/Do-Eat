@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.StateFlow
 @HiltViewModel
 class SignInViewModel @Inject constructor(
     private val defaultDBRepository: DefaultDBRepository,
-    private val userPreferenceRepository: UserPreferenceRepository
+    private val userPreferenceRepository: UserPreferenceRepository,
 ) : ViewModel() {
 
     private val _isAutoLoginState = MutableStateFlow<Boolean>(userPreferenceRepository.getSaveAutoLoginState())

@@ -3,6 +3,8 @@ package com.mbj.doeat.di
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.mbj.doeat.BuildConfig
 import com.mbj.doeat.data.remote.network.adapter.ApiCallAdapterFactory
+import com.mbj.doeat.data.remote.network.api.chat_db.ChatDBApi
+import com.mbj.doeat.data.remote.network.api.chat_db.repository.ChatDBDataSource
 import com.mbj.doeat.data.remote.network.api.default_db.DefaultDBApi
 import com.mbj.doeat.data.remote.network.api.default_db.repository.DefaultDBDataSource
 import com.mbj.doeat.data.remote.network.api.default_db.service.DefaultDBService
@@ -130,5 +132,11 @@ object NetworkModule {
     @Provides
     fun provideDefaultDispatcher(): CoroutineDispatcher {
         return Dispatchers.Default
+    }
+
+    @Singleton
+    @Provides
+    fun provideChatDBDataSource(defaultDispatcher: CoroutineDispatcher): ChatDBApi {
+        return ChatDBDataSource(defaultDispatcher)
     }
 }

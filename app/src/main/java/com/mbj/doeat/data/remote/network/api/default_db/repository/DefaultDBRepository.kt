@@ -73,13 +73,23 @@ class DefaultDBRepository @Inject constructor(
         )
     }
 
-    override fun partyDelete(
+    override fun deleteParty(
         partyPostIdRequestDto: PartyPostIdRequestDto,
         onComplete: () -> Unit,
         onError: (message: String?) -> Unit
     ): Flow<ApiResponse<Unit>> {
-        return defaultDBDataSource.partyDelete(
+        return defaultDBDataSource.deleteParty(
             partyPostIdRequestDto,
+            onComplete = onComplete,
+            onError = onError
+        )
+    }
+
+    override fun getAllUserList(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit
+    ): Flow<ApiResponse<List<LoginResponse>>> {
+        return defaultDBDataSource.getAllUserList(
             onComplete = onComplete,
             onError = onError
         )

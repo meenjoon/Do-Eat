@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.ui.theme.Color.Companion.Beige100
 import com.mbj.doeat.ui.theme.Color.Companion.Gray200
@@ -28,9 +29,14 @@ import com.mbj.doeat.ui.theme.Color.Companion.Remon400
 @Composable
 fun HomeDetailPartyContent(
     party: Party,
+    chatRoomList: List<ChatRoom>?,
     onDetailInfoClick: (() -> Unit)? = null,
-    onChatJoinClick: (Party) -> Unit
+    onChatJoinClick: () -> Unit
 ) {
+    val chatRoom = chatRoomList?.find { it.postId == party.postId.toString() }
+    val isPartyFull = chatRoom?.members?.count() == party.recruitmentLimit
+    val currentMembers = chatRoom?.members?.size ?: 1
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -101,17 +107,18 @@ fun HomeDetailPartyContent(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 20.dp)
-                    .clickable {
-                        onChatJoinClick(party)
-                    },
+                    .padding(top = 20.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "${party.currentNumberPeople} / ${party.recruitmentLimit}",
+                    text = "${currentMembers} / ${party.recruitmentLimit}",
                     fontSize = 22.sp,
-                    color = Color.Black,
+                    color = if (isPartyFull) {
+                        Color.Red
+                    } else {
+                        Color.Black
+                    },
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.fillMaxWidth(0.22f)
                 )
@@ -126,10 +133,7 @@ fun HomeDetailPartyContent(
                         .background(Remon400, shape = RoundedCornerShape(4.dp))
                         .padding(4.dp)
                         .clickable {
-                            /**
-                             * 채팅방 참가하기 TODO
-                             */
-                            onChatJoinClick
+                            onChatJoinClick()
                         }
                 )
             }

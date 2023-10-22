@@ -19,14 +19,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mbj.doeat.data.remote.model.Party
-import com.mbj.doeat.ui.component.BackButton
-import com.mbj.doeat.ui.component.LoadingView
-import com.mbj.doeat.ui.component.LongRectangleButtonWithParams
+import com.mbj.doeat.ui.component.button.BackButton
+import com.mbj.doeat.ui.component.loading.LoadingView
+import com.mbj.doeat.ui.component.button.LongRectangleButtonWithParams
 import com.mbj.doeat.ui.component.PartyDetailContent
 import com.mbj.doeat.ui.component.ReusableWebView
-import com.mbj.doeat.ui.component.YesNoDialog
+import com.mbj.doeat.ui.component.dialog.YesNoDialog
 import com.mbj.doeat.ui.screen.home.detail.detail_writer.viewmodel.PartyDetailWriterViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.Red500
+import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 import com.mbj.doeat.ui.theme.button1
 
 @Composable
@@ -36,21 +37,41 @@ fun PartyDetailWriterScreen(party: Party, navController: NavHostController, onCl
     viewModel.updateSearchItem(party)
 
     val partyItemState by viewModel.partyItem.collectAsStateWithLifecycle()
+    val chatRoomItem by viewModel.chatRoomItem.collectAsStateWithLifecycle()
     val showCreatePartyDialogState by viewModel.showDeletePartyDialog.collectAsStateWithLifecycle()
     val isLoadingView by viewModel.isLoadingView.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = {
-            LongRectangleButtonWithParams(
-                text = "삭제하기",
-                height = 60.dp,
-                useFillMaxWidth = true,
-                padding = PaddingValues(start = 30.dp, end = 30.dp, top = 10.dp, bottom = 10.dp),
-                backgroundColor = Red500,
-                contentColor = Color.White,
-                textStyle = MaterialTheme.typography.button1
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                viewModel.changeShowDeletePartyDialog(showDialog = true)
+                LongRectangleButtonWithParams(
+                    text = "삭제하기",
+                    width = 120.dp,
+                    height = 60.dp,
+                    useFillMaxWidth = false,
+                    padding = PaddingValues(start = 30.dp, end = 30.dp, top = 10.dp, bottom = 10.dp),
+                    backgroundColor = Red500,
+                    contentColor = Color.White,
+                    textStyle = MaterialTheme.typography.button1
+                ) {
+                    viewModel.changeShowDeletePartyDialog(showDialog = true)
+                }
+
+                LongRectangleButtonWithParams(
+                    text = "채팅하기",
+                    width = 120.dp,
+                    height = 60.dp,
+                    useFillMaxWidth = false,
+                    padding = PaddingValues(start = 30.dp, end = 30.dp, top = 10.dp, bottom = 10.dp),
+                    backgroundColor = Yellow700,
+                    contentColor = Color.Black,
+                    textStyle = MaterialTheme.typography.button1
+                ) {
+                    viewModel.enterChatRoom(navController)
+                }
             }
         }
     ) { paddingValues ->
@@ -65,7 +86,7 @@ fun PartyDetailWriterScreen(party: Party, navController: NavHostController, onCl
                         .padding(8.dp),
                     horizontalArrangement = Arrangement.Start
                 ) {
-                    BackButton(navController)
+                    BackButton(navController = navController)
                 }
 
                 ReusableWebView(
@@ -74,7 +95,7 @@ fun PartyDetailWriterScreen(party: Party, navController: NavHostController, onCl
                     webViewModifier = Modifier.fillMaxHeight(0.5f),
                 ) {}
 
-                PartyDetailContent(partyItemState!!)
+                PartyDetailContent(party = partyItemState, chatRoom = chatRoomItem)
             }
 
             YesNoDialog(

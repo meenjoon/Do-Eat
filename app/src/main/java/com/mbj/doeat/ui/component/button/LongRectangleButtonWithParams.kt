@@ -1,4 +1,4 @@
-package com.mbj.doeat.ui.component
+package com.mbj.doeat.ui.component.button
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
