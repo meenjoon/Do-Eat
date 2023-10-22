@@ -193,4 +193,25 @@ class DefaultDBDataSource @Inject constructor(
     }.onCompletion {
         onComplete()
     }.flowOn(defaultDispatcher)
+
+    override fun deleteUser(
+        userIdRequest: UserIdRequest,
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit
+    ): Flow<ApiResponse<Unit>> = flow {
+        try {
+            val response = defaultDBService.deleteUser(userIdRequest)
+            response.onSuccess {
+                emit(response)
+            }.onError { code, message ->
+                onError("code: $code, message: $message")
+            }.onException {
+                onError(it.message)
+            }
+        } catch (e: Exception) {
+            onError(e.message)
+        }
+    }.onCompletion {
+        onComplete()
+    }.flowOn(defaultDispatcher)
 }

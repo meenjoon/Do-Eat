@@ -39,4 +39,7 @@ interface DefaultDBService {
 
     @POST("party/my-parties")
     suspend fun getMyPartyList(@Body userIdRequest: UserIdRequest): ApiResponse<List<Party>>
+
+    @HTTP(method = "DELETE", path = "user/delete", hasBody = true)
+    suspend fun deleteUser(@Body userIdRequest: UserIdRequest): ApiResponse<Unit>
 }

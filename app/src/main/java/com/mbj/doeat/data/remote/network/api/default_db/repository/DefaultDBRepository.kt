@@ -107,4 +107,16 @@ class DefaultDBRepository @Inject constructor(
             onError
         )
     }
+
+    override fun deleteUser(
+        userIdRequest: UserIdRequest,
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit
+    ): Flow<ApiResponse<Unit>> {
+        return defaultDBDataSource.deleteUser(
+            userIdRequest,
+            onComplete,
+            onError
+        )
+    }
 }

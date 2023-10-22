@@ -57,4 +57,10 @@ interface DefaultDBApi {
         onComplete: () -> Unit,
         onError: (message: String?) -> Unit
     ): Flow<ApiResponse<List<Party>>>
+
+    fun deleteUser(
+        userIdRequest: UserIdRequest,
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit
+    ): Flow<ApiResponse<Unit>>
 }
