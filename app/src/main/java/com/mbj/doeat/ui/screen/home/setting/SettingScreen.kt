@@ -34,7 +34,7 @@ import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 import com.mbj.doeat.ui.theme.Color.Companion.SettingDividerColor
 
 @Composable
-fun SettingScreen(name: String, onClick: () -> Unit) {
+fun SettingScreen(name: String, navController: NavHostController, onClick: () -> Unit) {
 
     val viewModel: SettingViewModel = hiltViewModel()
 
@@ -68,6 +68,10 @@ fun SettingScreen(name: String, onClick: () -> Unit) {
                     HomeDetailPartyContent(party = myParty,
                         chatRoomList = chatRoomItemListState,
                         onDetailInfoClick = {
+                            viewModel.onDetailInfoClick(
+                                party = myParty,
+                                navController = navController
+                            )
                         },
                         onChatJoinClick = {
                         }

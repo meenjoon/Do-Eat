@@ -2,6 +2,7 @@ package com.mbj.doeat.ui.screen.home.setting.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import com.google.firebase.database.ValueEventListener
 import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.model.LoginResponse
@@ -10,6 +11,10 @@ import com.mbj.doeat.data.remote.model.UserIdRequest
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
 import com.mbj.doeat.data.remote.network.api.chat_db.repository.ChatDBRepository
 import com.mbj.doeat.data.remote.network.api.default_db.repository.DefaultDBRepository
+import com.mbj.doeat.ui.graph.DetailScreen
+import com.mbj.doeat.util.MapConverter
+import com.mbj.doeat.util.NavigationUtils
+import com.mbj.doeat.util.UrlUtils
 import com.mbj.doeat.util.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -61,6 +66,20 @@ class SettingViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun onDetailInfoClick(party: Party, navController: NavHostController) {
+        val encodedLink = UrlUtils.encodeUrl(party.link)
+        val titleWithoutHtmlTags = MapConverter.removeHtmlTags(party.restaurantName)
+
+        NavigationUtils.navigate(
+            navController, DetailScreen.DetailWriter.navigateWithArg(
+                party.copy(
+                    restaurantName = titleWithoutHtmlTags,
+                    link = encodedLink
+                )
+            )
+        )
     }
 
     private fun addChatRoomsAllEventListener() {
