@@ -12,6 +12,7 @@ import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
 import com.mbj.doeat.data.remote.network.api.chat_db.repository.ChatDBRepository
 import com.mbj.doeat.data.remote.network.api.default_db.repository.DefaultDBRepository
 import com.mbj.doeat.ui.graph.DetailScreen
+import com.mbj.doeat.util.DateUtils
 import com.mbj.doeat.util.MapConverter
 import com.mbj.doeat.util.NavigationUtils
 import com.mbj.doeat.util.UrlUtils
@@ -80,6 +81,49 @@ class SettingViewModel @Inject constructor(
                 )
             )
         )
+    }
+
+    fun enterChatRoom(
+        party: Party,
+        chatRoomItemList: List<ChatRoom>?,
+        navController: NavHostController
+    ) {
+        viewModelScope.launch {
+            userInfo.collectLatest { userInfo ->
+                if (userInfo != null) {
+                    val chatRoom = chatRoomItemList?.find { it.postId == party.postId.toString() }
+
+                    val isUserInChatRoom =
+                        chatRoom?.members?.any { it.value.userId == userInfo.userId.toString() }
+
+                    if (isUserInChatRoom == true) {
+                        NavigationUtils.navigate(
+                            navController, DetailScreen.ChatDetail.navigateWithArg(
+                                party.postId.toString()
+                            )
+                        )
+                    } else {
+                        chatDBRepository.enterChatRoom(
+                            onComplete = { },
+                            onError = { },
+                            postId = party.postId.toString(),
+                            postUserId = party.userId.toString(),
+                            myUserId = userInfo.userId.toString(),
+                            restaurantName = party.restaurantName,
+                            createdChatRoom = DateUtils.getCurrentTime()
+                        ).collectLatest { response ->
+                            if (response is ApiResultSuccess) {
+                                NavigationUtils.navigate(
+                                    navController, DetailScreen.ChatDetail.navigateWithArg(
+                                        party.postId.toString()
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun addChatRoomsAllEventListener() {

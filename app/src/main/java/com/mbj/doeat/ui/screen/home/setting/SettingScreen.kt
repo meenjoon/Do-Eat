@@ -74,6 +74,11 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
                             )
                         },
                         onChatJoinClick = {
+                            viewModel.enterChatRoom(
+                                party = myParty,
+                                chatRoomItemList = chatRoomItemListState,
+                                navController = navController
+                            )
                         }
                     )
                 }
