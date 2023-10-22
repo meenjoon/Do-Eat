@@ -29,6 +29,7 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
 import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.ui.component.HomeDetailPartyContent
+import com.mbj.doeat.ui.component.dialog.YesNoDialog
 import com.mbj.doeat.ui.component.divider.HorizontalDivider
 import com.mbj.doeat.ui.screen.home.setting.viewmodel.SettingViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
@@ -43,7 +44,7 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
     val myCreatedPartiesState by viewModel.myCreatedParties.collectAsStateWithLifecycle()
     val joinedParties by viewModel.joinedParties.collectAsStateWithLifecycle()
     val chatRoomItemListState by viewModel.chatRoomItemList.collectAsStateWithLifecycle()
-
+    val showLogoutDialogState by viewModel.showLogoutDialog.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -61,7 +62,7 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
 
             item {
                 SettingButton(text = "로그아웃") {
-
+                    viewModel.changeShowLogoutDialog(showDialog = true)
                 }
             }
 
@@ -199,6 +200,16 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
                 HorizontalDivider(color = SettingDividerColor, thickness = 1.dp)
             }
         }
+
+        YesNoDialog(
+            showDialog = showLogoutDialogState,
+            onYesClick = { viewModel.logout(navController = navController) },
+            onNoClick = { viewModel.changeShowLogoutDialog(showDialog = false) },
+            title = "로그아웃을 하시겠습니까?",
+            message = "로그아웃 됩니다.",
+            confirmButtonMessage = "네",
+            dismissButtonMessage = "아니오"
+        )
     }
 }
 

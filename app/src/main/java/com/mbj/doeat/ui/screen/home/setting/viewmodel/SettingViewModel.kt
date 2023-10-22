@@ -11,7 +11,9 @@ import com.mbj.doeat.data.remote.model.UserIdRequest
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
 import com.mbj.doeat.data.remote.network.api.chat_db.repository.ChatDBRepository
 import com.mbj.doeat.data.remote.network.api.default_db.repository.DefaultDBRepository
+import com.mbj.doeat.ui.graph.AuthScreen
 import com.mbj.doeat.ui.graph.DetailScreen
+import com.mbj.doeat.ui.graph.Graph
 import com.mbj.doeat.util.DateUtils
 import com.mbj.doeat.util.MapConverter
 import com.mbj.doeat.util.NavigationUtils
@@ -41,6 +43,9 @@ class SettingViewModel @Inject constructor(
 
     private val _chatRoomItemList = MutableStateFlow<List<ChatRoom>?>(emptyList())
     val chatRoomItemList: StateFlow<List<ChatRoom>?> = _chatRoomItemList
+
+    private val _showLogoutDialog = MutableStateFlow<Boolean>(false)
+    val showLogoutDialog: StateFlow<Boolean> = _showLogoutDialog
 
     private val _myJoinedChatRoomPostIds = MutableStateFlow<Set<String>?>(null)
     private val myJoinedChatRoomPostIds: StateFlow<Set<String>?> = _myJoinedChatRoomPostIds
@@ -168,6 +173,15 @@ class SettingViewModel @Inject constructor(
         }
     }
 
+    fun logout(navController: NavHostController) {
+        UserDataStore.removeLoginResponse()
+        navController.navigate(AuthScreen.Login.route) {
+            popUpTo(navController.graph.id) {
+                inclusive = true
+            }
+        }
+    }
+
     private fun getMyJoinedChatRoomPostIds(chatRoomList: List<ChatRoom>, myUserId: String): Set<String> {
         val myJoinedChatRooms = chatRoomList.filter { chatRoom ->
             chatRoom.members?.values?.any { inMember -> inMember.userId == myUserId } == true
@@ -181,6 +195,9 @@ class SettingViewModel @Inject constructor(
         }
     }
 
+    fun changeShowLogoutDialog(showDialog: Boolean) {
+        _showLogoutDialog.value = showDialog
+    }
 
     private fun addChatRoomsAllEventListener() {
         viewModelScope.launch {
