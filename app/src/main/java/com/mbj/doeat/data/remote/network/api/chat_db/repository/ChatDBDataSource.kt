@@ -204,6 +204,60 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
         onComplete()
     }.flowOn(defaultDispatcher)
 
+    override fun deleteAllChatRoomsForUserID(
+        userIdToDelete: String,
+        postIdsToDelete: Set<String>,
+        response: (Unit?) -> Unit
+    ) {
+        try {
+            groupChatsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val chatRooms = mutableListOf<ChatRoom>()
+
+                    for (childSnapshot in snapshot.children) {
+                        val chatRoom = childSnapshot.getValue(ChatRoom::class.java)
+                        chatRoom?.let { chatRooms.add(it) }
+                    }
+
+                    val modifiedChatRooms = chatRooms.map { chatRoom ->
+                        val filteredMembers = chatRoom.members.orEmpty().filterValues { inMember ->
+                            inMember.userId != userIdToDelete
+                        }
+
+                        val filteredMessages = chatRoom.messages.orEmpty().filterValues { chatItem ->
+                            chatItem.userId.toString() != userIdToDelete
+                        }
+
+                        val modifiedChatRoom = chatRoom.copy(
+                            members = filteredMembers,
+                            messages = filteredMessages
+                        )
+
+                        if (filteredMembers.isEmpty() || filteredMessages.isEmpty()) {
+                            null
+                        } else {
+                            modifiedChatRoom
+                        }
+                    }.filterNotNull().filter { it.postId in postIdsToDelete }
+
+                    groupChatsRef.setValue(modifiedChatRooms).addOnSuccessListener {
+                        response(Unit)
+                    }.addOnCanceledListener  {
+                        response(null)
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    response(null)
+                }
+            })
+
+
+        } catch (e: Exception) {
+            response(null)
+        }
+    }
+
     override fun addChatDetailEventListener(
         postId: String,
         onChatItemAdded: (ChatItem) -> Unit
