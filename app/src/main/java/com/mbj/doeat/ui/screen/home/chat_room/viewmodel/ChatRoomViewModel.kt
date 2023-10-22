@@ -49,7 +49,10 @@ class ChatRoomViewModel @Inject constructor(
             ) { chatRoomList ->
                 myUserId?.let { userId ->
                     chatRoomList?.let { chatRooms ->
-                        val sortedChatRooms = chatRooms.sortedByDescending { chatRoom ->
+                        val myChatRoom = chatRoomList.filter { chatRoom ->
+                            chatRoom.members?.values?.any { inMember -> inMember.userId == userId.toString() } == true
+                        }
+                        val sortedChatRooms = myChatRoom.sortedByDescending { chatRoom ->
                             chatRoom.lastMessageDate ?: chatRoom.createdChatRoomDate
                         }
                         _myChatRoomList.value = sortedChatRooms
