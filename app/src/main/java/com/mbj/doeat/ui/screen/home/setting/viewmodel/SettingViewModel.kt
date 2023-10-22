@@ -13,7 +13,6 @@ import com.mbj.doeat.data.remote.network.api.chat_db.repository.ChatDBRepository
 import com.mbj.doeat.data.remote.network.api.default_db.repository.DefaultDBRepository
 import com.mbj.doeat.ui.graph.AuthScreen
 import com.mbj.doeat.ui.graph.DetailScreen
-import com.mbj.doeat.ui.graph.Graph
 import com.mbj.doeat.util.DateUtils
 import com.mbj.doeat.util.MapConverter
 import com.mbj.doeat.util.NavigationUtils
@@ -47,8 +46,14 @@ class SettingViewModel @Inject constructor(
     private val _showLogoutDialog = MutableStateFlow<Boolean>(false)
     val showLogoutDialog: StateFlow<Boolean> = _showLogoutDialog
 
+    private val _showWithdrawMembershipDialog = MutableStateFlow<Boolean>(false)
+    val showWithdrawMembershipDialog: StateFlow<Boolean> = _showWithdrawMembershipDialog
+
     private val _myJoinedChatRoomPostIds = MutableStateFlow<Set<String>?>(null)
     private val myJoinedChatRoomPostIds: StateFlow<Set<String>?> = _myJoinedChatRoomPostIds
+
+    private val _myPartyPostIds = MutableStateFlow<Set<String>?>(null)
+    private val myPartyPostIds: StateFlow<Set<String>?> = _myPartyPostIds
 
     private var chatRoomsAllEventListener: ValueEventListener? = null
 
@@ -90,7 +95,8 @@ class SettingViewModel @Inject constructor(
                         onError = { },
                     ).collectLatest { partyList ->
                         if (partyList is ApiResultSuccess) {
-                            _joinedParties.value = filterPartiesByPostIds(partyList.data, postIdSet?: emptySet())
+                            _joinedParties.value = filterPartiesByPostIds(partyList.data, postIdSet ?: emptySet())
+                            _myPartyPostIds.value = getPostIdSetFromPartyList(partyList.data)
                         }
                     }
                 }
@@ -182,7 +188,51 @@ class SettingViewModel @Inject constructor(
         }
     }
 
-    private fun getMyJoinedChatRoomPostIds(chatRoomList: List<ChatRoom>, myUserId: String): Set<String> {
+    fun withdrawMembership(navController: NavHostController) {
+        viewModelScope.launch {
+            userInfo.collectLatest { userInfo ->
+                if (userInfo != null) {
+                    defaultDBRepository.deleteUser(
+                        onComplete = { },
+                        onError = { },
+                        userIdRequest = UserIdRequest(userInfo.userId!!)
+                    ).collectLatest { response ->
+                        if (response is ApiResultSuccess) {
+                            deleteChatRoom(
+                                myUserId = userInfo.userId.toString(),
+                                navController = navController
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun deleteChatRoom(myUserId: String, navController: NavHostController) {
+        viewModelScope.launch {
+            myPartyPostIds.value?.let {
+                chatDBRepository.deleteAllChatRoomsForUserID(
+                    userIdToDelete = myUserId,
+                    postIdsToDelete = it
+                ) { response ->
+                    if (response != null) {
+                        navController.navigate(AuthScreen.Login.route) {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    private fun getMyJoinedChatRoomPostIds(
+        chatRoomList: List<ChatRoom>,
+        myUserId: String
+    ): Set<String> {
         val myJoinedChatRooms = chatRoomList.filter { chatRoom ->
             chatRoom.members?.values?.any { inMember -> inMember.userId == myUserId } == true
         }
@@ -195,8 +245,23 @@ class SettingViewModel @Inject constructor(
         }
     }
 
+    private fun getPostIdSetFromPartyList(partyList: List<Party>): Set<String> {
+        val postIdSet = mutableSetOf<String>()
+
+        for (party in partyList) {
+            val postId = party.postId.toString()
+            postIdSet.add(postId)
+        }
+
+        return postIdSet
+    }
+
     fun changeShowLogoutDialog(showDialog: Boolean) {
         _showLogoutDialog.value = showDialog
+    }
+
+    fun changeShowWithdrawMembershipDialog(showDialog: Boolean) {
+        _showWithdrawMembershipDialog.value = showDialog
     }
 
     private fun addChatRoomsAllEventListener() {
@@ -208,7 +273,10 @@ class SettingViewModel @Inject constructor(
                 ) { chatRoomList ->
                     _chatRoomItemList.value = chatRoomList
                     if (chatRoomList != null) {
-                        _myJoinedChatRoomPostIds.value = getMyJoinedChatRoomPostIds(chatRoomList, userInfo.value?.userId.toString())
+                        _myJoinedChatRoomPostIds.value = getMyJoinedChatRoomPostIds(
+                            chatRoomList,
+                            userInfo.value?.userId.toString()
+                        )
                     }
                 }
         }

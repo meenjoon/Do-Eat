@@ -45,6 +45,7 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
     val joinedParties by viewModel.joinedParties.collectAsStateWithLifecycle()
     val chatRoomItemListState by viewModel.chatRoomItemList.collectAsStateWithLifecycle()
     val showLogoutDialogState by viewModel.showLogoutDialog.collectAsStateWithLifecycle()
+    val showWithdrawMembershipDialogState by viewModel.showWithdrawMembershipDialog.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -72,7 +73,7 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
 
             item {
                 SettingButton(text = "회원탈퇴") {
-
+                    viewModel.changeShowWithdrawMembershipDialog(showDialog = true)
                 }
             }
 
@@ -207,6 +208,16 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
             onNoClick = { viewModel.changeShowLogoutDialog(showDialog = false) },
             title = "로그아웃을 하시겠습니까?",
             message = "로그아웃 됩니다.",
+            confirmButtonMessage = "네",
+            dismissButtonMessage = "아니오"
+        )
+
+        YesNoDialog(
+            showDialog = showWithdrawMembershipDialogState,
+            onYesClick = { viewModel.withdrawMembership(navController = navController) },
+            onNoClick = { viewModel.changeShowWithdrawMembershipDialog(showDialog = false) },
+            title = "회원탈퇴를 하시겠습니까?",
+            message = "회원탈퇴 됩니다.",
             confirmButtonMessage = "네",
             dismissButtonMessage = "아니오"
         )
