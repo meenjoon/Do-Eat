@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -22,8 +24,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
 import com.mbj.doeat.data.remote.model.LoginResponse
+import com.mbj.doeat.ui.component.HomeDetailPartyContent
 import com.mbj.doeat.ui.component.divider.HorizontalDivider
 import com.mbj.doeat.ui.screen.home.setting.viewmodel.SettingViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
@@ -35,6 +39,8 @@ fun SettingScreen(name: String, onClick: () -> Unit) {
     val viewModel: SettingViewModel = hiltViewModel()
 
     val userInfoState by viewModel.userInfo.collectAsStateWithLifecycle()
+    val myPartyListState by viewModel.myPartyList.collectAsStateWithLifecycle()
+    val chatRoomItemListState by viewModel.chatRoomItemList.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -44,8 +50,29 @@ fun SettingScreen(name: String, onClick: () -> Unit) {
 
             HorizontalDivider(color = SettingDividerColor, thickness = 1.dp)
 
-            SettingButton(text = "내가 개설한 파티") {
+            SettingButton(
+                text = "내가 개설한 파티",
+                modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 8.dp)
+            ) {
+            }
 
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+            ) {
+                items(
+                    items = myPartyListState,
+                    key = { myParty -> myParty.postId }
+                ) { myParty ->
+                    HomeDetailPartyContent(party = myParty,
+                        chatRoomList = chatRoomItemListState,
+                        onDetailInfoClick = {
+                        },
+                        onChatJoinClick = {
+                        }
+                    )
+                }
             }
 
             HorizontalDivider(color = SettingDividerColor, thickness = 1.dp)
@@ -106,10 +133,10 @@ fun UserProfileInfo(userInfo: LoginResponse?) {
 }
 
 @Composable
-fun SettingButton(text: String, onClick: () -> Unit) {
+fun SettingButton(text: String, modifier: Modifier = Modifier.padding(24.dp), onClick: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(24.dp)
+        modifier = modifier
     ) {
         Text(
             text = text,
