@@ -57,6 +57,7 @@ fun HomeNavGraph(
             )
         }
         detailsNavGraph(navController = navController)
+        authNavGraph(navController = navController)
     }
 }
 
