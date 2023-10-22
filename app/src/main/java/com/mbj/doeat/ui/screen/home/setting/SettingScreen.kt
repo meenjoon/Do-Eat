@@ -14,24 +14,33 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberImagePainter
 import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.ui.component.divider.HorizontalDivider
+import com.mbj.doeat.ui.screen.home.setting.viewmodel.SettingViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 import com.mbj.doeat.ui.theme.Color.Companion.SettingDividerColor
 
 @Composable
 fun SettingScreen(name: String, onClick: () -> Unit) {
+
+    val viewModel: SettingViewModel = hiltViewModel()
+
+    val userInfoState by viewModel.userInfo.collectAsStateWithLifecycle()
+
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
         Column {
-            UserProfileInfo(userInfo = null)
+            UserProfileInfo(userInfo = userInfoState)
 
             HorizontalDivider(color = SettingDividerColor, thickness = 1.dp)
 
