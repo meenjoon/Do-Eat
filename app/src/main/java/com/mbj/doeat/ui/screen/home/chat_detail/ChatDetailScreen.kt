@@ -32,7 +32,6 @@ import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,7 +51,7 @@ import coil.compose.rememberImagePainter
 import com.mbj.doeat.R
 import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.model.LoginResponse
-import com.mbj.doeat.ui.component.ChatContent
+import com.mbj.doeat.ui.component.chat.ChatContent
 import com.mbj.doeat.ui.component.button.BackButton
 import com.mbj.doeat.ui.component.textfield.CustomTextField
 import com.mbj.doeat.ui.screen.home.chat_detail.viewmodel.ChatDetailViewModel

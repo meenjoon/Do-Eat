@@ -1,4 +1,4 @@
-package com.mbj.doeat.ui.component
+package com.mbj.doeat.ui.component.chat
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
