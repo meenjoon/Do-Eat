@@ -1,6 +1,5 @@
 package com.mbj.doeat.ui.screen.home.nearby_restaurants.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mbj.doeat.data.remote.model.SearchResult
@@ -54,10 +53,14 @@ class NearByRestaurantsViewModel @Inject constructor(
     val showSearchResultCollapse: StateFlow<Boolean> = _showSearchResultCollapse
 
     private val _isFamousRestaurantNetworkError = MutableSharedFlow<Boolean>()
-    val isFamousRestaurantNetworkError: SharedFlow<Boolean> = _isFamousRestaurantNetworkError.asSharedFlow()
+    val isFamousRestaurantNetworkError: SharedFlow<Boolean> =
+        _isFamousRestaurantNetworkError.asSharedFlow()
 
     private val _showFamousRestaurantNetworkError = MutableStateFlow<Boolean>(false)
     val showFamousRestaurantNetworkError: StateFlow<Boolean> = _showFamousRestaurantNetworkError
+
+    private val _isFamousRestaurantLoading = MutableStateFlow<Boolean>(false)
+    val isFamousRestaurantLoading: StateFlow<Boolean> = _isFamousRestaurantLoading
 
     init {
         viewModelScope.launch {
@@ -82,6 +85,7 @@ class NearByRestaurantsViewModel @Inject constructor(
         viewModelScope.launch {
             famousRestaurantRepository.getSearchResult(query,
                 onComplete = {
+                    setFamousRestaurantLoadingState(false)
                 },
                 onError = {
                     toggleEnterChatRoomToggle()
@@ -123,5 +127,9 @@ class NearByRestaurantsViewModel @Inject constructor(
             _isFamousRestaurantNetworkError.emit(true)
             _showFamousRestaurantNetworkError.value = !_showFamousRestaurantNetworkError.value
         }
+    }
+
+    fun setFamousRestaurantLoadingState(isLoading: Boolean) {
+        _isFamousRestaurantLoading.value = isLoading
     }
 }

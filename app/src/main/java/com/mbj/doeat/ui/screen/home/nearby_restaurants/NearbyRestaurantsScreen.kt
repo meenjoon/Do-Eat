@@ -66,6 +66,7 @@ import com.mbj.doeat.data.remote.model.SearchResult
 import com.mbj.doeat.ui.component.button.LongRectangleButtonWithParams
 import com.mbj.doeat.ui.component.searchbar.MainAppBar
 import com.mbj.doeat.ui.component.line.RoundedLine
+import com.mbj.doeat.ui.component.loading.LoadingView
 import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.graph.DetailScreen
 import com.mbj.doeat.ui.model.SearchWidgetState
@@ -105,6 +106,7 @@ fun NearbyRestaurantsScreen(
     val isSearchInvalidState by viewModel.isSearchInvalid.collectAsStateWithLifecycle(initialValue = false)
     val isFamousRestaurantNetworkErrorState by viewModel.isFamousRestaurantNetworkError.collectAsStateWithLifecycle(initialValue = false)
     val showFamousRestaurantNetworkErrorState by viewModel.showFamousRestaurantNetworkError.collectAsStateWithLifecycle()
+    val isFamousRestaurantLoadingState by viewModel.isFamousRestaurantLoading.collectAsStateWithLifecycle()
 
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
         position = CameraPosition(myLocationInfoState, 11.0)
@@ -177,6 +179,7 @@ fun NearbyRestaurantsScreen(
                     viewModel.updateSearchWidgetState(newValue = SearchWidgetState.CLOSED)
                 },
                 onSearchClicked = { searchWord ->
+                    viewModel.setFamousRestaurantLoadingState(true)
                     viewModel.getFamousRestaurant(searchWord)
                     viewModel.toggleSearchResultCollapsed()
                 },
@@ -270,6 +273,10 @@ fun NearbyRestaurantsScreen(
                 showToast = showFamousRestaurantNetworkErrorState,
                 showMessage = isFamousRestaurantNetworkErrorState,
                 message = "네트워크 연결을 다시 확인해주세요."
+            )
+
+            LoadingView(
+                isLoading = isFamousRestaurantLoadingState,
             )
         }
     }
