@@ -20,7 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mbj.doeat.ui.component.party.HomeDetailPartyContent
-import com.mbj.doeat.ui.component.SearchAppBar
+import com.mbj.doeat.ui.component.searchbar.SearchAppBar
 import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.screen.home.community.viewModel.PostListViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.Remon400
