@@ -6,6 +6,7 @@ import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.PartyPostIdRequestDto
 import com.mbj.doeat.data.remote.model.PartyPostRequest
+import com.mbj.doeat.data.remote.model.UserIdRequest
 import com.mbj.doeat.data.remote.network.adapter.ApiResponse
 import com.mbj.doeat.data.remote.network.adapter.onError
 import com.mbj.doeat.data.remote.network.adapter.onException
@@ -158,6 +159,48 @@ class DefaultDBDataSource @Inject constructor(
     ): Flow<ApiResponse<List<LoginResponse>>> = flow {
         try {
             val response = defaultDBService.getAllUserList()
+            response.onSuccess {
+                emit(response)
+            }.onError { code, message ->
+                onError("code: $code, message: $message")
+            }.onException {
+                onError(it.message)
+            }
+        } catch (e: Exception) {
+            onError(e.message)
+        }
+    }.onCompletion {
+        onComplete()
+    }.flowOn(defaultDispatcher)
+
+    override fun getMyPartyList(
+        userIdRequest: UserIdRequest,
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit
+    ): Flow<ApiResponse<List<Party>>> = flow {
+        try {
+            val response = defaultDBService.getMyPartyList(userIdRequest)
+            response.onSuccess {
+                emit(response)
+            }.onError { code, message ->
+                onError("code: $code, message: $message")
+            }.onException {
+                onError(it.message)
+            }
+        } catch (e: Exception) {
+            onError(e.message)
+        }
+    }.onCompletion {
+        onComplete()
+    }.flowOn(defaultDispatcher)
+
+    override fun deleteUser(
+        userIdRequest: UserIdRequest,
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit
+    ): Flow<ApiResponse<Unit>> = flow {
+        try {
+            val response = defaultDBService.deleteUser(userIdRequest)
             response.onSuccess {
                 emit(response)
             }.onError { code, message ->

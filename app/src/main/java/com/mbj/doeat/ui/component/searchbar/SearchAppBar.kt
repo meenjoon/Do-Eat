@@ -1,4 +1,4 @@
-package com.mbj.doeat.ui.component
+package com.mbj.doeat.ui.component.searchbar
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height

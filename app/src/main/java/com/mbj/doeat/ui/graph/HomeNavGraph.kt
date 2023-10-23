@@ -52,10 +52,12 @@ fun HomeNavGraph(
         composable(route = BottomBarScreen.Setting.route) {
             SettingScreen(
                 name = BottomBarScreen.Setting.route,
+                navController = navController,
                 onClick = { }
             )
         }
         detailsNavGraph(navController = navController)
+        authNavGraph(navController = navController)
     }
 }
 

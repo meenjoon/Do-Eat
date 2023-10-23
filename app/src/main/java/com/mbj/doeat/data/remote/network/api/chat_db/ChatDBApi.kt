@@ -54,6 +54,12 @@ interface ChatDBApi {
         postId: String,
     ): Flow<ApiResponse<Unit>>
 
+    fun deleteAllChatRoomsForUserID(
+        userIdToDelete: String,
+        postIdsToDelete: Set<String>,
+        response: (Unit?) -> Unit
+    )
+
     fun addChatDetailEventListener(
         postId: String,
         onChatItemAdded: (ChatItem) -> Unit

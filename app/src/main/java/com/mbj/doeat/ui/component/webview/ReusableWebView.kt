@@ -1,4 +1,4 @@
-package com.mbj.doeat.ui.component
+package com.mbj.doeat.ui.component.webview
 
 import android.webkit.WebView
 import androidx.compose.foundation.layout.Box

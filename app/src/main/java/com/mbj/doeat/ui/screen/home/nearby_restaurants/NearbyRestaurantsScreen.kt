@@ -64,7 +64,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.mbj.doeat.data.remote.model.SearchItem
 import com.mbj.doeat.data.remote.model.SearchResult
 import com.mbj.doeat.ui.component.button.LongRectangleButtonWithParams
-import com.mbj.doeat.ui.component.MainAppBar
+import com.mbj.doeat.ui.component.searchbar.MainAppBar
 import com.mbj.doeat.ui.component.line.RoundedLine
 import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.graph.DetailScreen

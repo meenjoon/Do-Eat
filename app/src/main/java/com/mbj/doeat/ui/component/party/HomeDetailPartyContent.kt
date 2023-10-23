@@ -1,4 +1,4 @@
-package com.mbj.doeat.ui.component
+package com.mbj.doeat.ui.component.party
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

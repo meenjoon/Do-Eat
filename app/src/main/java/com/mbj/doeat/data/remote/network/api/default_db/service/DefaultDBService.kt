@@ -6,6 +6,7 @@ import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.PartyPostIdRequestDto
 import com.mbj.doeat.data.remote.model.PartyPostRequest
+import com.mbj.doeat.data.remote.model.UserIdRequest
 import com.mbj.doeat.data.remote.network.adapter.ApiResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -35,4 +36,10 @@ interface DefaultDBService {
 
     @GET("user/all")
     suspend fun getAllUserList(): ApiResponse<List<LoginResponse>>
+
+    @POST("party/my-parties")
+    suspend fun getMyPartyList(@Body userIdRequest: UserIdRequest): ApiResponse<List<Party>>
+
+    @HTTP(method = "DELETE", path = "user/delete", hasBody = true)
+    suspend fun deleteUser(@Body userIdRequest: UserIdRequest): ApiResponse<Unit>
 }

@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.mbj.doeat.ui.component.ChatRoomContent
+import com.mbj.doeat.ui.component.chat.ChatRoomContent
 import com.mbj.doeat.ui.screen.home.chat_room.viewmodel.ChatRoomViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.NormalColorInverted
 

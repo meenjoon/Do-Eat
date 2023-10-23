@@ -6,6 +6,7 @@ import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.PartyPostIdRequestDto
 import com.mbj.doeat.data.remote.model.PartyPostRequest
+import com.mbj.doeat.data.remote.model.UserIdRequest
 import com.mbj.doeat.data.remote.network.adapter.ApiResponse
 import com.mbj.doeat.data.remote.network.api.default_db.DefaultDBApi
 import kotlinx.coroutines.flow.Flow
@@ -92,6 +93,30 @@ class DefaultDBRepository @Inject constructor(
         return defaultDBDataSource.getAllUserList(
             onComplete = onComplete,
             onError = onError
+        )
+    }
+
+    override fun getMyPartyList(
+        userIdRequest: UserIdRequest,
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit
+    ): Flow<ApiResponse<List<Party>>> {
+        return defaultDBDataSource.getMyPartyList(
+            userIdRequest,
+            onComplete,
+            onError
+        )
+    }
+
+    override fun deleteUser(
+        userIdRequest: UserIdRequest,
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit
+    ): Flow<ApiResponse<Unit>> {
+        return defaultDBDataSource.deleteUser(
+            userIdRequest,
+            onComplete,
+            onError
         )
     }
 }
