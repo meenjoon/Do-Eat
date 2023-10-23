@@ -2,7 +2,9 @@ package com.mbj.doeat.ui.screen.home.setting
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -31,6 +33,7 @@ import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.ui.component.HomeDetailPartyContent
 import com.mbj.doeat.ui.component.dialog.YesNoDialog
 import com.mbj.doeat.ui.component.divider.HorizontalDivider
+import com.mbj.doeat.ui.component.party.NoPartiesAvailable
 import com.mbj.doeat.ui.screen.home.setting.viewmodel.SettingViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 import com.mbj.doeat.ui.theme.Color.Companion.SettingDividerColor
@@ -108,31 +111,44 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
             }
 
             item {
-                LazyRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-                ) {
-                    items(
-                        items = myCreatedPartiesState,
-                        key = { myParty -> myParty.postId }
-                    ) { myParty ->
-                        HomeDetailPartyContent(party = myParty,
-                            chatRoomList = chatRoomItemListState,
-                            onDetailInfoClick = {
-                                viewModel.onDetailInfoClick(
-                                    party = myParty,
-                                    navController = navController
-                                )
-                            },
-                            onChatJoinClick = {
-                                viewModel.enterChatRoom(
-                                    party = myParty,
-                                    chatRoomItemList = chatRoomItemListState,
-                                    navController = navController
-                                )
-                            }
-                        )
+                if (myCreatedPartiesState.isEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(0.7f)
+                            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        NoPartiesAvailable()
+                    }
+                } else {
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                    ) {
+                        items(
+                            items = myCreatedPartiesState,
+                            key = { myParty -> myParty.postId }
+                        ) { myParty ->
+                            HomeDetailPartyContent(party = myParty,
+                                chatRoomList = chatRoomItemListState,
+                                onDetailInfoClick = {
+                                    viewModel.onDetailInfoClick(
+                                        party = myParty,
+                                        navController = navController
+                                    )
+                                },
+                                onChatJoinClick = {
+                                    viewModel.enterChatRoom(
+                                        party = myParty,
+                                        chatRoomItemList = chatRoomItemListState,
+                                        navController = navController
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -168,31 +184,44 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
             }
 
             item {
-                LazyRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-                ) {
-                    items(
-                        items = joinedParties,
-                        key = { myParty -> myParty.postId }
-                    ) { joinedParty ->
-                        HomeDetailPartyContent(party = joinedParty,
-                            chatRoomList = chatRoomItemListState,
-                            onDetailInfoClick = {
-                                viewModel.onDetailInfoClick(
-                                    party = joinedParty,
-                                    navController = navController
-                                )
-                            },
-                            onChatJoinClick = {
-                                viewModel.enterChatRoom(
-                                    party = joinedParty,
-                                    chatRoomItemList = chatRoomItemListState,
-                                    navController = navController
-                                )
-                            }
-                        )
+                if (joinedParties.isEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(0.7f)
+                            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        NoPartiesAvailable()
+                    }
+                } else {
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                    ) {
+                        items(
+                            items = joinedParties,
+                            key = { myParty -> myParty.postId }
+                        ) { joinedParty ->
+                            HomeDetailPartyContent(party = joinedParty,
+                                chatRoomList = chatRoomItemListState,
+                                onDetailInfoClick = {
+                                    viewModel.onDetailInfoClick(
+                                        party = joinedParty,
+                                        navController = navController
+                                    )
+                                },
+                                onChatJoinClick = {
+                                    viewModel.enterChatRoom(
+                                        party = joinedParty,
+                                        chatRoomItemList = chatRoomItemListState,
+                                        navController = navController
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
             }
