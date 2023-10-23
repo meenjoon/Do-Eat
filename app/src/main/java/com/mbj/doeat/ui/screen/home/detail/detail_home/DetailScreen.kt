@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,12 +21,9 @@ import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.BottomSheetState
 import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.runtime.Composable
@@ -56,6 +52,7 @@ import com.mbj.doeat.ui.component.HomeDetailPartyContent
 import com.mbj.doeat.ui.component.ReusableWebView
 import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.component.dialog.YesNoDialog
+import com.mbj.doeat.ui.component.party.NoPartiesAvailable
 import com.mbj.doeat.ui.screen.home.detail.detail_home.viewmodel.DetailViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.Gray200
 import com.mbj.doeat.ui.theme.Color.Companion.NormalColor
@@ -298,21 +295,6 @@ fun PartiesSection(
             })
         }
     }
-}
-
-@Composable
-fun NoPartiesAvailable() {
-    Icon(
-        imageVector = Icons.Default.Close,
-        contentDescription = "No parties available",
-        modifier = Modifier.size(120.dp),
-        tint = Color.Red
-    )
-    Text(
-        text = "현재 개설된 파티가 없습니다.",
-        fontSize = 20.sp,
-        modifier = Modifier.padding(top = 8.dp)
-    )
 }
 
 @Composable
