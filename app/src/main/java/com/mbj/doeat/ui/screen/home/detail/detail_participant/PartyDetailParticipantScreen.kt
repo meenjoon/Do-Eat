@@ -21,7 +21,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.ui.component.party.PartyDetailContent
-import com.mbj.doeat.ui.component.ReusableWebView
+import com.mbj.doeat.ui.component.webview.ReusableWebView
 import com.mbj.doeat.ui.component.button.BackButton
 import com.mbj.doeat.ui.component.button.LongRectangleButtonWithParams
 import com.mbj.doeat.ui.component.toast.ToastMessage

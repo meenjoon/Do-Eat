@@ -11,7 +11,7 @@ import com.mbj.doeat.data.remote.model.SearchItem
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
 import com.mbj.doeat.data.remote.network.api.chat_db.repository.ChatDBRepository
 import com.mbj.doeat.data.remote.network.api.default_db.repository.DefaultDBRepository
-import com.mbj.doeat.ui.component.getUrl
+import com.mbj.doeat.ui.component.webview.getUrl
 import com.mbj.doeat.ui.graph.DetailScreen
 import com.mbj.doeat.ui.graph.Graph
 import com.mbj.doeat.util.DateUtils
