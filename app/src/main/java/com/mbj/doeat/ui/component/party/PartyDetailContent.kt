@@ -1,4 +1,4 @@
-package com.mbj.doeat.ui.component
+package com.mbj.doeat.ui.component.party
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column

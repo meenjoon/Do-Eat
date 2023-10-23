@@ -20,7 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mbj.doeat.data.remote.model.Party
-import com.mbj.doeat.ui.component.PartyDetailContent
+import com.mbj.doeat.ui.component.party.PartyDetailContent
 import com.mbj.doeat.ui.component.ReusableWebView
 import com.mbj.doeat.ui.component.button.BackButton
 import com.mbj.doeat.ui.component.button.LongRectangleButtonWithParams
