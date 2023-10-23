@@ -48,7 +48,7 @@ import com.mbj.doeat.data.remote.model.SearchItem
 import com.mbj.doeat.ui.component.button.BackButton
 import com.mbj.doeat.ui.component.loading.LoadingView
 import com.mbj.doeat.ui.component.button.LongRectangleButtonWithParams
-import com.mbj.doeat.ui.component.HomeDetailPartyContent
+import com.mbj.doeat.ui.component.party.HomeDetailPartyContent
 import com.mbj.doeat.ui.component.ReusableWebView
 import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.component.dialog.YesNoDialog

@@ -30,7 +30,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
 import com.mbj.doeat.data.remote.model.LoginResponse
-import com.mbj.doeat.ui.component.HomeDetailPartyContent
+import com.mbj.doeat.ui.component.party.HomeDetailPartyContent
 import com.mbj.doeat.ui.component.dialog.YesNoDialog
 import com.mbj.doeat.ui.component.divider.HorizontalDivider
 import com.mbj.doeat.ui.component.party.NoPartiesAvailable
