@@ -103,6 +103,8 @@ fun NearbyRestaurantsScreen(
     val isLocationPermissionDeniedState by viewModel.isLocationPermissionDenied.collectAsStateWithLifecycle(initialValue = false)
     val showSearchInvalidToastState by viewModel.showSearchInvalidToast.collectAsStateWithLifecycle()
     val isSearchInvalidState by viewModel.isSearchInvalid.collectAsStateWithLifecycle(initialValue = false)
+    val isFamousRestaurantNetworkErrorState by viewModel.isFamousRestaurantNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showFamousRestaurantNetworkErrorState by viewModel.showFamousRestaurantNetworkError.collectAsStateWithLifecycle()
 
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
         position = CameraPosition(myLocationInfoState, 11.0)
@@ -255,11 +257,19 @@ fun NearbyRestaurantsScreen(
                 showMessage = isLocationPermissionDeniedState,
                 message = "위치 권한이 거부되었습니다.\n허용 후 다시 시도해주세요."
             )
+
             ToastMessage(
                 modifier = Modifier.padding(16.dp),
                 showToast = showSearchInvalidToastState,
                 showMessage = isSearchInvalidState,
                 message = "올바른 지역을 입력해주세요."
+            )
+
+            ToastMessage(
+                modifier = Modifier.padding(16.dp),
+                showToast = showFamousRestaurantNetworkErrorState,
+                showMessage = isFamousRestaurantNetworkErrorState,
+                message = "네트워크 연결을 다시 확인해주세요."
             )
         }
     }

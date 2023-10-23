@@ -1,5 +1,6 @@
 package com.mbj.doeat.ui.screen.home.nearby_restaurants.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mbj.doeat.data.remote.model.SearchResult
@@ -52,6 +53,12 @@ class NearByRestaurantsViewModel @Inject constructor(
     private val _showSearchResultCollapse = MutableStateFlow<Boolean>(false)
     val showSearchResultCollapse: StateFlow<Boolean> = _showSearchResultCollapse
 
+    private val _isFamousRestaurantNetworkError = MutableSharedFlow<Boolean>()
+    val isFamousRestaurantNetworkError: SharedFlow<Boolean> = _isFamousRestaurantNetworkError.asSharedFlow()
+
+    private val _showFamousRestaurantNetworkError = MutableStateFlow<Boolean>(false)
+    val showFamousRestaurantNetworkError: StateFlow<Boolean> = _showFamousRestaurantNetworkError
+
     init {
         viewModelScope.launch {
             searchResult.collectLatest { searchResult ->
@@ -77,6 +84,7 @@ class NearByRestaurantsViewModel @Inject constructor(
                 onComplete = {
                 },
                 onError = {
+                    toggleEnterChatRoomToggle()
                 }
             ).collectLatest { response ->
                 if (response is ApiResultSuccess) {
@@ -107,6 +115,13 @@ class NearByRestaurantsViewModel @Inject constructor(
         viewModelScope.launch {
             _searchResultCollapse.emit(true)
             _showSearchResultCollapse.value = !_showSearchResultCollapse.value
+        }
+    }
+
+    private fun toggleEnterChatRoomToggle() {
+        viewModelScope.launch {
+            _isFamousRestaurantNetworkError.emit(true)
+            _showFamousRestaurantNetworkError.value = !_showFamousRestaurantNetworkError.value
         }
     }
 }
