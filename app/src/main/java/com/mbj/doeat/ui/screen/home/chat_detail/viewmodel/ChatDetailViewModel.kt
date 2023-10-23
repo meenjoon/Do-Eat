@@ -25,8 +25,7 @@ import javax.inject.Inject
 class ChatDetailViewModel @Inject constructor(
     private val chatDBRepository: ChatDBRepository,
     private val defaultDBRepository: DefaultDBRepository
-) :
-    ViewModel() {
+) : ViewModel() {
 
     private val _postId = MutableStateFlow("")
     val postId: StateFlow<String> = _postId
@@ -42,6 +41,9 @@ class ChatDetailViewModel @Inject constructor(
 
     private val _chatRoomItem = MutableStateFlow<ChatRoom?>(null)
     val chatRoomItem: StateFlow<ChatRoom?> = _chatRoomItem
+
+    private val _showLeaveDialog = MutableStateFlow<Boolean>(false)
+    val showLeaveDialog: StateFlow<Boolean> = _showLeaveDialog
 
     private val myUserInfo = UserDataStore.getLoginResponse()
     private var inMemberKey = ""
@@ -171,6 +173,10 @@ class ChatDetailViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun changeShowLeaveDialog(showDialog: Boolean) {
+        _showLeaveDialog.value = showDialog
     }
 
     private fun getInMemberKey(chatRoom: ChatRoom?) {

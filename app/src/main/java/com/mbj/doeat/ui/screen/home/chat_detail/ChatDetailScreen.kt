@@ -53,6 +53,7 @@ import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.ui.component.chat.ChatContent
 import com.mbj.doeat.ui.component.button.BackButton
+import com.mbj.doeat.ui.component.dialog.YesNoDialog
 import com.mbj.doeat.ui.component.textfield.CustomTextField
 import com.mbj.doeat.ui.screen.home.chat_detail.viewmodel.ChatDetailViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.ChatDetailBottomSheetColor
@@ -71,6 +72,7 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
     val chatItemListState by viewModel.chatItemList.collectAsStateWithLifecycle()
     val chatRoomItemState by viewModel.chatRoomItem.collectAsStateWithLifecycle()
     val chatRoomMembersState by viewModel.chatRoomMembers.collectAsStateWithLifecycle()
+    val showLeaveDialogState by viewModel.showLeaveDialog.collectAsStateWithLifecycle()
 
     var previousChatItemList by remember { mutableStateOf(chatItemListState) }
     val listState = rememberLazyListState()
@@ -154,7 +156,8 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
                                 .fillMaxWidth()
                                 .padding(8.dp)
                                 .clickable {
-                                    viewModel.leaveChatRoom(navController)
+                                    viewModel.changeShowLeaveDialog(showDialog = true)
+
                                 })
                     }
 
@@ -197,6 +200,16 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
                         .padding(horizontal = 20.dp, vertical = 20.dp)
                         .align(Alignment.BottomCenter)
                         .offset(y = (-15).dp)
+                )
+
+                YesNoDialog(
+                    showDialog = showLeaveDialogState,
+                    onYesClick = { viewModel.leaveChatRoom(navController = navController) },
+                    onNoClick = { viewModel.changeShowLeaveDialog(showDialog = false) },
+                    title = "파티를 나가시겠습니까?",
+                    message = "파티 탈퇴가 됩니다.",
+                    confirmButtonMessage = "네",
+                    dismissButtonMessage = "아니오"
                 )
             }
         }
