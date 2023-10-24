@@ -42,6 +42,7 @@ fun PostListScreen(name: String, navController: NavHostController, onClick: () -
     val isPartyListLoadingViewState by viewModel.isPartyListLoadingView.collectAsStateWithLifecycle()
     val isChatRoomListNetworkErrorState by viewModel.isChatRoomListNetworkError.collectAsStateWithLifecycle(initialValue = false)
     val showChatRoomListNetworkErrorState by viewModel.showChatRoomListNetworkError.collectAsStateWithLifecycle()
+    val isChatRoomListLoadingViewState by viewModel.isChatRoomListLoadingView.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -122,6 +123,10 @@ fun PostListScreen(name: String, navController: NavHostController, onClick: () -
             showToast = showChatRoomListNetworkErrorState,
             showMessage = isChatRoomListNetworkErrorState,
             message = "네트워크 연결을 다시 확인해주세요"
+        )
+
+        LoadingView(
+            isLoading = isChatRoomListLoadingViewState
         )
     }
 }
