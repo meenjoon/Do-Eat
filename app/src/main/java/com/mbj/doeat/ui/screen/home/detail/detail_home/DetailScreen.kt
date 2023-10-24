@@ -145,7 +145,7 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
                         .align(Alignment.Center),
                     showToast = showPartyListNetworkErrorState,
                     showMessage = isPartyListNetworkErrorState,
-                    message = "네트워크 연결을 다시 확인해주세요.트"
+                    message = "네트워크 연결을 다시 확인해주세요"
                 )
 
                 LoadingView(
