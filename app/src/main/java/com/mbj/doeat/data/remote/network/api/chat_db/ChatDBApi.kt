@@ -27,19 +27,6 @@ interface ChatDBApi {
         sendMessageTime: String
     ): Flow<ApiResponse<Unit>>
 
-    fun getChatRoomItem(
-        onComplete: () -> Unit,
-        onError: (message: String?) -> Unit,
-        postId: String,
-        onChatRoomItem: (ChatRoom?) -> Unit
-    )
-
-    fun getAllChatRoomItem(
-        onComplete: () -> Unit,
-        onError: (message: String?) -> Unit,
-        onChatRoomItemList: (List<ChatRoom>?) -> Unit
-    )
-
     fun leaveChatRoom(
         onComplete: () -> Unit,
         onError: (message: String?) -> Unit,

@@ -47,32 +47,6 @@ class ChatDBRepository @Inject constructor(private val chatDBDataSource: ChatDBD
         )
     }
 
-    override fun getChatRoomItem(
-        onComplete: () -> Unit,
-        onError: (message: String?) -> Unit,
-        postId: String,
-        onChatRoomItem: (ChatRoom?) -> Unit
-    ) {
-        return chatDBDataSource.getChatRoomItem(
-            onComplete,
-            onError,
-            postId,
-            onChatRoomItem
-        )
-    }
-
-    override fun getAllChatRoomItem(
-        onComplete: () -> Unit,
-        onError: (message: String?) -> Unit,
-        onChatRoomItemList: (List<ChatRoom>?) -> Unit
-    ) {
-        return chatDBDataSource.getAllChatRoomItem(
-            onComplete,
-            onError,
-            onChatRoomItemList
-        )
-    }
-
     override fun leaveChatRoom(
         onComplete: () -> Unit,
         onError: (message: String?) -> Unit,
