@@ -34,6 +34,7 @@ import com.mbj.doeat.ui.component.party.HomeDetailPartyContent
 import com.mbj.doeat.ui.component.dialog.YesNoDialog
 import com.mbj.doeat.ui.component.divider.HorizontalDivider
 import com.mbj.doeat.ui.component.party.NoPartiesAvailable
+import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.screen.home.setting.viewmodel.SettingViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 import com.mbj.doeat.ui.theme.Color.Companion.SettingDividerColor
@@ -48,6 +49,8 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
     val chatRoomItemListState by viewModel.chatRoomItemList.collectAsStateWithLifecycle()
     val showLogoutDialogState by viewModel.showLogoutDialog.collectAsStateWithLifecycle()
     val showWithdrawMembershipDialogState by viewModel.showWithdrawMembershipDialog.collectAsStateWithLifecycle()
+    val isMyCreatedPartiesNetworkErrorState by viewModel.isMyCreatedPartiesNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showMyCreatedPartiesNetworkErrorState by viewModel.showMyCreatedPartiesNetworkError.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -248,6 +251,15 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
             message = "회원탈퇴 됩니다.",
             confirmButtonMessage = "네",
             dismissButtonMessage = "아니오"
+        )
+
+        ToastMessage(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            showToast = showMyCreatedPartiesNetworkErrorState,
+            showMessage = isMyCreatedPartiesNetworkErrorState,
+            message = "네트워크 연결을 다시 확인해주세요"
         )
     }
 }

@@ -6,7 +6,6 @@ import androidx.navigation.NavHostController
 import com.google.firebase.database.ValueEventListener
 import com.mbj.doeat.data.local.user_pref.repository.UserPreferenceRepository
 import com.mbj.doeat.data.remote.model.ChatRoom
-import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.model.Party
 import com.mbj.doeat.data.remote.model.UserIdRequest
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
@@ -20,8 +19,11 @@ import com.mbj.doeat.util.NavigationUtils
 import com.mbj.doeat.util.UrlUtils
 import com.mbj.doeat.util.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -54,6 +56,13 @@ class SettingViewModel @Inject constructor(
     private val _myPartyPostIds = MutableStateFlow<Set<String>?>(null)
     private val myPartyPostIds: StateFlow<Set<String>?> = _myPartyPostIds
 
+    private val _isMyCreatedPartiesNetworkError = MutableSharedFlow<Boolean>()
+    val isMyCreatedPartiesNetworkError: SharedFlow<Boolean> = _isMyCreatedPartiesNetworkError.asSharedFlow()
+
+    private val _showMyCreatedPartiesNetworkError = MutableStateFlow<Boolean>(false)
+    val showMyCreatedPartiesNetworkError: StateFlow<Boolean> = _showMyCreatedPartiesNetworkError
+
+
     val userInfo = UserDataStore.getLoginResponse()
     private var chatRoomsAllEventListener: ValueEventListener? = null
 
@@ -68,7 +77,9 @@ class SettingViewModel @Inject constructor(
             if (userInfo != null) {
                 defaultDBRepository.getMyPartyList(
                     onComplete = { },
-                    onError = { },
+                    onError = {
+                        toggleMyCreatedPartiesNetworkErrorToggle()
+                    },
                     userIdRequest = UserIdRequest(userInfo.userId!!)
                 ).collectLatest { partyList ->
                     if (partyList is ApiResultSuccess) {
@@ -274,6 +285,13 @@ class SettingViewModel @Inject constructor(
     private fun removeChatRoomsAllEventListener() {
         viewModelScope.launch {
             chatDBRepository.removeChatRoomsAllEventListener(chatRoomsAllEventListener)
+        }
+    }
+
+    private fun toggleMyCreatedPartiesNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isMyCreatedPartiesNetworkError.emit(true)
+            _showMyCreatedPartiesNetworkError.value = !showMyCreatedPartiesNetworkError.value
         }
     }
 
