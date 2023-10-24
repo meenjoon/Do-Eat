@@ -41,7 +41,7 @@ fun PartyDetailWriterScreen(party: Party, navController: NavHostController, onCl
     val partyItemState by viewModel.partyItem.collectAsStateWithLifecycle()
     val chatRoomItem by viewModel.chatRoomItem.collectAsStateWithLifecycle()
     val showCreatePartyDialogState by viewModel.showDeletePartyDialog.collectAsStateWithLifecycle()
-    val isLoadingView by viewModel.isLoadingView.collectAsStateWithLifecycle()
+    val isDeletePartyLoadingViewState by viewModel.isDeletePartyLoadingView.collectAsStateWithLifecycle()
     val showEnterChatRoomState by viewModel.showEnterChatRoom.collectAsStateWithLifecycle()
     val isEnterChatRoomState by viewModel.isEnterChatRoom.collectAsStateWithLifecycle(initialValue = false)
     val isEnterRoomLoadingViewState by viewModel.isEnterRoomLoadingView.collectAsStateWithLifecycle()
@@ -114,7 +114,7 @@ fun PartyDetailWriterScreen(party: Party, navController: NavHostController, onCl
             )
 
             LoadingView(
-                isLoading = isLoadingView,
+                isLoading = isDeletePartyLoadingViewState,
             )
 
             ToastMessage(

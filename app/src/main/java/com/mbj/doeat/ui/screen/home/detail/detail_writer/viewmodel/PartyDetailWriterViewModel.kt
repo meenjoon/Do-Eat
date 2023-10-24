@@ -40,8 +40,8 @@ class PartyDetailWriterViewModel @Inject constructor(
     private val _showDeletePartyDialog = MutableStateFlow<Boolean>(false)
     val showDeletePartyDialog: StateFlow<Boolean> = _showDeletePartyDialog
 
-    private val _isLoadingView = MutableStateFlow<Boolean>(false)
-    val isLoadingView: StateFlow<Boolean> = _isLoadingView
+    private val _isDeletePartyLoadingView = MutableStateFlow<Boolean>(false)
+    val isDeletePartyLoadingView: StateFlow<Boolean> = _isDeletePartyLoadingView
 
     private val _isEnterChatRoom = MutableSharedFlow<Boolean>()
     val isEnterChatRoom: SharedFlow<Boolean> = _isEnterChatRoom.asSharedFlow()
@@ -108,11 +108,13 @@ class PartyDetailWriterViewModel @Inject constructor(
     }
 
     fun deleteParty(navHostController: NavHostController) {
-        setLoadingState(true)
+        setDeletePartyLoadingState(true)
         viewModelScope.launch {
             defaultDBRepository.deleteParty(
                 PartyPostIdRequestDto(partyItem.value?.postId!!),
-                onComplete = { },
+                onComplete = {
+                    setDeletePartyLoadingState(false)
+                },
                 onError = { }
             ).collectLatest { response ->
                 if (response is ApiResultSuccess) {
@@ -166,8 +168,8 @@ class PartyDetailWriterViewModel @Inject constructor(
         }
     }
 
-    private fun setLoadingState(isLoading: Boolean) {
-        _isLoadingView.value = isLoading
+    private fun setDeletePartyLoadingState(isLoading: Boolean) {
+        _isDeletePartyLoadingView.value = isLoading
     }
 
     private fun toggleEnterChatRoomStateToggle() {
