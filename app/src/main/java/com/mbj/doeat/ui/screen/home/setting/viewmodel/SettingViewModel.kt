@@ -321,8 +321,10 @@ class SettingViewModel @Inject constructor(
         val postIdSet = mutableSetOf<String>()
 
         for (party in partyList) {
-            val postId = party.postId.toString()
-            postIdSet.add(postId)
+            if (party.userId == userInfo?.userId) {
+                val postId = party.postId.toString()
+                postIdSet.add(postId)
+            }
         }
 
         return postIdSet

@@ -188,13 +188,18 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
                         } else {
                             modifiedChatRoom
                         }
-                    }.filterNotNull().filter { it.postId in postIdsToDelete }
+                    }.filterNotNull().filter { it.postId !in postIdsToDelete }
 
-                    groupChatsRef.setValue(modifiedChatRooms).addOnSuccessListener {
-                        response(Unit)
-                        onComplete()
-                    }.addOnCanceledListener  {
-                        response(null)
+                    groupChatsRef.removeValue()
+
+                    for (chatRoom in modifiedChatRooms) {
+                        val chatRoomPostId = chatRoom.postId
+                        groupChatsRef.child(chatRoomPostId.toString()).setValue(chatRoom).addOnSuccessListener {
+                            response(Unit)
+                            onComplete()
+                        }.addOnCanceledListener {
+                            response(null)
+                        }
                     }
                 }
 
