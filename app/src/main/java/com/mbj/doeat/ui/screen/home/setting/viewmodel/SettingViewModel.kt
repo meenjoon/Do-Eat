@@ -83,6 +83,12 @@ class SettingViewModel @Inject constructor(
     private val _isEnterRoomLoadingView = MutableStateFlow<Boolean>(false)
     val isEnterRoomLoadingView: StateFlow<Boolean> = _isEnterRoomLoadingView
 
+    private val _isWithdrawMembershipNetworkError = MutableSharedFlow<Boolean>()
+    val isWithdrawMembershipNetworkError: SharedFlow<Boolean> = _isWithdrawMembershipNetworkError.asSharedFlow()
+
+    private val _showWithdrawMembershipNetworkError = MutableStateFlow<Boolean>(false)
+    val showWithdrawMembershipNetworkError: StateFlow<Boolean> = _showWithdrawMembershipNetworkError
+
     val userInfo = UserDataStore.getLoginResponse()
     private var chatRoomsAllEventListener: ValueEventListener? = null
 
@@ -228,7 +234,9 @@ class SettingViewModel @Inject constructor(
             if (userInfo != null) {
                 defaultDBRepository.deleteUser(
                     onComplete = { },
-                    onError = { },
+                    onError = {
+                        toggleWithdrawMembershipNetworkErrorToggle()
+                    },
                     userIdRequest = UserIdRequest(userInfo.userId!!)
                 ).collectLatest { response ->
                     if (response is ApiResultSuccess) {
@@ -352,6 +360,13 @@ class SettingViewModel @Inject constructor(
 
     private fun setEnterRoomLoadingState(isLoading: Boolean) {
         _isEnterRoomLoadingView.value = isLoading
+    }
+
+    private fun toggleWithdrawMembershipNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isWithdrawMembershipNetworkError.emit(true)
+            _showWithdrawMembershipNetworkError.value = !showWithdrawMembershipNetworkError.value
+        }
     }
 
     override fun onCleared() {
