@@ -54,6 +54,9 @@ class ChatDetailViewModel @Inject constructor(
     private val _showSendMessageNetworkError = MutableStateFlow<Boolean>(false)
     val showSendMessageNetworkError: StateFlow<Boolean> = _showSendMessageNetworkError
 
+    private val _isSendMessageLoadingView = MutableStateFlow<Boolean>(false)
+    val isSendMessageLoadingView: StateFlow<Boolean> = _isSendMessageLoadingView
+
     private val myUserInfo = UserDataStore.getLoginResponse()
     private var inMemberKey = ""
 
@@ -76,8 +79,11 @@ class ChatDetailViewModel @Inject constructor(
 
     fun sendMessage(message: String) {
         viewModelScope.launch {
+            setSendMessageLoadingState(true)
             chatDBRepository.sendMessage(
-                onComplete = { },
+                onComplete = {
+                    setSendMessageLoadingState(false)
+                },
                 onError = {
                     toggleSendMessageNetworkErrorToggle()
                 },
@@ -207,6 +213,10 @@ class ChatDetailViewModel @Inject constructor(
             _isSendMessageNetworkError.emit(true)
             _showSendMessageNetworkError.value = !showSendMessageNetworkError.value
         }
+    }
+
+    private fun setSendMessageLoadingState(isLoading: Boolean) {
+        _isSendMessageLoadingView.value = isLoading
     }
 
     override fun onCleared() {

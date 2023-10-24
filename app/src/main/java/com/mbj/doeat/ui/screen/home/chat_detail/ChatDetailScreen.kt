@@ -54,6 +54,7 @@ import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.ui.component.chat.ChatContent
 import com.mbj.doeat.ui.component.button.BackButton
 import com.mbj.doeat.ui.component.dialog.YesNoDialog
+import com.mbj.doeat.ui.component.loading.LoadingView
 import com.mbj.doeat.ui.component.textfield.CustomTextField
 import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.screen.home.chat_detail.viewmodel.ChatDetailViewModel
@@ -76,6 +77,7 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
     val showLeaveDialogState by viewModel.showLeaveDialog.collectAsStateWithLifecycle()
     val isSendMessageNetworkErrorState by viewModel.isSendMessageNetworkError.collectAsStateWithLifecycle(initialValue = false)
     val showSendMessageNetworkErrorState by viewModel.showSendMessageNetworkError.collectAsStateWithLifecycle()
+    val isSendMessageLoadingViewState by viewModel.isSendMessageLoadingView.collectAsStateWithLifecycle()
 
     var previousChatItemList by remember { mutableStateOf(chatItemListState) }
     val listState = rememberLazyListState()
@@ -222,6 +224,10 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
                     showToast = showSendMessageNetworkErrorState,
                     showMessage = isSendMessageNetworkErrorState,
                     message = "네트워크 연결을 다시 확인해주세요"
+                )
+
+                LoadingView(
+                    isLoading = isSendMessageLoadingViewState
                 )
             }
         }
