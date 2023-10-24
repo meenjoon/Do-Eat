@@ -43,6 +43,7 @@ fun PostListScreen(name: String, navController: NavHostController, onClick: () -
     val isChatRoomListNetworkErrorState by viewModel.isChatRoomListNetworkError.collectAsStateWithLifecycle(initialValue = false)
     val showChatRoomListNetworkErrorState by viewModel.showChatRoomListNetworkError.collectAsStateWithLifecycle()
     val isChatRoomListLoadingViewState by viewModel.isChatRoomListLoadingView.collectAsStateWithLifecycle()
+    val enterRoomErrorMessageState by viewModel.enterRoomErrorMessage.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -100,7 +101,7 @@ fun PostListScreen(name: String, navController: NavHostController, onClick: () -
                 .align(Alignment.Center),
             showToast = showEnterChatRoomState,
             showMessage = isEnterChatRoomState,
-            message = "현재 인원이 꽉 찼습니다."
+            message = enterRoomErrorMessageState
         )
 
         ToastMessage(

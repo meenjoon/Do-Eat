@@ -73,6 +73,9 @@ class PostListViewModel @Inject constructor(
     private val _isChatRoomListLoadingView = MutableStateFlow<Boolean>(false)
     val isChatRoomListLoadingView: StateFlow<Boolean> = _isChatRoomListLoadingView
 
+    private val _enterRoomErrorMessage = MutableStateFlow<String>("")
+    val enterRoomErrorMessage: StateFlow<String> = _enterRoomErrorMessage
+
     private var chatRoomsAllEventListener: ValueEventListener? = null
 
     init {
@@ -114,7 +117,8 @@ class PostListViewModel @Inject constructor(
                         setChatRoomListLoadingState(false)
                     },
                     onError = {
-                        toggleChatRoomListNetworkErrorToggle() }
+                        toggleChatRoomListNetworkErrorToggle()
+                    }
                 ) { chatRoomList ->
                     _chatRoomItemList.value = chatRoomList
                 }
@@ -162,7 +166,8 @@ class PostListViewModel @Inject constructor(
             val chatRoom = chatRoomItemList?.find { it.postId == party.postId.toString() }
 
             val isChatRoomFull = chatRoom?.members?.size == party.recruitmentLimit
-            val isUserInChatRoom = chatRoom?.members?.any { it.value.userId == myUserInfo?.userId.toString() }
+            val isUserInChatRoom =
+                chatRoom?.members?.any { it.value.userId == myUserInfo?.userId.toString() }
 
             if (isUserInChatRoom == true) {
                 NavigationUtils.navigate(
@@ -173,7 +178,9 @@ class PostListViewModel @Inject constructor(
             } else if (!isChatRoomFull) {
                 chatDBRepository.enterChatRoom(
                     onComplete = { },
-                    onError = { },
+                    onError = {
+                        toggleEnterChatRoomStateToggle("네트워크 연결을 다시 확인해주세요")
+                    },
                     postId = party.postId.toString(),
                     postUserId = party.userId.toString(),
                     myUserId = myUserInfo?.userId.toString(),
@@ -189,15 +196,16 @@ class PostListViewModel @Inject constructor(
                     }
                 }
             } else if (isChatRoomFull) {
-                toggleEnterChatRoomToggle()
+                toggleEnterChatRoomStateToggle("현재 인원이 꽉 찼습니다.")
             }
         }
     }
 
-    private fun toggleEnterChatRoomToggle() {
+    private fun toggleEnterChatRoomStateToggle(errorMessage: String) {
         viewModelScope.launch {
             _isEnterChatRoom.emit(true)
             _showEnterChatRoom.value = !showEnterChatRoom.value
+            _enterRoomErrorMessage.value = errorMessage
         }
     }
 
