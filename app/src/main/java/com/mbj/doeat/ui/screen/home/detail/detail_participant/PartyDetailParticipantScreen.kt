@@ -24,6 +24,7 @@ import com.mbj.doeat.ui.component.party.PartyDetailContent
 import com.mbj.doeat.ui.component.webview.ReusableWebView
 import com.mbj.doeat.ui.component.button.BackButton
 import com.mbj.doeat.ui.component.button.LongRectangleButtonWithParams
+import com.mbj.doeat.ui.component.loading.LoadingView
 import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.screen.home.detail.detail_participant.viewmodel.PartyDetailParticipantViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
@@ -44,6 +45,7 @@ fun PartyDetailParticipantScreen(
     val showEnterChatRoomState by viewModel.showEnterChatRoom.collectAsStateWithLifecycle()
     val isEnterChatRoomState by viewModel.isEnterChatRoom.collectAsStateWithLifecycle(initialValue = false)
     val enterRoomErrorMessageState by viewModel.enterRoomErrorMessage.collectAsStateWithLifecycle()
+    val isEnterRoomLoadingViewState by viewModel.isEnterRoomLoadingView.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = {
@@ -98,6 +100,10 @@ fun PartyDetailParticipantScreen(
                 showToast = showEnterChatRoomState,
                 showMessage = isEnterChatRoomState,
                 message = enterRoomErrorMessageState
+            )
+
+            LoadingView(
+                isLoading = isEnterRoomLoadingViewState
             )
         }
     }

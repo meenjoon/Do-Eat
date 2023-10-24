@@ -41,6 +41,9 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
     private val _enterRoomErrorMessage = MutableStateFlow<String>("")
     val enterRoomErrorMessage: StateFlow<String> = _enterRoomErrorMessage
 
+    private val _isEnterRoomLoadingView = MutableStateFlow<Boolean>(false)
+    val isEnterRoomLoadingView: StateFlow<Boolean> = _isEnterRoomLoadingView
+
     private var observeChatRoomChangesListener: ValueEventListener? = null
 
     init {
@@ -53,12 +56,14 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
 
     fun enterChatRoom(navController: NavHostController) {
         viewModelScope.launch {
+            setEnterRoomLoadingState(true)
             val myUserInfo = UserDataStore.getLoginResponse()
 
             val isChatRoomFull = chatRoomItem.value?.members?.size == partyItem.value?.recruitmentLimit
             val isUserInChatRoom = chatRoomItem.value?.members?.any{ it.value.userId == myUserInfo?.userId.toString()}
 
             if (isUserInChatRoom == true) {
+                setEnterRoomLoadingState(false)
                 NavigationUtils.navigate(
                     navController, DetailScreen.ChatDetail.navigateWithArg(
                         partyItem.value?.postId.toString()
@@ -66,7 +71,9 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
                 )
             } else if (!isChatRoomFull){
                 chatDBRepository.enterChatRoom(
-                    onComplete = { },
+                    onComplete = {
+                        setEnterRoomLoadingState(false)
+                    },
                     onError = {
                         toggleEnterChatRoomStateToggle("네트워크 연결을 다시 확인해주세요")
                     },
@@ -85,6 +92,7 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
                     }
                 }
             } else if (isChatRoomFull) {
+                setEnterRoomLoadingState(false)
                 toggleEnterChatRoomStateToggle("현재 인원이 꽉 찼습니다.")
             }
         }
@@ -119,6 +127,10 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
             _showEnterChatRoom.value = !showEnterChatRoom.value
             _enterRoomErrorMessage.value = errorMessage
         }
+    }
+
+    private fun setEnterRoomLoadingState(isLoading: Boolean) {
+        _isEnterRoomLoadingView.value = isLoading
     }
 
     override fun onCleared() {
