@@ -114,10 +114,14 @@ class ChatDBRepository @Inject constructor(private val chatDBDataSource: ChatDBD
     }
 
     override fun addChatDetailEventListener(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
         postId: String,
         onChatItemAdded: (ChatItem) -> Unit
     ): ChildEventListener {
         return chatDBDataSource.addChatDetailEventListener(
+            onComplete,
+            onError,
             postId,
             onChatItemAdded
         )

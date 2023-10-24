@@ -61,6 +61,8 @@ interface ChatDBApi {
     )
 
     fun addChatDetailEventListener(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
         postId: String,
         onChatItemAdded: (ChatItem) -> Unit
     ): ChildEventListener

@@ -259,11 +259,14 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
     }
 
     override fun addChatDetailEventListener(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
         postId: String,
         onChatItemAdded: (ChatItem) -> Unit
     ): ChildEventListener {
         val chatDetailEventListener = object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                onComplete()
                 val chatId = snapshot.key
                 val messageData = snapshot.getValue(ChatItem::class.java)
 
@@ -281,6 +284,7 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
             }
 
             override fun onCancelled(error: DatabaseError) {
+                onError(null)
             }
 
         }

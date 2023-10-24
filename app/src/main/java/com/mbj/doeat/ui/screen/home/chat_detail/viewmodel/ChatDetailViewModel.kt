@@ -82,6 +82,8 @@ class ChatDetailViewModel @Inject constructor(
             postId.collectLatest { postId ->
                 if (postId != "") {
                     observeChatChangesListener = chatDBRepository.addChatDetailEventListener(
+                        onComplete = { },
+                        onError = { },
                         postId.substring(1, postId.length - 1)
                     ) { chatItem ->
                         val currentList = _chatItemList.value
