@@ -128,13 +128,11 @@ class ChatRoomViewModel @Inject constructor(
         chatRoom: ChatRoom,
         navController: NavHostController
     ) {
-        viewModelScope.launch {
-            NavigationUtils.navigate(
-                navController, DetailScreen.ChatDetail.navigateWithArg(
-                    chatRoom.postId.toString()
-                )
+        NavigationUtils.navigate(
+            navController, DetailScreen.ChatDetail.navigateWithArg(
+                chatRoom.postId.toString()
             )
-        }
+        )
     }
 
     private fun toggleChatRoomListNetworkErrorToggle() {
