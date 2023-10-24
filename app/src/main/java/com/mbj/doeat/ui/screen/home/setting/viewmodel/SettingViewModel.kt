@@ -98,6 +98,9 @@ class SettingViewModel @Inject constructor(
     private val _showDeleteChatRoomNetworkError = MutableStateFlow<Boolean>(false)
     val showDeleteChatRoomNetworkError: StateFlow<Boolean> = _showDeleteChatRoomNetworkError
 
+    private val _isDeleteChatRoomLoadingView = MutableStateFlow<Boolean>(false)
+    val isDeleteChatRoomLoadingView: StateFlow<Boolean> = _isDeleteChatRoomLoadingView
+
     val userInfo = UserDataStore.getLoginResponse()
     private var chatRoomsAllEventListener: ValueEventListener? = null
 
@@ -264,9 +267,12 @@ class SettingViewModel @Inject constructor(
 
     private fun deleteChatRoom(myUserId: String, navController: NavHostController) {
         viewModelScope.launch {
+            setDeleteChatRoomLoadingState(true)
             myPartyPostIds.value?.let {
                 chatDBRepository.deleteAllChatRoomsForUserID(
-                    onComplete = { },
+                    onComplete = {
+                        setDeleteChatRoomLoadingState(false)
+                    },
                     onError = {
                         toggleDeleteChatRoomNetworkErrorToggle()
                     },
@@ -394,6 +400,10 @@ class SettingViewModel @Inject constructor(
             _isDeleteChatRoomNetworkError.emit(true)
             _showDeleteChatRoomNetworkError.value = !showDeleteChatRoomNetworkError.value
         }
+    }
+
+    private fun setDeleteChatRoomLoadingState(isLoading: Boolean) {
+        _isDeleteChatRoomLoadingView.value = isLoading
     }
 
     override fun onCleared() {
