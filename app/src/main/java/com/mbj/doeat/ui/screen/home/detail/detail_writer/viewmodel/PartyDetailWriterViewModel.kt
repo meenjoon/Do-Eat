@@ -16,8 +16,11 @@ import com.mbj.doeat.util.DateUtils
 import com.mbj.doeat.util.NavigationUtils
 import com.mbj.doeat.util.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -40,6 +43,12 @@ class PartyDetailWriterViewModel @Inject constructor(
     private val _isLoadingView = MutableStateFlow<Boolean>(false)
     val isLoadingView: StateFlow<Boolean> = _isLoadingView
 
+    private val _isEnterChatRoom = MutableSharedFlow<Boolean>()
+    val isEnterChatRoom: SharedFlow<Boolean> = _isEnterChatRoom.asSharedFlow()
+
+    private val _showEnterChatRoom = MutableStateFlow<Boolean>(false)
+    val showEnterChatRoom: StateFlow<Boolean> = _showEnterChatRoom
+
     private var observeChatRoomChangesListener: ValueEventListener? = null
 
     init {
@@ -58,7 +67,8 @@ class PartyDetailWriterViewModel @Inject constructor(
         viewModelScope.launch {
             val myUserInfo = UserDataStore.getLoginResponse()
 
-            val isUserInChatRoom = chatRoomItem.value?.members?.any { it.value.userId == myUserInfo?.userId.toString() }
+            val isUserInChatRoom =
+                chatRoomItem.value?.members?.any { it.value.userId == myUserInfo?.userId.toString() }
 
             if (isUserInChatRoom == true) {
                 NavigationUtils.navigate(
@@ -69,7 +79,9 @@ class PartyDetailWriterViewModel @Inject constructor(
             } else {
                 chatDBRepository.enterChatRoom(
                     onComplete = { },
-                    onError = { },
+                    onError = {
+                        toggleEnterChatRoomStateToggle()
+                    },
                     postId = partyItem.value?.postId.toString(),
                     postUserId = partyItem.value?.userId.toString(),
                     myUserId = myUserInfo?.userId.toString(),
@@ -149,6 +161,13 @@ class PartyDetailWriterViewModel @Inject constructor(
 
     private fun setLoadingState(isLoading: Boolean) {
         _isLoadingView.value = isLoading
+    }
+
+    private fun toggleEnterChatRoomStateToggle() {
+        viewModelScope.launch {
+            _isEnterChatRoom.emit(true)
+            _showEnterChatRoom.value = !showEnterChatRoom.value
+        }
     }
 
     override fun onCleared() {
