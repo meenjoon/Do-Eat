@@ -41,6 +41,9 @@ class ChatRoomViewModel @Inject constructor(
     private val _showChatRoomListNetworkError = MutableStateFlow<Boolean>(false)
     val showChatRoomListNetworkError: StateFlow<Boolean> = _showChatRoomListNetworkError
 
+    private val _isChatRoomListLoadingView = MutableStateFlow<Boolean>(false)
+    val isChatRoomListLoadingView: StateFlow<Boolean> = _isChatRoomListLoadingView
+
     private val myUserId = UserDataStore.getLoginResponse()?.userId
 
     private var chatRoomsAllEventListener: ValueEventListener? = null
@@ -51,9 +54,12 @@ class ChatRoomViewModel @Inject constructor(
     }
 
     private fun addChatRoomsAllEventListener() {
+        setChatRoomListLoadingState(true)
         chatRoomsAllEventListener =
             chatDBRepository.addChatRoomsAllEventListener(
-                onComplete = { },
+                onComplete = {
+                    setChatRoomListLoadingState(false)
+                },
                 onError = {
                     toggleChatRoomListNetworkErrorToggle()
                 }
@@ -91,10 +97,14 @@ class ChatRoomViewModel @Inject constructor(
         }
     }
 
-    fun chatRoomImages(userList: List<LoginResponse>?, members: Map<String, InMember>?): List<String> {
+    fun chatRoomImages(
+        userList: List<LoginResponse>?,
+        members: Map<String, InMember>?
+    ): List<String> {
         return userList
             ?.mapNotNull { user ->
-                val matchingInMember = members?.values?.find { it.userId == user.userId?.toString() }
+                val matchingInMember =
+                    members?.values?.find { it.userId == user.userId?.toString() }
                 matchingInMember?.let { user.userImageUrl }
             }
             ?: emptyList()
@@ -118,6 +128,10 @@ class ChatRoomViewModel @Inject constructor(
             _isChatRoomListNetworkError.emit(true)
             _showChatRoomListNetworkError.value = !showChatRoomListNetworkError.value
         }
+    }
+
+    private fun setChatRoomListLoadingState(isLoading: Boolean) {
+        _isChatRoomListLoadingView.value = isLoading
     }
 
     override fun onCleared() {

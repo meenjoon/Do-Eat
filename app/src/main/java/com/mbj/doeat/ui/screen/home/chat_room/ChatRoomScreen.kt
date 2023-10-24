@@ -21,6 +21,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mbj.doeat.ui.component.chat.ChatRoomContent
+import com.mbj.doeat.ui.component.loading.LoadingView
 import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.screen.home.chat_room.viewmodel.ChatRoomViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.NormalColorInverted
@@ -34,6 +35,7 @@ fun ChatRoomScreen(name: String, navController: NavHostController, onClick: () -
     val userListState by viewModel.userList.collectAsStateWithLifecycle()
     val isChatRoomListNetworkErrorState by viewModel.isChatRoomListNetworkError.collectAsStateWithLifecycle(initialValue = false)
     val showChatRoomListNetworkErrorState by viewModel.showChatRoomListNetworkError.collectAsStateWithLifecycle()
+    val isChatRoomListLoadingViewState by viewModel.isChatRoomListLoadingView.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -79,6 +81,10 @@ fun ChatRoomScreen(name: String, navController: NavHostController, onClick: () -
             showToast = showChatRoomListNetworkErrorState,
             showMessage = isChatRoomListNetworkErrorState,
             message = "네트워크 연결을 다시 확인해주세요"
+        )
+
+        LoadingView(
+            isLoading = isChatRoomListLoadingViewState
         )
     }
 }
