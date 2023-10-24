@@ -42,6 +42,8 @@ fun PartyDetailWriterScreen(party: Party, navController: NavHostController, onCl
     val chatRoomItem by viewModel.chatRoomItem.collectAsStateWithLifecycle()
     val showCreatePartyDialogState by viewModel.showDeletePartyDialog.collectAsStateWithLifecycle()
     val isDeletePartyLoadingViewState by viewModel.isDeletePartyLoadingView.collectAsStateWithLifecycle()
+    val isDeletePartyNetworkErrorState by viewModel.isDeletePartyNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showDeletePartyListNetworkErrorState by viewModel.showDeletePartyListNetworkError.collectAsStateWithLifecycle()
     val showEnterChatRoomState by viewModel.showEnterChatRoom.collectAsStateWithLifecycle()
     val isEnterChatRoomState by viewModel.isEnterChatRoom.collectAsStateWithLifecycle(initialValue = false)
     val isEnterRoomLoadingViewState by viewModel.isEnterRoomLoadingView.collectAsStateWithLifecycle()
@@ -128,6 +130,15 @@ fun PartyDetailWriterScreen(party: Party, navController: NavHostController, onCl
 
             LoadingView(
                 isLoading = isEnterRoomLoadingViewState
+            )
+
+            ToastMessage(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.Center),
+                showToast = showDeletePartyListNetworkErrorState,
+                showMessage = isDeletePartyNetworkErrorState,
+                message = "네트워크 연결을 다시 확인해주세요"
             )
         }
     }

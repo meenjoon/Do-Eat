@@ -43,6 +43,12 @@ class PartyDetailWriterViewModel @Inject constructor(
     private val _isDeletePartyLoadingView = MutableStateFlow<Boolean>(false)
     val isDeletePartyLoadingView: StateFlow<Boolean> = _isDeletePartyLoadingView
 
+    private val _isDeletePartyNetworkError = MutableSharedFlow<Boolean>()
+    val isDeletePartyNetworkError: SharedFlow<Boolean> = _isDeletePartyNetworkError.asSharedFlow()
+
+    private val _showDeletePartyListNetworkError = MutableStateFlow<Boolean>(false)
+    val showDeletePartyListNetworkError: StateFlow<Boolean> = _showDeletePartyListNetworkError
+
     private val _isEnterChatRoom = MutableSharedFlow<Boolean>()
     val isEnterChatRoom: SharedFlow<Boolean> = _isEnterChatRoom.asSharedFlow()
 
@@ -115,7 +121,9 @@ class PartyDetailWriterViewModel @Inject constructor(
                 onComplete = {
                     setDeletePartyLoadingState(false)
                 },
-                onError = { }
+                onError = {
+                    toggleDeletePartyNetworkErrorToggle()
+                }
             ).collectLatest { response ->
                 if (response is ApiResultSuccess) {
                     deleteChatRoom(
@@ -181,6 +189,13 @@ class PartyDetailWriterViewModel @Inject constructor(
 
     private fun setEnterRoomLoadingState(isLoading: Boolean) {
         _isEnterRoomLoadingView.value = isLoading
+    }
+
+    private fun toggleDeletePartyNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isDeletePartyNetworkError.emit(true)
+            _showDeletePartyListNetworkError.value = !showDeletePartyListNetworkError.value
+        }
     }
 
     override fun onCleared() {
