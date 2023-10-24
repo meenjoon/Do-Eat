@@ -50,7 +50,7 @@ fun PartyDetailWriterScreen(party: Party, navController: NavHostController, onCl
     val isDeleteChatRoomLoadingViewState by viewModel.isDeleteChatRoomLoadingView.collectAsStateWithLifecycle()
     val isDeleteChatRoomNetworkErrorState by viewModel.isDeleteChatRoomNetworkError.collectAsStateWithLifecycle(initialValue = false)
     val showDeleteChatRoomNetworkErrorState by viewModel.showDeleteChatRoomNetworkError.collectAsStateWithLifecycle()
-
+    val isChatRoomListLoadingViewState by viewModel.isChatRoomListLoadingView.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = {
@@ -156,6 +156,10 @@ fun PartyDetailWriterScreen(party: Party, navController: NavHostController, onCl
                 showToast = showDeleteChatRoomNetworkErrorState,
                 showMessage = isDeleteChatRoomNetworkErrorState,
                 message = "네트워크 연결을 다시 확인해주세요"
+            )
+
+            LoadingView(
+                isLoading = isChatRoomListLoadingViewState
             )
         }
     }
