@@ -89,6 +89,9 @@ class SettingViewModel @Inject constructor(
     private val _showWithdrawMembershipNetworkError = MutableStateFlow<Boolean>(false)
     val showWithdrawMembershipNetworkError: StateFlow<Boolean> = _showWithdrawMembershipNetworkError
 
+    private val _isWithdrawMembershipLoadingView = MutableStateFlow<Boolean>(false)
+    val isWithdrawMembershipLoadingView: StateFlow<Boolean> = _isWithdrawMembershipLoadingView
+
     val userInfo = UserDataStore.getLoginResponse()
     private var chatRoomsAllEventListener: ValueEventListener? = null
 
@@ -231,9 +234,12 @@ class SettingViewModel @Inject constructor(
 
     fun withdrawMembership(navController: NavHostController) {
         viewModelScope.launch {
+            setWithdrawMembershipLoadingState(true)
             if (userInfo != null) {
                 defaultDBRepository.deleteUser(
-                    onComplete = { },
+                    onComplete = {
+                        setWithdrawMembershipLoadingState(false)
+                    },
                     onError = {
                         toggleWithdrawMembershipNetworkErrorToggle()
                     },
@@ -367,6 +373,10 @@ class SettingViewModel @Inject constructor(
             _isWithdrawMembershipNetworkError.emit(true)
             _showWithdrawMembershipNetworkError.value = !showWithdrawMembershipNetworkError.value
         }
+    }
+
+    private fun setWithdrawMembershipLoadingState(isLoading: Boolean) {
+        _isWithdrawMembershipLoadingView.value = isLoading
     }
 
     override fun onCleared() {
