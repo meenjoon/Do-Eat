@@ -92,6 +92,12 @@ class SettingViewModel @Inject constructor(
     private val _isWithdrawMembershipLoadingView = MutableStateFlow<Boolean>(false)
     val isWithdrawMembershipLoadingView: StateFlow<Boolean> = _isWithdrawMembershipLoadingView
 
+    private val _isDeleteChatRoomNetworkError = MutableSharedFlow<Boolean>()
+    val isDeleteChatRoomNetworkError: SharedFlow<Boolean> = _isDeleteChatRoomNetworkError.asSharedFlow()
+
+    private val _showDeleteChatRoomNetworkError = MutableStateFlow<Boolean>(false)
+    val showDeleteChatRoomNetworkError: StateFlow<Boolean> = _showDeleteChatRoomNetworkError
+
     val userInfo = UserDataStore.getLoginResponse()
     private var chatRoomsAllEventListener: ValueEventListener? = null
 
@@ -261,7 +267,9 @@ class SettingViewModel @Inject constructor(
             myPartyPostIds.value?.let {
                 chatDBRepository.deleteAllChatRoomsForUserID(
                     onComplete = { },
-                    onError = { },
+                    onError = {
+                        toggleDeleteChatRoomNetworkErrorToggle()
+                    },
                     userIdToDelete = myUserId,
                     postIdsToDelete = it
                 ) { response ->
@@ -379,6 +387,13 @@ class SettingViewModel @Inject constructor(
 
     private fun setWithdrawMembershipLoadingState(isLoading: Boolean) {
         _isWithdrawMembershipLoadingView.value = isLoading
+    }
+
+    private fun toggleDeleteChatRoomNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isDeleteChatRoomNetworkError.emit(true)
+            _showDeleteChatRoomNetworkError.value = !showDeleteChatRoomNetworkError.value
+        }
     }
 
     override fun onCleared() {
