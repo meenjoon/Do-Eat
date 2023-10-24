@@ -92,6 +92,9 @@ class DetailViewModel @Inject constructor(
     private val _enterRoomErrorMessage = MutableStateFlow<String>("")
     val enterRoomErrorMessage: StateFlow<String> = _enterRoomErrorMessage
 
+    private val _isEnterRoomLoadingView = MutableStateFlow<Boolean>(false)
+    val isEnterRoomLoadingView: StateFlow<Boolean> = _isEnterRoomLoadingView
+
     val userId = UserDataStore.getLoginResponse()?.userId
 
     private var chatRoomsAllEventListener: ValueEventListener? = null
@@ -185,7 +188,6 @@ class DetailViewModel @Inject constructor(
     }
 
     fun onDetailInfoClick(party: Party, navController: NavHostController) {
-
         val encodedLink = UrlUtils.encodeUrl(party.link)
         val titleWithoutHtmlTags = MapConverter.removeHtmlTags(party.restaurantName)
 
@@ -216,14 +218,15 @@ class DetailViewModel @Inject constructor(
         navController: NavHostController
     ) {
         viewModelScope.launch {
+            setEnterRoomLoadingState(true)
             val myUserInfo = UserDataStore.getLoginResponse()
             val chatRoom = chatRoomItemList?.find { it.postId == party.postId.toString() }
 
             val isChatRoomFull = chatRoom?.members?.size == party.recruitmentLimit
-            val isUserInChatRoom =
-                chatRoom?.members?.any { it.value.userId == myUserInfo?.userId.toString() }
+            val isUserInChatRoom = chatRoom?.members?.any { it.value.userId == myUserInfo?.userId.toString() }
 
             if (isUserInChatRoom == true) {
+                setEnterRoomLoadingState(false)
                 NavigationUtils.navigate(
                     navController, DetailScreen.ChatDetail.navigateWithArg(
                         party.postId.toString()
@@ -231,7 +234,9 @@ class DetailViewModel @Inject constructor(
                 )
             } else if (!isChatRoomFull) {
                 chatDBRepository.enterChatRoom(
-                    onComplete = { },
+                    onComplete = {
+                        setEnterRoomLoadingState(false)
+                    },
                     onError = {
                         toggleEnterChatRoomStateToggle("네트워크 연결을 다시 확인해주세요")
                     },
@@ -250,6 +255,7 @@ class DetailViewModel @Inject constructor(
                     }
                 }
             } else if (isChatRoomFull) {
+                setEnterRoomLoadingState(false)
                 toggleEnterChatRoomStateToggle("현재 인원이 꽉 찼습니다.")
             }
         }
@@ -313,6 +319,10 @@ class DetailViewModel @Inject constructor(
             _showPostPartyNetworkError.value = !showPostPartyNetworkError.value
             _showCreatePartyDialog.value = false
         }
+    }
+
+    private fun setEnterRoomLoadingState(isLoading: Boolean) {
+        _isEnterRoomLoadingView.value = isLoading
     }
 
     override fun onCleared() {

@@ -75,6 +75,7 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
     val isPartyListNetworkErrorState by viewModel.isPartyListNetworkError.collectAsStateWithLifecycle(initialValue = false)
     val showPartyListNetworkErrorState by viewModel.showPartyListNetworkError.collectAsStateWithLifecycle()
     val isPartyListLoadingViewState by viewModel.isPartyListLoadingView.collectAsStateWithLifecycle()
+    val isEnterRoomLoadingViewState by viewModel.isEnterRoomLoadingView.collectAsStateWithLifecycle()
 
     val bottomSheetState = rememberBottomSheetState(
         initialValue = BottomSheetValue.Collapsed
@@ -149,6 +150,10 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
 
                 LoadingView(
                     isLoading = isPartyListLoadingViewState
+                )
+
+                LoadingView(
+                    isLoading = isEnterRoomLoadingViewState
                 )
             }
         }
