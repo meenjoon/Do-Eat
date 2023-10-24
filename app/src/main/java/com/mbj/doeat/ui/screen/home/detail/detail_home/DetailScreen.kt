@@ -74,6 +74,7 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
     val chatRoomItemListState by viewModel.chatRoomItemList.collectAsStateWithLifecycle()
     val isPartyListNetworkErrorState by viewModel.isPartyListNetworkError.collectAsStateWithLifecycle(initialValue = false)
     val showPartyListNetworkErrorState by viewModel.showPartyListNetworkError.collectAsStateWithLifecycle()
+    val isPartyListLoadingViewState by viewModel.isPartyListLoadingView.collectAsStateWithLifecycle()
 
     val bottomSheetState = rememberBottomSheetState(
         initialValue = BottomSheetValue.Collapsed
@@ -144,6 +145,10 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
                     showToast = showPartyListNetworkErrorState,
                     showMessage = isPartyListNetworkErrorState,
                     message = "네트워크 연결을 다시 확인해주세요."
+                )
+
+                LoadingView(
+                    isLoading = isPartyListLoadingViewState
                 )
             }
         }

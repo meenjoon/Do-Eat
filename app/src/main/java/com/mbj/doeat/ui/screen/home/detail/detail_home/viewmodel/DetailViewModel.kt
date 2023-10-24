@@ -80,6 +80,9 @@ class DetailViewModel @Inject constructor(
     private val _showPartyListNetworkError = MutableStateFlow<Boolean>(false)
     val showPartyListNetworkError: StateFlow<Boolean> = _showPartyListNetworkError
 
+    private val _isPartyListLoadingView = MutableStateFlow<Boolean>(false)
+    val isPartyListLoadingView: StateFlow<Boolean> = _isPartyListLoadingView
+
     val userId = UserDataStore.getLoginResponse()?.userId
 
     private var chatRoomsAllEventListener: ValueEventListener? = null
@@ -95,11 +98,13 @@ class DetailViewModel @Inject constructor(
 
     private fun getPartiesByLocation() {
         viewModelScope.launch {
+            setPartyListLoadingState(true)
             searchItem.collectLatest { searchItem ->
                 if (searchItem != null) {
                     defaultDBRepository.getPartiesByLocation(
                         searchItem.roadAddress,
                         onComplete = {
+                            setPartyListLoadingState(false)
                         },
                         onError = {
                             togglePartyListNetworkErrorToggle()
@@ -134,11 +139,14 @@ class DetailViewModel @Inject constructor(
         viewModelScope.launch {
             if (recruitmentCount.value == "") {
                 toggleValidToggleRecruitmentCountState("모집인원을 입력해주세요.")
-            } else if (recruitmentCount.value.toInt() <= 1) {
+            }
+            else if(recruitmentCount.value.toInt() <= 1 ) {
                 toggleValidToggleRecruitmentCountState("모집인원을 2명 이상 입력해주세요.")
-            } else if (recruitmentCount.value.toInt() > 15) {
+            }
+            else if(recruitmentCount.value.toInt() > 15) {
                 toggleValidToggleRecruitmentCountState("모집인원은 15명까지 모집 가능합니다.")
-            } else {
+            }
+            else {
                 setPostLoadingState(true)
                 defaultDBRepository.postParty(
                     PartyPostRequest(
@@ -197,18 +205,13 @@ class DetailViewModel @Inject constructor(
         }
     }
 
-    fun enterChatRoom(
-        party: Party,
-        chatRoomItemList: List<ChatRoom>?,
-        navController: NavHostController
-    ) {
+    fun enterChatRoom(party: Party, chatRoomItemList: List<ChatRoom>?, navController: NavHostController) {
         viewModelScope.launch {
             val myUserInfo = UserDataStore.getLoginResponse()
             val chatRoom = chatRoomItemList?.find { it.postId == party.postId.toString() }
 
             val isChatRoomFull = chatRoom?.members?.size == party.recruitmentLimit
-            val isUserInChatRoom =
-                chatRoom?.members?.any { it.value.userId == myUserInfo?.userId.toString() }
+            val isUserInChatRoom = chatRoom?.members?.any{ it.value.userId == myUserInfo?.userId.toString()}
 
             if (isUserInChatRoom == true) {
                 NavigationUtils.navigate(
@@ -216,7 +219,7 @@ class DetailViewModel @Inject constructor(
                         party.postId.toString()
                     )
                 )
-            } else if (!isChatRoomFull) {
+            } else if (!isChatRoomFull){
                 chatDBRepository.enterChatRoom(
                     onComplete = { },
                     onError = { },
@@ -285,6 +288,10 @@ class DetailViewModel @Inject constructor(
             _isPartyListNetworkError.emit(true)
             _showPartyListNetworkError.value = !showPartyListNetworkError.value
         }
+    }
+
+    fun setPartyListLoadingState(isLoading: Boolean) {
+        _isPartyListLoadingView.value = isLoading
     }
 
     override fun onCleared() {
