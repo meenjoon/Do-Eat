@@ -44,6 +44,7 @@ fun PartyDetailWriterScreen(party: Party, navController: NavHostController, onCl
     val isLoadingView by viewModel.isLoadingView.collectAsStateWithLifecycle()
     val showEnterChatRoomState by viewModel.showEnterChatRoom.collectAsStateWithLifecycle()
     val isEnterChatRoomState by viewModel.isEnterChatRoom.collectAsStateWithLifecycle(initialValue = false)
+    val isEnterRoomLoadingViewState by viewModel.isEnterRoomLoadingView.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = {
@@ -123,6 +124,10 @@ fun PartyDetailWriterScreen(party: Party, navController: NavHostController, onCl
                 showToast = showEnterChatRoomState,
                 showMessage = isEnterChatRoomState,
                 message = "네트워크 연결을 다시 확인해주세요"
+            )
+
+            LoadingView(
+                isLoading = isEnterRoomLoadingViewState
             )
         }
     }
