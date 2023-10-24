@@ -14,8 +14,11 @@ import com.mbj.doeat.ui.graph.DetailScreen
 import com.mbj.doeat.util.NavigationUtils
 import com.mbj.doeat.util.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,6 +35,12 @@ class ChatRoomViewModel @Inject constructor(
     private val _userList = MutableStateFlow<List<LoginResponse>?>(emptyList())
     val userList: StateFlow<List<LoginResponse>?> = _userList
 
+    private val _isChatRoomListNetworkError = MutableSharedFlow<Boolean>()
+    val isChatRoomListNetworkError: SharedFlow<Boolean> = _isChatRoomListNetworkError.asSharedFlow()
+
+    private val _showChatRoomListNetworkError = MutableStateFlow<Boolean>(false)
+    val showChatRoomListNetworkError: StateFlow<Boolean> = _showChatRoomListNetworkError
+
     private val myUserId = UserDataStore.getLoginResponse()?.userId
 
     private var chatRoomsAllEventListener: ValueEventListener? = null
@@ -45,7 +54,9 @@ class ChatRoomViewModel @Inject constructor(
         chatRoomsAllEventListener =
             chatDBRepository.addChatRoomsAllEventListener(
                 onComplete = { },
-                onError = { }
+                onError = {
+                    toggleChatRoomListNetworkErrorToggle()
+                }
             ) { chatRoomList ->
                 myUserId?.let { userId ->
                     chatRoomList?.let { chatRooms ->
@@ -99,6 +110,13 @@ class ChatRoomViewModel @Inject constructor(
                     chatRoom.postId.toString()
                 )
             )
+        }
+    }
+
+    private fun toggleChatRoomListNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isChatRoomListNetworkError.emit(true)
+            _showChatRoomListNetworkError.value = !showChatRoomListNetworkError.value
         }
     }
 
