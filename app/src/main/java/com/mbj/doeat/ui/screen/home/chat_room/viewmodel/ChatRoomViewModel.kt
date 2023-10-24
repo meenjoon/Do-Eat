@@ -44,6 +44,12 @@ class ChatRoomViewModel @Inject constructor(
     private val _isChatRoomListLoadingView = MutableStateFlow<Boolean>(false)
     val isChatRoomListLoadingView: StateFlow<Boolean> = _isChatRoomListLoadingView
 
+    private val _isUserListNetworkError = MutableSharedFlow<Boolean>()
+    val isUserListNetworkError: SharedFlow<Boolean> = _isUserListNetworkError.asSharedFlow()
+
+    private val _showUserListNetworkError = MutableStateFlow<Boolean>(false)
+    val showUserListNetworkError: StateFlow<Boolean> = _showUserListNetworkError
+
     private val myUserId = UserDataStore.getLoginResponse()?.userId
 
     private var chatRoomsAllEventListener: ValueEventListener? = null
@@ -88,7 +94,9 @@ class ChatRoomViewModel @Inject constructor(
         viewModelScope.launch {
             defaultDBRepository.getAllUserList(
                 onComplete = { },
-                onError = { }
+                onError = {
+                    toggleUserListNetworkErrorToggle()
+                }
             ).collectLatest { response ->
                 if (response is ApiResultSuccess) {
                     _userList.value = response.data
@@ -132,6 +140,13 @@ class ChatRoomViewModel @Inject constructor(
 
     private fun setChatRoomListLoadingState(isLoading: Boolean) {
         _isChatRoomListLoadingView.value = isLoading
+    }
+
+    private fun toggleUserListNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isUserListNetworkError.emit(true)
+            _showUserListNetworkError.value = !showUserListNetworkError.value
+        }
     }
 
     override fun onCleared() {

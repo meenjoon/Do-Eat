@@ -36,6 +36,8 @@ fun ChatRoomScreen(name: String, navController: NavHostController, onClick: () -
     val isChatRoomListNetworkErrorState by viewModel.isChatRoomListNetworkError.collectAsStateWithLifecycle(initialValue = false)
     val showChatRoomListNetworkErrorState by viewModel.showChatRoomListNetworkError.collectAsStateWithLifecycle()
     val isChatRoomListLoadingViewState by viewModel.isChatRoomListLoadingView.collectAsStateWithLifecycle()
+    val isUserListNetworkErrorState by viewModel.isUserListNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showUserListNetworkErrorState by viewModel.showUserListNetworkError.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -85,6 +87,15 @@ fun ChatRoomScreen(name: String, navController: NavHostController, onClick: () -
 
         LoadingView(
             isLoading = isChatRoomListLoadingViewState
+        )
+
+        ToastMessage(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            showToast = showUserListNetworkErrorState,
+            showMessage = isUserListNetworkErrorState,
+            message = "네트워크 연결을 다시 확인해주세요"
         )
     }
 }
