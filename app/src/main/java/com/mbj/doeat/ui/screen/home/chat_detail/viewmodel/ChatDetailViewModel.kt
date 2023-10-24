@@ -15,8 +15,11 @@ import com.mbj.doeat.ui.graph.BottomBarScreen
 import com.mbj.doeat.util.DateUtils
 import com.mbj.doeat.util.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -45,6 +48,12 @@ class ChatDetailViewModel @Inject constructor(
     private val _showLeaveDialog = MutableStateFlow<Boolean>(false)
     val showLeaveDialog: StateFlow<Boolean> = _showLeaveDialog
 
+    private val _isSendMessageNetworkError = MutableSharedFlow<Boolean>()
+    val isSendMessageNetworkError: SharedFlow<Boolean> = _isSendMessageNetworkError.asSharedFlow()
+
+    private val _showSendMessageNetworkError = MutableStateFlow<Boolean>(false)
+    val showSendMessageNetworkError: StateFlow<Boolean> = _showSendMessageNetworkError
+
     private val myUserInfo = UserDataStore.getLoginResponse()
     private var inMemberKey = ""
 
@@ -69,7 +78,9 @@ class ChatDetailViewModel @Inject constructor(
         viewModelScope.launch {
             chatDBRepository.sendMessage(
                 onComplete = { },
-                onError = { },
+                onError = {
+                    toggleSendMessageNetworkErrorToggle()
+                },
                 postId = postId.value.substring(1, postId.value.length - 1),
                 message = message,
                 sendMessageTime = DateUtils.getCurrentTime(),
@@ -188,6 +199,13 @@ class ChatDetailViewModel @Inject constructor(
 
         if (inMemberKeyFind != null) {
             inMemberKey = inMemberKeyFind
+        }
+    }
+
+    private fun toggleSendMessageNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isSendMessageNetworkError.emit(true)
+            _showSendMessageNetworkError.value = !showSendMessageNetworkError.value
         }
     }
 

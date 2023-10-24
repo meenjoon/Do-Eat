@@ -55,6 +55,7 @@ import com.mbj.doeat.ui.component.chat.ChatContent
 import com.mbj.doeat.ui.component.button.BackButton
 import com.mbj.doeat.ui.component.dialog.YesNoDialog
 import com.mbj.doeat.ui.component.textfield.CustomTextField
+import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.screen.home.chat_detail.viewmodel.ChatDetailViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.ChatDetailBottomSheetColor
 import com.mbj.doeat.util.Keyboard
@@ -73,6 +74,8 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
     val chatRoomItemState by viewModel.chatRoomItem.collectAsStateWithLifecycle()
     val chatRoomMembersState by viewModel.chatRoomMembers.collectAsStateWithLifecycle()
     val showLeaveDialogState by viewModel.showLeaveDialog.collectAsStateWithLifecycle()
+    val isSendMessageNetworkErrorState by viewModel.isSendMessageNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showSendMessageNetworkErrorState by viewModel.showSendMessageNetworkError.collectAsStateWithLifecycle()
 
     var previousChatItemList by remember { mutableStateOf(chatItemListState) }
     val listState = rememberLazyListState()
@@ -210,6 +213,15 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
                     message = "파티 탈퇴가 됩니다.",
                     confirmButtonMessage = "네",
                     dismissButtonMessage = "아니오"
+                )
+
+                ToastMessage(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.Center),
+                    showToast = showSendMessageNetworkErrorState,
+                    showMessage = isSendMessageNetworkErrorState,
+                    message = "네트워크 연결을 다시 확인해주세요"
                 )
             }
         }
