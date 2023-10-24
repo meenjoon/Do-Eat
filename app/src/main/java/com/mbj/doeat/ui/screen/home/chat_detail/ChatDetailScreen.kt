@@ -87,6 +87,8 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
     val isLeaveChatRoomNetworkErrorState by viewModel.isLeaveChatRoomNetworkError.collectAsStateWithLifecycle(initialValue = false)
     val showLeaveChatRoomNetworkErrorState by viewModel.showLeaveChatRoomNetworkError.collectAsStateWithLifecycle()
     val isLeaveChatRoomLoadingViewState by viewModel.isLeaveChatRoomLoadingView.collectAsStateWithLifecycle()
+    val isChatRoomListNetworkErrorState by viewModel.isChatRoomListNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showChatRoomListNetworkErrorState by viewModel.showChatRoomListNetworkError.collectAsStateWithLifecycle()
 
     var previousChatItemList by remember { mutableStateOf(chatItemListState) }
     val listState = rememberLazyListState()
@@ -276,6 +278,15 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
 
                 LoadingView(
                     isLoading = isLeaveChatRoomLoadingViewState
+                )
+
+                ToastMessage(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.Center),
+                    showToast = showChatRoomListNetworkErrorState,
+                    showMessage = isChatRoomListNetworkErrorState,
+                    message = "네트워크 연결을 다시 확인해주세요"
                 )
             }
         }
