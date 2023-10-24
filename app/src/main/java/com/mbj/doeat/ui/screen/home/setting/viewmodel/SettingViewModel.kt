@@ -31,9 +31,6 @@ class SettingViewModel @Inject constructor(
     private val chatDBRepository: ChatDBRepository
 ) : ViewModel() {
 
-    private val _userInfo = MutableStateFlow<LoginResponse?>(null)
-    val userInfo: StateFlow<LoginResponse?> = _userInfo
-
     private val _myCreatedParties = MutableStateFlow<List<Party>>(emptyList())
     val myCreatedParties: StateFlow<List<Party>> = _myCreatedParties
 
@@ -55,31 +52,25 @@ class SettingViewModel @Inject constructor(
     private val _myPartyPostIds = MutableStateFlow<Set<String>?>(null)
     private val myPartyPostIds: StateFlow<Set<String>?> = _myPartyPostIds
 
+    val userInfo = UserDataStore.getLoginResponse()
     private var chatRoomsAllEventListener: ValueEventListener? = null
 
     init {
-        getUserInfo()
         getMyPartyList()
         observeMyJoinedChatRoomPostIds()
         addChatRoomsAllEventListener()
     }
 
-    private fun getUserInfo() {
-        _userInfo.value = UserDataStore.getLoginResponse()
-    }
-
     private fun getMyPartyList() {
         viewModelScope.launch {
-            userInfo.collectLatest { userInfo ->
-                if (userInfo != null) {
-                    defaultDBRepository.getMyPartyList(
-                        onComplete = { },
-                        onError = { },
-                        userIdRequest = UserIdRequest(userInfo.userId!!)
-                    ).collectLatest { partyList ->
-                        if (partyList is ApiResultSuccess) {
-                            _myCreatedParties.value = partyList.data
-                        }
+            if (userInfo != null) {
+                defaultDBRepository.getMyPartyList(
+                    onComplete = { },
+                    onError = { },
+                    userIdRequest = UserIdRequest(userInfo.userId!!)
+                ).collectLatest { partyList ->
+                    if (partyList is ApiResultSuccess) {
+                        _myCreatedParties.value = partyList.data
                     }
                 }
             }
@@ -88,16 +79,15 @@ class SettingViewModel @Inject constructor(
 
     private fun getAllPartyList(postIdSet: Set<String>?) {
         viewModelScope.launch {
-            userInfo.collectLatest { userInfo ->
-                if (userInfo != null) {
-                    defaultDBRepository.getAllPartyList(
-                        onComplete = { },
-                        onError = { },
-                    ).collectLatest { partyList ->
-                        if (partyList is ApiResultSuccess) {
-                            _joinedParties.value = filterPartiesByPostIds(partyList.data, postIdSet ?: emptySet())
-                            _myPartyPostIds.value = getPostIdSetFromPartyList(partyList.data)
-                        }
+            if (userInfo != null) {
+                defaultDBRepository.getAllPartyList(
+                    onComplete = { },
+                    onError = { },
+                ).collectLatest { partyList ->
+                    if (partyList is ApiResultSuccess) {
+                        _joinedParties.value =
+                            filterPartiesByPostIds(partyList.data, postIdSet ?: emptySet())
+                        _myPartyPostIds.value = getPostIdSetFromPartyList(partyList.data)
                     }
                 }
             }
@@ -115,7 +105,7 @@ class SettingViewModel @Inject constructor(
     fun onDetailInfoClick(party: Party, navController: NavHostController) {
         val encodedLink = UrlUtils.encodeUrl(party.link)
         val titleWithoutHtmlTags = MapConverter.removeHtmlTags(party.restaurantName)
-        if (userInfo.value?.userId == party.userId) {
+        if (userInfo?.userId == party.userId) {
             NavigationUtils.navigate(
                 navController, DetailScreen.DetailWriter.navigateWithArg(
                     party.copy(
@@ -142,36 +132,34 @@ class SettingViewModel @Inject constructor(
         navController: NavHostController
     ) {
         viewModelScope.launch {
-            userInfo.collectLatest { userInfo ->
-                if (userInfo != null) {
-                    val chatRoom = chatRoomItemList?.find { it.postId == party.postId.toString() }
+            if (userInfo != null) {
+                val chatRoom = chatRoomItemList?.find { it.postId == party.postId.toString() }
 
-                    val isUserInChatRoom =
-                        chatRoom?.members?.any { it.value.userId == userInfo.userId.toString() }
+                val isUserInChatRoom =
+                    chatRoom?.members?.any { it.value.userId == userInfo.userId.toString() }
 
-                    if (isUserInChatRoom == true) {
-                        NavigationUtils.navigate(
-                            navController, DetailScreen.ChatDetail.navigateWithArg(
-                                party.postId.toString()
-                            )
+                if (isUserInChatRoom == true) {
+                    NavigationUtils.navigate(
+                        navController, DetailScreen.ChatDetail.navigateWithArg(
+                            party.postId.toString()
                         )
-                    } else {
-                        chatDBRepository.enterChatRoom(
-                            onComplete = { },
-                            onError = { },
-                            postId = party.postId.toString(),
-                            postUserId = party.userId.toString(),
-                            myUserId = userInfo.userId.toString(),
-                            restaurantName = party.restaurantName,
-                            createdChatRoom = DateUtils.getCurrentTime()
-                        ).collectLatest { response ->
-                            if (response is ApiResultSuccess) {
-                                NavigationUtils.navigate(
-                                    navController, DetailScreen.ChatDetail.navigateWithArg(
-                                        party.postId.toString()
-                                    )
+                    )
+                } else {
+                    chatDBRepository.enterChatRoom(
+                        onComplete = { },
+                        onError = { },
+                        postId = party.postId.toString(),
+                        postUserId = party.userId.toString(),
+                        myUserId = userInfo.userId.toString(),
+                        restaurantName = party.restaurantName,
+                        createdChatRoom = DateUtils.getCurrentTime()
+                    ).collectLatest { response ->
+                        if (response is ApiResultSuccess) {
+                            NavigationUtils.navigate(
+                                navController, DetailScreen.ChatDetail.navigateWithArg(
+                                    party.postId.toString()
                                 )
-                            }
+                            )
                         }
                     }
                 }
@@ -190,19 +178,17 @@ class SettingViewModel @Inject constructor(
 
     fun withdrawMembership(navController: NavHostController) {
         viewModelScope.launch {
-            userInfo.collectLatest { userInfo ->
-                if (userInfo != null) {
-                    defaultDBRepository.deleteUser(
-                        onComplete = { },
-                        onError = { },
-                        userIdRequest = UserIdRequest(userInfo.userId!!)
-                    ).collectLatest { response ->
-                        if (response is ApiResultSuccess) {
-                            deleteChatRoom(
-                                myUserId = userInfo.userId.toString(),
-                                navController = navController
-                            )
-                        }
+            if (userInfo != null) {
+                defaultDBRepository.deleteUser(
+                    onComplete = { },
+                    onError = { },
+                    userIdRequest = UserIdRequest(userInfo.userId!!)
+                ).collectLatest { response ->
+                    if (response is ApiResultSuccess) {
+                        deleteChatRoom(
+                            myUserId = userInfo.userId.toString(),
+                            navController = navController
+                        )
                     }
                 }
             }
@@ -275,7 +261,7 @@ class SettingViewModel @Inject constructor(
                     if (chatRoomList != null) {
                         _myJoinedChatRoomPostIds.value = getMyJoinedChatRoomPostIds(
                             chatRoomList,
-                            userInfo.value?.userId.toString()
+                            userInfo?.userId.toString()
                         )
                     }
                 }

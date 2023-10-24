@@ -43,7 +43,6 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
 
     val viewModel: SettingViewModel = hiltViewModel()
 
-    val userInfoState by viewModel.userInfo.collectAsStateWithLifecycle()
     val myCreatedPartiesState by viewModel.myCreatedParties.collectAsStateWithLifecycle()
     val joinedParties by viewModel.joinedParties.collectAsStateWithLifecycle()
     val chatRoomItemListState by viewModel.chatRoomItemList.collectAsStateWithLifecycle()
@@ -57,7 +56,7 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
             modifier = Modifier.fillMaxHeight(0.9f)
         ) {
             item {
-                UserProfileInfo(userInfo = userInfoState)
+                UserProfileInfo(userInfo = viewModel.userInfo)
             }
 
             item {
