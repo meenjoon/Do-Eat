@@ -205,6 +205,8 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
     }.flowOn(defaultDispatcher)
 
     override fun deleteAllChatRoomsForUserID(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
         userIdToDelete: String,
         postIdsToDelete: Set<String>,
         response: (Unit?) -> Unit
@@ -242,6 +244,7 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
 
                     groupChatsRef.setValue(modifiedChatRooms).addOnSuccessListener {
                         response(Unit)
+                        onComplete()
                     }.addOnCanceledListener  {
                         response(null)
                     }
@@ -249,12 +252,13 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
 
                 override fun onCancelled(error: DatabaseError) {
                     response(null)
+                    onError(null)
                 }
             })
 
-
         } catch (e: Exception) {
             response(null)
+            onError(null)
         }
     }
 

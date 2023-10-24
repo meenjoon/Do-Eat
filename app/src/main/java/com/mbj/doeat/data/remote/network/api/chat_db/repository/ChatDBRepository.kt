@@ -102,11 +102,15 @@ class ChatDBRepository @Inject constructor(private val chatDBDataSource: ChatDBD
     }
 
     override fun deleteAllChatRoomsForUserID(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
         userIdToDelete: String,
         postIdsToDelete: Set<String>,
         response: (Unit?) -> Unit
     ) {
         return chatDBDataSource.deleteAllChatRoomsForUserID(
+            onComplete,
+            onError,
             userIdToDelete,
             postIdsToDelete,
             response

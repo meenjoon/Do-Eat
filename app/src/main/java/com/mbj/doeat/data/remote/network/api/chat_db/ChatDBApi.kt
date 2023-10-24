@@ -55,6 +55,8 @@ interface ChatDBApi {
     ): Flow<ApiResponse<Unit>>
 
     fun deleteAllChatRoomsForUserID(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
         userIdToDelete: String,
         postIdsToDelete: Set<String>,
         response: (Unit?) -> Unit

@@ -260,6 +260,8 @@ class SettingViewModel @Inject constructor(
         viewModelScope.launch {
             myPartyPostIds.value?.let {
                 chatDBRepository.deleteAllChatRoomsForUserID(
+                    onComplete = { },
+                    onError = { },
                     userIdToDelete = myUserId,
                     postIdsToDelete = it
                 ) { response ->
