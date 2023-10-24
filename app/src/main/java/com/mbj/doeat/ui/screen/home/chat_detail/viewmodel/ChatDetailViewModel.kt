@@ -130,7 +130,6 @@ class ChatDetailViewModel @Inject constructor(
 
     private fun observeChatChangesListener() {
         viewModelScope.launch {
-            setChatItemListLoadingState(true)
             postId.collectLatest { postId ->
                 if (postId != "") {
                     observeChatChangesListener = chatDBRepository.addChatDetailEventListener(
