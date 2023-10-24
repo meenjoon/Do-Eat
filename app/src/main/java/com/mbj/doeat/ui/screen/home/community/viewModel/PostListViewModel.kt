@@ -61,6 +61,9 @@ class PostListViewModel @Inject constructor(
     private val _showPartyListNetworkError = MutableStateFlow<Boolean>(false)
     val showPartyListNetworkError: StateFlow<Boolean> = _showPartyListNetworkError
 
+    private val _isPartyListLoadingView = MutableStateFlow<Boolean>(false)
+    val isPartyListLoadingView: StateFlow<Boolean> = _isPartyListLoadingView
+
     private var chatRoomsAllEventListener: ValueEventListener? = null
 
     init {
@@ -68,8 +71,9 @@ class PostListViewModel @Inject constructor(
     }
 
     private fun getAllPartyList(): Flow<List<Party>> {
+        setPartyListLoadingState(true)
         return defaultDBRepository.getAllPartyList(
-            onComplete = { },
+            onComplete = { setPartyListLoadingState(false) },
             onError = { togglePartyListNetworkErrorToggle() }
         ).map { response ->
             when (response) {
@@ -189,6 +193,10 @@ class PostListViewModel @Inject constructor(
             _isPartyListNetworkError.emit(true)
             _showPartyListNetworkError.value = !showPartyListNetworkError.value
         }
+    }
+
+    private fun setPartyListLoadingState(isLoading: Boolean) {
+        _isPartyListLoadingView.value = isLoading
     }
 
     override fun onCleared() {

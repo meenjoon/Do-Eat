@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.mbj.doeat.ui.component.loading.LoadingView
 import com.mbj.doeat.ui.component.party.HomeDetailPartyContent
 import com.mbj.doeat.ui.component.searchbar.SearchAppBar
 import com.mbj.doeat.ui.component.toast.ToastMessage
@@ -38,6 +39,7 @@ fun PostListScreen(name: String, navController: NavHostController, onClick: () -
     val isEnterChatRoomState by viewModel.isEnterChatRoom.collectAsStateWithLifecycle(initialValue = false)
     val isPartyListNetworkErrorState by viewModel.isPartyListNetworkError.collectAsStateWithLifecycle(initialValue = false)
     val showPartyListNetworkErrorState by viewModel.showPartyListNetworkError.collectAsStateWithLifecycle()
+    val isPartyListLoadingViewState by viewModel.isPartyListLoadingView.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -105,6 +107,10 @@ fun PostListScreen(name: String, navController: NavHostController, onClick: () -
             showToast = showPartyListNetworkErrorState,
             showMessage = isPartyListNetworkErrorState,
             message = "네트워크 연결을 다시 확인해주세요"
+        )
+
+        LoadingView(
+            isLoading = isPartyListLoadingViewState
         )
     }
 }
