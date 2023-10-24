@@ -50,6 +50,9 @@ class ChatRoomViewModel @Inject constructor(
     private val _showUserListNetworkError = MutableStateFlow<Boolean>(false)
     val showUserListNetworkError: StateFlow<Boolean> = _showUserListNetworkError
 
+    private val _isUserListLoadingView = MutableStateFlow<Boolean>(false)
+    val isUserListLoadingView: StateFlow<Boolean> = _isUserListLoadingView
+
     private val myUserId = UserDataStore.getLoginResponse()?.userId
 
     private var chatRoomsAllEventListener: ValueEventListener? = null
@@ -92,8 +95,11 @@ class ChatRoomViewModel @Inject constructor(
 
     private fun getUserList() {
         viewModelScope.launch {
+            setUserListLoadingState(true)
             defaultDBRepository.getAllUserList(
-                onComplete = { },
+                onComplete = {
+                    setUserListLoadingState(false)
+                },
                 onError = {
                     toggleUserListNetworkErrorToggle()
                 }
@@ -147,6 +153,10 @@ class ChatRoomViewModel @Inject constructor(
             _isUserListNetworkError.emit(true)
             _showUserListNetworkError.value = !showUserListNetworkError.value
         }
+    }
+
+    private fun setUserListLoadingState(isLoading: Boolean) {
+        _isUserListLoadingView.value = isLoading
     }
 
     override fun onCleared() {
