@@ -81,6 +81,9 @@ class ChatDetailViewModel @Inject constructor(
     private val _showLeaveChatRoomNetworkError = MutableStateFlow<Boolean>(false)
     val showLeaveChatRoomNetworkError: StateFlow<Boolean> = _showLeaveChatRoomNetworkError
 
+    private val _isLeaveChatRoomLoadingView = MutableStateFlow<Boolean>(false)
+    val isLeaveChatRoomLoadingView: StateFlow<Boolean> = _isLeaveChatRoomLoadingView
+
     private val myUserInfo = UserDataStore.getLoginResponse()
     private var inMemberKey = ""
 
@@ -164,8 +167,11 @@ class ChatDetailViewModel @Inject constructor(
 
     fun leaveChatRoom(navController: NavHostController) {
         viewModelScope.launch {
+            setLeaveChatRoomLoadingState(true)
             chatDBRepository.leaveChatRoom(
-                onComplete = { },
+                onComplete = {
+                    setLeaveChatRoomLoadingState(false)
+                },
                 onError = {
                     toggleLeaveChatRoomNetworkErrorToggle()
                 },
@@ -282,6 +288,10 @@ class ChatDetailViewModel @Inject constructor(
             _isLeaveChatRoomNetworkError.emit(true)
             _showLeaveChatRoomNetworkError.value = !showChatRoomNetworkError.value
         }
+    }
+
+    private fun setLeaveChatRoomLoadingState(isLoading: Boolean) {
+        _isLeaveChatRoomLoadingView.value = isLoading
     }
 
     override fun onCleared() {
