@@ -67,6 +67,7 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
     val isDeleteChatRoomLoadingViewState by viewModel.isDeleteChatRoomLoadingView.collectAsStateWithLifecycle()
     val isAllChatRoomListNetworkErrorState by viewModel.isAllChatRoomListNetworkError.collectAsStateWithLifecycle(initialValue = false)
     val showAllChatRoomListNetworkErrorState by viewModel.showAllChatRoomListNetworkError.collectAsStateWithLifecycle()
+    val isAllChatRoomListLoadingViewState by viewModel.isAllChatRoomListLoadingView.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -341,6 +342,10 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
             showToast = showAllChatRoomListNetworkErrorState,
             showMessage = isAllChatRoomListNetworkErrorState,
             message = "네트워크 연결을 다시 확인해주세요"
+        )
+
+        LoadingView(
+            isLoading = isAllChatRoomListLoadingViewState
         )
     }
 }
