@@ -90,6 +90,9 @@ class ChatDetailViewModel @Inject constructor(
     private val _showChatRoomListNetworkError = MutableStateFlow<Boolean>(false)
     val showChatRoomListNetworkError: StateFlow<Boolean> = _showChatRoomListNetworkError
 
+    private val _isChatRoomListLoadingView = MutableStateFlow<Boolean>(false)
+    val isChatRoomListLoadingView: StateFlow<Boolean> = _isChatRoomListLoadingView
+
     private val myUserInfo = UserDataStore.getLoginResponse()
     private var inMemberKey = ""
 
@@ -201,11 +204,14 @@ class ChatDetailViewModel @Inject constructor(
 
     private fun observeParticipantsChangesListener() {
         viewModelScope.launch {
+            setChatRoomListLoadingState(true)
             postId.collectLatest { postId ->
                 if (postId != "") {
                     observeParticipantsChangesListener =
                         chatDBRepository.addChatRoomsEventListener(
-                            onComplete = { },
+                            onComplete = {
+                                setChatRoomListLoadingState(false)
+                            },
                             onError = {
                                 toggleChatRoomListNetworkErrorToggle()
                             },
@@ -307,6 +313,10 @@ class ChatDetailViewModel @Inject constructor(
             _isChatRoomListNetworkError.emit(true)
             _showChatRoomListNetworkError.value = !showChatRoomListNetworkError.value
         }
+    }
+
+    private fun setChatRoomListLoadingState(isLoading: Boolean) {
+        _isChatRoomListLoadingView.value = isLoading
     }
 
     override fun onCleared() {
