@@ -56,6 +56,8 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
     val isAllPartyListNetworkErrorState by viewModel.isAllPartyListNetworkError.collectAsStateWithLifecycle(initialValue = false)
     val showAllPartyListNetworkErrorState by viewModel.showAllPartyListNetworkError.collectAsStateWithLifecycle()
     val isAllPartyListLoadingViewState by viewModel.isAllPartyListLoadingView.collectAsStateWithLifecycle()
+    val isEnterChatRoomState by viewModel.isEnterChatRoom.collectAsStateWithLifecycle(initialValue = false)
+    val showEnterChatRoomState by viewModel.showEnterChatRoom.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -284,6 +286,14 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
             isLoading = isAllPartyListLoadingViewState
         )
 
+        ToastMessage(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            showToast = showEnterChatRoomState,
+            showMessage = isEnterChatRoomState,
+            message = "네트워크 연결을 다시 확인해주세요"
+        )
     }
 }
 

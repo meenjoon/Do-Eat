@@ -74,6 +74,12 @@ class SettingViewModel @Inject constructor(
     private val _isAllPartyListLoadingView = MutableStateFlow<Boolean>(false)
     val isAllPartyListLoadingView: StateFlow<Boolean> = _isAllPartyListLoadingView
 
+    private val _isEnterChatRoom = MutableSharedFlow<Boolean>()
+    val isEnterChatRoom: SharedFlow<Boolean> = _isEnterChatRoom.asSharedFlow()
+
+    private val _showEnterChatRoom = MutableStateFlow<Boolean>(false)
+    val showEnterChatRoom: StateFlow<Boolean> = _showEnterChatRoom
+
     val userInfo = UserDataStore.getLoginResponse()
     private var chatRoomsAllEventListener: ValueEventListener? = null
 
@@ -178,7 +184,9 @@ class SettingViewModel @Inject constructor(
                 } else {
                     chatDBRepository.enterChatRoom(
                         onComplete = { },
-                        onError = { },
+                        onError = {
+                            toggleEnterChatRoomStateToggle()
+                        },
                         postId = party.postId.toString(),
                         postUserId = party.userId.toString(),
                         myUserId = userInfo.userId.toString(),
@@ -326,6 +334,13 @@ class SettingViewModel @Inject constructor(
 
     private fun setAllPartyListLoadingState(isLoading: Boolean) {
         _isAllPartyListLoadingView.value = isLoading
+    }
+
+    private fun toggleEnterChatRoomStateToggle() {
+        viewModelScope.launch {
+            _isEnterChatRoom.emit(true)
+            _showEnterChatRoom.value = !showEnterChatRoom.value
+        }
     }
 
     override fun onCleared() {
