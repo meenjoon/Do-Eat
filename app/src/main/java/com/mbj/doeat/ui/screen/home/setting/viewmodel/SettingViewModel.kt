@@ -65,6 +65,12 @@ class SettingViewModel @Inject constructor(
     private val _isMyCreatedPartiesLoadingView = MutableStateFlow<Boolean>(false)
     val isMyCreatedPartiesLoadingView: StateFlow<Boolean> = _isMyCreatedPartiesLoadingView
 
+    private val _isAllPartyListNetworkError = MutableSharedFlow<Boolean>()
+    val isAllPartyListNetworkError: SharedFlow<Boolean> = _isAllPartyListNetworkError.asSharedFlow()
+
+    private val _showAllPartyListNetworkError = MutableStateFlow<Boolean>(false)
+    val showAllPartyListNetworkError: StateFlow<Boolean> = _showAllPartyListNetworkError
+
     val userInfo = UserDataStore.getLoginResponse()
     private var chatRoomsAllEventListener: ValueEventListener? = null
 
@@ -100,11 +106,12 @@ class SettingViewModel @Inject constructor(
             if (userInfo != null) {
                 defaultDBRepository.getAllPartyList(
                     onComplete = { },
-                    onError = { },
+                    onError = {
+                        toggleAllPartyListNetworkErrorToggle()
+                    },
                 ).collectLatest { partyList ->
                     if (partyList is ApiResultSuccess) {
-                        _joinedParties.value =
-                            filterPartiesByPostIds(partyList.data, postIdSet ?: emptySet())
+                        _joinedParties.value = filterPartiesByPostIds(partyList.data, postIdSet ?: emptySet())
                         _myPartyPostIds.value = getPostIdSetFromPartyList(partyList.data)
                     }
                 }
@@ -302,6 +309,13 @@ class SettingViewModel @Inject constructor(
 
     private fun setMyCreatedPartiesLoadingState(isLoading: Boolean) {
         _isMyCreatedPartiesLoadingView.value = isLoading
+    }
+
+    private fun toggleAllPartyListNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isAllPartyListNetworkError.emit(true)
+            _showAllPartyListNetworkError.value = !showAllPartyListNetworkError.value
+        }
     }
 
     override fun onCleared() {
