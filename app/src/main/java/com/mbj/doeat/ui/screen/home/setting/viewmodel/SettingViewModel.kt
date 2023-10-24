@@ -62,6 +62,8 @@ class SettingViewModel @Inject constructor(
     private val _showMyCreatedPartiesNetworkError = MutableStateFlow<Boolean>(false)
     val showMyCreatedPartiesNetworkError: StateFlow<Boolean> = _showMyCreatedPartiesNetworkError
 
+    private val _isMyCreatedPartiesLoadingView = MutableStateFlow<Boolean>(false)
+    val isMyCreatedPartiesLoadingView: StateFlow<Boolean> = _isMyCreatedPartiesLoadingView
 
     val userInfo = UserDataStore.getLoginResponse()
     private var chatRoomsAllEventListener: ValueEventListener? = null
@@ -74,9 +76,12 @@ class SettingViewModel @Inject constructor(
 
     private fun getMyPartyList() {
         viewModelScope.launch {
+            setMyCreatedPartiesLoadingState(true)
             if (userInfo != null) {
                 defaultDBRepository.getMyPartyList(
-                    onComplete = { },
+                    onComplete = {
+                        setMyCreatedPartiesLoadingState(false)
+                    },
                     onError = {
                         toggleMyCreatedPartiesNetworkErrorToggle()
                     },
@@ -293,6 +298,10 @@ class SettingViewModel @Inject constructor(
             _isMyCreatedPartiesNetworkError.emit(true)
             _showMyCreatedPartiesNetworkError.value = !showMyCreatedPartiesNetworkError.value
         }
+    }
+
+    private fun setMyCreatedPartiesLoadingState(isLoading: Boolean) {
+        _isMyCreatedPartiesLoadingView.value = isLoading
     }
 
     override fun onCleared() {

@@ -33,6 +33,7 @@ import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.ui.component.party.HomeDetailPartyContent
 import com.mbj.doeat.ui.component.dialog.YesNoDialog
 import com.mbj.doeat.ui.component.divider.HorizontalDivider
+import com.mbj.doeat.ui.component.loading.LoadingView
 import com.mbj.doeat.ui.component.party.NoPartiesAvailable
 import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.screen.home.setting.viewmodel.SettingViewModel
@@ -51,6 +52,7 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
     val showWithdrawMembershipDialogState by viewModel.showWithdrawMembershipDialog.collectAsStateWithLifecycle()
     val isMyCreatedPartiesNetworkErrorState by viewModel.isMyCreatedPartiesNetworkError.collectAsStateWithLifecycle(initialValue = false)
     val showMyCreatedPartiesNetworkErrorState by viewModel.showMyCreatedPartiesNetworkError.collectAsStateWithLifecycle()
+    val isMyCreatedPartiesLoadingViewState by viewModel.isMyCreatedPartiesLoadingView.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -260,6 +262,10 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
             showToast = showMyCreatedPartiesNetworkErrorState,
             showMessage = isMyCreatedPartiesNetworkErrorState,
             message = "네트워크 연결을 다시 확인해주세요"
+        )
+
+        LoadingView(
+            isLoading = isMyCreatedPartiesLoadingViewState
         )
     }
 }
