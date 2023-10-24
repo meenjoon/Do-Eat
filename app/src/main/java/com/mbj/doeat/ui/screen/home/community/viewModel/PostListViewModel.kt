@@ -82,11 +82,11 @@ class PostListViewModel @Inject constructor(
     private var chatRoomsAllEventListener: ValueEventListener? = null
 
     init {
+        setPartyListLoadingState(true)
         addChatRoomsAllEventListener()
     }
 
     private fun getAllPartyList(): Flow<List<Party>> {
-        setPartyListLoadingState(true)
         return defaultDBRepository.getAllPartyList(
             onComplete = { setPartyListLoadingState(false) },
             onError = { togglePartyListNetworkErrorToggle() }
