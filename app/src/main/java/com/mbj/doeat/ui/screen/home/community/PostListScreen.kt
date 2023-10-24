@@ -36,6 +36,8 @@ fun PostListScreen(name: String, navController: NavHostController, onClick: () -
     val chatRoomItemListState by viewModel.chatRoomItemList.collectAsStateWithLifecycle()
     val showEnterChatRoomState by viewModel.showEnterChatRoom.collectAsStateWithLifecycle()
     val isEnterChatRoomState by viewModel.isEnterChatRoom.collectAsStateWithLifecycle(initialValue = false)
+    val isPartyListNetworkErrorState by viewModel.isPartyListNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showPartyListNetworkErrorState by viewModel.showPartyListNetworkError.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -94,6 +96,15 @@ fun PostListScreen(name: String, navController: NavHostController, onClick: () -
             showToast = showEnterChatRoomState,
             showMessage = isEnterChatRoomState,
             message = "현재 인원이 꽉 찼습니다."
+        )
+
+        ToastMessage(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            showToast = showPartyListNetworkErrorState,
+            showMessage = isPartyListNetworkErrorState,
+            message = "네트워크 연결을 다시 확인해주세요"
         )
     }
 }

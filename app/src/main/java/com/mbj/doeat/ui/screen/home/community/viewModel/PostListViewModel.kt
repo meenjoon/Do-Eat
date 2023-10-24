@@ -55,6 +55,12 @@ class PostListViewModel @Inject constructor(
     private val _showEnterChatRoom = MutableStateFlow<Boolean>(false)
     val showEnterChatRoom: StateFlow<Boolean> = _showEnterChatRoom
 
+    private val _isPartyListNetworkError = MutableSharedFlow<Boolean>()
+    val isPartyListNetworkError: SharedFlow<Boolean> = _isPartyListNetworkError.asSharedFlow()
+
+    private val _showPartyListNetworkError = MutableStateFlow<Boolean>(false)
+    val showPartyListNetworkError: StateFlow<Boolean> = _showPartyListNetworkError
+
     private var chatRoomsAllEventListener: ValueEventListener? = null
 
     init {
@@ -64,14 +70,13 @@ class PostListViewModel @Inject constructor(
     private fun getAllPartyList(): Flow<List<Party>> {
         return defaultDBRepository.getAllPartyList(
             onComplete = { },
-            onError = { }
+            onError = { togglePartyListNetworkErrorToggle() }
         ).map { response ->
             when (response) {
                 is ApiResultSuccess -> response.data
                 else -> {
                     emptyList()
                 }
-
             }
         }
     }
@@ -176,6 +181,13 @@ class PostListViewModel @Inject constructor(
         viewModelScope.launch {
             _isEnterChatRoom.emit(true)
             _showEnterChatRoom.value = !showEnterChatRoom.value
+        }
+    }
+
+    private fun togglePartyListNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isPartyListNetworkError.emit(true)
+            _showPartyListNetworkError.value = !showPartyListNetworkError.value
         }
     }
 
