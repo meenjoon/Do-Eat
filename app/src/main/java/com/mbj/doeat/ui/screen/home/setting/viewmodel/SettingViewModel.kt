@@ -71,6 +71,9 @@ class SettingViewModel @Inject constructor(
     private val _showAllPartyListNetworkError = MutableStateFlow<Boolean>(false)
     val showAllPartyListNetworkError: StateFlow<Boolean> = _showAllPartyListNetworkError
 
+    private val _isAllPartyListLoadingView = MutableStateFlow<Boolean>(false)
+    val isAllPartyListLoadingView: StateFlow<Boolean> = _isAllPartyListLoadingView
+
     val userInfo = UserDataStore.getLoginResponse()
     private var chatRoomsAllEventListener: ValueEventListener? = null
 
@@ -103,9 +106,12 @@ class SettingViewModel @Inject constructor(
 
     private fun getAllPartyList(postIdSet: Set<String>?) {
         viewModelScope.launch {
+            setAllPartyListLoadingState(true)
             if (userInfo != null) {
                 defaultDBRepository.getAllPartyList(
-                    onComplete = { },
+                    onComplete = {
+                        setAllPartyListLoadingState(false)
+                    },
                     onError = {
                         toggleAllPartyListNetworkErrorToggle()
                     },
@@ -316,6 +322,10 @@ class SettingViewModel @Inject constructor(
             _isAllPartyListNetworkError.emit(true)
             _showAllPartyListNetworkError.value = !showAllPartyListNetworkError.value
         }
+    }
+
+    private fun setAllPartyListLoadingState(isLoading: Boolean) {
+        _isAllPartyListLoadingView.value = isLoading
     }
 
     override fun onCleared() {

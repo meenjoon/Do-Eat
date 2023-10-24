@@ -55,6 +55,7 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
     val isMyCreatedPartiesLoadingViewState by viewModel.isMyCreatedPartiesLoadingView.collectAsStateWithLifecycle()
     val isAllPartyListNetworkErrorState by viewModel.isAllPartyListNetworkError.collectAsStateWithLifecycle(initialValue = false)
     val showAllPartyListNetworkErrorState by viewModel.showAllPartyListNetworkError.collectAsStateWithLifecycle()
+    val isAllPartyListLoadingViewState by viewModel.isAllPartyListLoadingView.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -278,6 +279,11 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
             showMessage = isAllPartyListNetworkErrorState,
             message = "네트워크 연결을 다시 확인해주세요"
         )
+
+        LoadingView(
+            isLoading = isAllPartyListLoadingViewState
+        )
+
     }
 }
 
