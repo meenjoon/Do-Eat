@@ -266,12 +266,12 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
     ): ChildEventListener {
         val chatDetailEventListener = object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                onComplete()
                 val chatId = snapshot.key
                 val messageData = snapshot.getValue(ChatItem::class.java)
 
                 val chatItem = messageData?.copy(chatId = chatId)
                 chatItem?.let { onChatItemAdded(it) }
+                onComplete()
             }
 
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
