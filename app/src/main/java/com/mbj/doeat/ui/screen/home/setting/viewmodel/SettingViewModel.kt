@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.google.firebase.database.ValueEventListener
+import com.mbj.doeat.data.local.user_pref.repository.UserPreferenceRepository
 import com.mbj.doeat.data.remote.model.ChatRoom
 import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.model.Party
@@ -28,7 +29,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingViewModel @Inject constructor(
     private val defaultDBRepository: DefaultDBRepository,
-    private val chatDBRepository: ChatDBRepository
+    private val chatDBRepository: ChatDBRepository,
+    private val userPreferenceRepository: UserPreferenceRepository
 ) : ViewModel() {
 
     private val _myCreatedParties = MutableStateFlow<List<Party>>(emptyList())
@@ -169,6 +171,7 @@ class SettingViewModel @Inject constructor(
 
     fun logout(navController: NavHostController) {
         UserDataStore.removeLoginResponse()
+        userPreferenceRepository.saveAutoLoginState(false)
         navController.navigate(AuthScreen.Login.route) {
             popUpTo(navController.graph.id) {
                 inclusive = true
