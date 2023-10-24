@@ -70,6 +70,12 @@ class PartyDetailWriterViewModel @Inject constructor(
     private val _isChatRoomListLoadingView = MutableStateFlow<Boolean>(false)
     val isChatRoomListLoadingView: StateFlow<Boolean> = _isChatRoomListLoadingView
 
+    private val _isChatRoomListNetworkError = MutableSharedFlow<Boolean>()
+    val isChatRoomListNetworkError: SharedFlow<Boolean> = _isChatRoomListNetworkError.asSharedFlow()
+
+    private val _showChatRoomListNetworkError = MutableStateFlow<Boolean>(false)
+    val showChatRoomListNetworkError: StateFlow<Boolean> = _showChatRoomListNetworkError
+
     private var observeChatRoomChangesListener: ValueEventListener? = null
 
     init {
@@ -180,7 +186,9 @@ class PartyDetailWriterViewModel @Inject constructor(
                             onComplete = {
                                 setChatRoomListLoadingState(false)
                             },
-                            onError = { },
+                            onError = {
+                                toggleChatRoomListNetworkErrorToggle()
+                            },
                             partyItem.postId.toString()
                         ) { chatRoom ->
                             _chatRoomItem.value = chatRoom
@@ -231,6 +239,13 @@ class PartyDetailWriterViewModel @Inject constructor(
 
     private fun setChatRoomListLoadingState(isLoading: Boolean) {
         _isChatRoomListLoadingView.value = isLoading
+    }
+
+    private fun toggleChatRoomListNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isChatRoomListNetworkError.emit(true)
+            _showChatRoomListNetworkError.value = !showChatRoomListNetworkError.value
+        }
     }
 
     override fun onCleared() {
