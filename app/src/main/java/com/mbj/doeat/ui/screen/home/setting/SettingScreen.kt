@@ -58,6 +58,7 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
     val isAllPartyListLoadingViewState by viewModel.isAllPartyListLoadingView.collectAsStateWithLifecycle()
     val isEnterChatRoomState by viewModel.isEnterChatRoom.collectAsStateWithLifecycle(initialValue = false)
     val showEnterChatRoomState by viewModel.showEnterChatRoom.collectAsStateWithLifecycle()
+    val isEnterRoomLoadingViewState by viewModel.isEnterRoomLoadingView.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -293,6 +294,10 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
             showToast = showEnterChatRoomState,
             showMessage = isEnterChatRoomState,
             message = "네트워크 연결을 다시 확인해주세요"
+        )
+
+        LoadingView(
+            isLoading = isEnterRoomLoadingViewState
         )
     }
 }

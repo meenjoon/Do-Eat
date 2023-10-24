@@ -80,6 +80,9 @@ class SettingViewModel @Inject constructor(
     private val _showEnterChatRoom = MutableStateFlow<Boolean>(false)
     val showEnterChatRoom: StateFlow<Boolean> = _showEnterChatRoom
 
+    private val _isEnterRoomLoadingView = MutableStateFlow<Boolean>(false)
+    val isEnterRoomLoadingView: StateFlow<Boolean> = _isEnterRoomLoadingView
+
     val userInfo = UserDataStore.getLoginResponse()
     private var chatRoomsAllEventListener: ValueEventListener? = null
 
@@ -170,12 +173,14 @@ class SettingViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             if (userInfo != null) {
+                setEnterRoomLoadingState(true)
                 val chatRoom = chatRoomItemList?.find { it.postId == party.postId.toString() }
 
                 val isUserInChatRoom =
                     chatRoom?.members?.any { it.value.userId == userInfo.userId.toString() }
 
                 if (isUserInChatRoom == true) {
+                    setEnterRoomLoadingState(false)
                     NavigationUtils.navigate(
                         navController, DetailScreen.ChatDetail.navigateWithArg(
                             party.postId.toString()
@@ -183,7 +188,9 @@ class SettingViewModel @Inject constructor(
                     )
                 } else {
                     chatDBRepository.enterChatRoom(
-                        onComplete = { },
+                        onComplete = {
+                            setEnterRoomLoadingState(false)
+                        },
                         onError = {
                             toggleEnterChatRoomStateToggle()
                         },
@@ -341,6 +348,10 @@ class SettingViewModel @Inject constructor(
             _isEnterChatRoom.emit(true)
             _showEnterChatRoom.value = !showEnterChatRoom.value
         }
+    }
+
+    private fun setEnterRoomLoadingState(isLoading: Boolean) {
+        _isEnterRoomLoadingView.value = isLoading
     }
 
     override fun onCleared() {
