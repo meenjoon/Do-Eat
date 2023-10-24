@@ -11,7 +11,6 @@ import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
 import com.mbj.doeat.data.remote.network.api.chat_db.repository.ChatDBRepository
 import com.mbj.doeat.data.remote.network.api.default_db.repository.DefaultDBRepository
-import com.mbj.doeat.ui.graph.BottomBarScreen
 import com.mbj.doeat.util.DateUtils
 import com.mbj.doeat.util.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -92,6 +91,12 @@ class ChatDetailViewModel @Inject constructor(
 
     private val _isChatRoomListLoadingView = MutableStateFlow<Boolean>(false)
     val isChatRoomListLoadingView: StateFlow<Boolean> = _isChatRoomListLoadingView
+
+    private val _isUserListNetworkError = MutableSharedFlow<Boolean>()
+    val isUserListNetworkError: SharedFlow<Boolean> = _isUserListNetworkError.asSharedFlow()
+
+    private val _showUserListNetworkError = MutableStateFlow<Boolean>(false)
+    val showUserListNetworkError: StateFlow<Boolean> = _showUserListNetworkError
 
     private val myUserInfo = UserDataStore.getLoginResponse()
     private var inMemberKey = ""
@@ -235,7 +240,9 @@ class ChatDetailViewModel @Inject constructor(
         viewModelScope.launch {
             defaultDBRepository.getAllUserList(
                 onComplete = { },
-                onError = { }
+                onError = {
+                    toggleUserListNetworkErrorToggle()
+                }
             ).collectLatest { loginList ->
                 if (loginList is ApiResultSuccess) {
                     val membersList = chatRoom?.members?.values?.map { inMember ->
@@ -317,6 +324,13 @@ class ChatDetailViewModel @Inject constructor(
 
     private fun setChatRoomListLoadingState(isLoading: Boolean) {
         _isChatRoomListLoadingView.value = isLoading
+    }
+
+    private fun toggleUserListNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isUserListNetworkError.emit(true)
+            _showUserListNetworkError.value = !showUserListNetworkError.value
+        }
     }
 
     override fun onCleared() {
