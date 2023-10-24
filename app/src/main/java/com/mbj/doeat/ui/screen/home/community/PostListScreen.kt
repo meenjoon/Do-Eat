@@ -44,6 +44,7 @@ fun PostListScreen(name: String, navController: NavHostController, onClick: () -
     val showChatRoomListNetworkErrorState by viewModel.showChatRoomListNetworkError.collectAsStateWithLifecycle()
     val isChatRoomListLoadingViewState by viewModel.isChatRoomListLoadingView.collectAsStateWithLifecycle()
     val enterRoomErrorMessageState by viewModel.enterRoomErrorMessage.collectAsStateWithLifecycle()
+    val isEnterRoomLoadingViewState by viewModel.isEnterRoomLoadingView.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -128,6 +129,10 @@ fun PostListScreen(name: String, navController: NavHostController, onClick: () -
 
         LoadingView(
             isLoading = isChatRoomListLoadingViewState
+        )
+
+        LoadingView(
+            isLoading = isEnterRoomLoadingViewState
         )
     }
 }

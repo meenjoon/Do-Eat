@@ -76,6 +76,9 @@ class PostListViewModel @Inject constructor(
     private val _enterRoomErrorMessage = MutableStateFlow<String>("")
     val enterRoomErrorMessage: StateFlow<String> = _enterRoomErrorMessage
 
+    private val _isEnterRoomLoadingView = MutableStateFlow<Boolean>(false)
+    val isEnterRoomLoadingView: StateFlow<Boolean> = _isEnterRoomLoadingView
+
     private var chatRoomsAllEventListener: ValueEventListener? = null
 
     init {
@@ -162,6 +165,7 @@ class PostListViewModel @Inject constructor(
         navController: NavHostController
     ) {
         viewModelScope.launch {
+            setEnterRoomLoadingState(true)
             val myUserInfo = UserDataStore.getLoginResponse()
             val chatRoom = chatRoomItemList?.find { it.postId == party.postId.toString() }
 
@@ -170,6 +174,7 @@ class PostListViewModel @Inject constructor(
                 chatRoom?.members?.any { it.value.userId == myUserInfo?.userId.toString() }
 
             if (isUserInChatRoom == true) {
+                setEnterRoomLoadingState(false)
                 NavigationUtils.navigate(
                     navController, DetailScreen.ChatDetail.navigateWithArg(
                         party.postId.toString()
@@ -177,7 +182,9 @@ class PostListViewModel @Inject constructor(
                 )
             } else if (!isChatRoomFull) {
                 chatDBRepository.enterChatRoom(
-                    onComplete = { },
+                    onComplete = {
+                        setEnterRoomLoadingState(false)
+                    },
                     onError = {
                         toggleEnterChatRoomStateToggle("네트워크 연결을 다시 확인해주세요")
                     },
@@ -196,6 +203,7 @@ class PostListViewModel @Inject constructor(
                     }
                 }
             } else if (isChatRoomFull) {
+                setEnterRoomLoadingState(false)
                 toggleEnterChatRoomStateToggle("현재 인원이 꽉 찼습니다.")
             }
         }
@@ -229,6 +237,10 @@ class PostListViewModel @Inject constructor(
 
     private fun setChatRoomListLoadingState(isLoading: Boolean) {
         _isChatRoomListLoadingView.value = isLoading
+    }
+
+    private fun setEnterRoomLoadingState(isLoading: Boolean) {
+        _isEnterRoomLoadingView.value = isLoading
     }
 
     override fun onCleared() {
