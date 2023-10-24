@@ -72,6 +72,8 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
     val isBottomSheetExpandedState by viewModel.isBottomSheetExpanded.collectAsStateWithLifecycle()
     val showCreatePartyDialogState by viewModel.showCreatePartyDialog.collectAsStateWithLifecycle()
     val chatRoomItemListState by viewModel.chatRoomItemList.collectAsStateWithLifecycle()
+    val isPartyListNetworkErrorState by viewModel.isPartyListNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showPartyListNetworkErrorState by viewModel.showPartyListNetworkError.collectAsStateWithLifecycle()
 
     val bottomSheetState = rememberBottomSheetState(
         initialValue = BottomSheetValue.Collapsed
@@ -108,29 +110,42 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
         sheetContentColor = Color.Transparent,
         sheetPeekHeight = 0.dp,
         content = { padding ->
-            ExpandBottomSheetIfRequired(bottomSheetState, isBottomSheetExpandedState)
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                ExpandBottomSheetIfRequired(bottomSheetState, isBottomSheetExpandedState)
 
-            chatRoomItemListState?.let {
-                DetailContent(
-                    viewModel = viewModel,
-                    searchItem = searchItemState!!,
-                    navController = navController,
-                    partyListState = partyListState,
-                    chatRoomItemList = it,
-                    onClick = onClick,
-                    padding = padding
+                chatRoomItemListState?.let {
+                    DetailContent(
+                        viewModel = viewModel,
+                        searchItem = searchItemState!!,
+                        navController = navController,
+                        partyListState = partyListState,
+                        chatRoomItemList = it,
+                        onClick = onClick,
+                        padding = padding
+                    )
+                }
+
+                YesNoDialog(
+                    showDialog = showCreatePartyDialogState,
+                    onYesClick = { viewModel.postParty(navHostController = navController) },
+                    onNoClick = { viewModel.changeShowCreatePartyDialog(showDialog = false) },
+                    title = "파티를 모집하시겠습니까?",
+                    message = "파티가 등록됩니다.",
+                    confirmButtonMessage = "등록",
+                    dismissButtonMessage = "취소"
+                )
+
+                ToastMessage(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.Center),
+                    showToast = showPartyListNetworkErrorState,
+                    showMessage = isPartyListNetworkErrorState,
+                    message = "네트워크 연결을 다시 확인해주세요."
                 )
             }
-
-            YesNoDialog(
-                showDialog = showCreatePartyDialogState,
-                onYesClick = { viewModel.postParty(navHostController = navController) },
-                onNoClick = { viewModel.changeShowCreatePartyDialog(showDialog = false) },
-                title = "파티를 모집하시겠습니까?",
-                message = "파티가 등록됩니다.",
-                confirmButtonMessage = "등록",
-                dismissButtonMessage = "취소"
-            )
         }
     )
 }
