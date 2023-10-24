@@ -46,6 +46,8 @@ fun PartyDetailParticipantScreen(
     val isEnterChatRoomState by viewModel.isEnterChatRoom.collectAsStateWithLifecycle(initialValue = false)
     val enterRoomErrorMessageState by viewModel.enterRoomErrorMessage.collectAsStateWithLifecycle()
     val isEnterRoomLoadingViewState by viewModel.isEnterRoomLoadingView.collectAsStateWithLifecycle()
+    val isChatRoomListNetworkErrorState by viewModel.isChatRoomListNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showChatRoomListNetworkErrorState by viewModel.showChatRoomListNetworkError.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = {
@@ -100,6 +102,15 @@ fun PartyDetailParticipantScreen(
                 showToast = showEnterChatRoomState,
                 showMessage = isEnterChatRoomState,
                 message = enterRoomErrorMessageState
+            )
+
+            ToastMessage(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.Center),
+                showToast = showChatRoomListNetworkErrorState,
+                showMessage = isChatRoomListNetworkErrorState,
+                message = "네트워크 연결을 다시 확인해주세요"
             )
 
             LoadingView(

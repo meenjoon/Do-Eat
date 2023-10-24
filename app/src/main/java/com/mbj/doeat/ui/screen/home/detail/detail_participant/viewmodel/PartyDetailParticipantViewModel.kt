@@ -23,8 +23,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepository: ChatDBRepository) :
-    ViewModel() {
+class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepository: ChatDBRepository) : ViewModel() {
 
     private val _partyItem = MutableStateFlow<Party?>(null)
     val partyItem: StateFlow<Party?> = _partyItem
@@ -43,6 +42,12 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
 
     private val _isEnterRoomLoadingView = MutableStateFlow<Boolean>(false)
     val isEnterRoomLoadingView: StateFlow<Boolean> = _isEnterRoomLoadingView
+
+    private val _isChatRoomListNetworkError = MutableSharedFlow<Boolean>()
+    val isChatRoomListNetworkError: SharedFlow<Boolean> = _isChatRoomListNetworkError.asSharedFlow()
+
+    private val _showChatRoomListNetworkError = MutableStateFlow<Boolean>(false)
+    val showChatRoomListNetworkError: StateFlow<Boolean> = _showChatRoomListNetworkError
 
     private var observeChatRoomChangesListener: ValueEventListener? = null
 
@@ -105,7 +110,9 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
                     observeChatRoomChangesListener =
                         chatDBRepository.addChatRoomsEventListener(
                             onComplete = { },
-                            onError = { },
+                            onError = {
+                                toggleChatRoomListNetworkErrorToggle()
+                            },
                             partyItem.postId.toString()
                         ) { chatRoom ->
                             _chatRoomItem.value = chatRoom
@@ -131,6 +138,13 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
 
     private fun setEnterRoomLoadingState(isLoading: Boolean) {
         _isEnterRoomLoadingView.value = isLoading
+    }
+
+    private fun toggleChatRoomListNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isChatRoomListNetworkError.emit(true)
+            _showChatRoomListNetworkError.value = !showChatRoomListNetworkError.value
+        }
     }
 
     override fun onCleared() {
