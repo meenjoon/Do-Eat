@@ -144,7 +144,7 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
                         .align(Alignment.Center),
                     showToast = showPartyListNetworkErrorState,
                     showMessage = isPartyListNetworkErrorState,
-                    message = "네트워크 연결을 다시 확인해주세요."
+                    message = "네트워크 연결을 다시 확인해주세요.트"
                 )
 
                 LoadingView(
@@ -173,6 +173,7 @@ fun DetailContent(
     val isValidRecruitmentCountState by viewModel.isValidRecruitmentCount.collectAsStateWithLifecycle(initialValue = false)
     val isPostPartyNetworkErrorState by viewModel.isPostPartyNetworkError.collectAsStateWithLifecycle(initialValue = false)
     val showPostPartyNetworkErrorState by viewModel.showPostPartyNetworkError.collectAsStateWithLifecycle()
+    val enterRoomErrorMessageState by viewModel.enterRoomErrorMessage.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier
@@ -254,7 +255,7 @@ fun DetailContent(
                 .align(Alignment.Center),
             showToast = showEnterChatRoomState,
             showMessage = isEnterChatRoomState,
-            message = "현재 인원이 꽉 찼습니다."
+            message = enterRoomErrorMessageState
         )
     }
 }
