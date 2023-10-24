@@ -48,6 +48,7 @@ fun PartyDetailParticipantScreen(
     val isEnterRoomLoadingViewState by viewModel.isEnterRoomLoadingView.collectAsStateWithLifecycle()
     val isChatRoomListNetworkErrorState by viewModel.isChatRoomListNetworkError.collectAsStateWithLifecycle(initialValue = false)
     val showChatRoomListNetworkErrorState by viewModel.showChatRoomListNetworkError.collectAsStateWithLifecycle()
+    val isChatRoomListLoadingViewState by viewModel.isChatRoomListLoadingView.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = {
@@ -115,6 +116,10 @@ fun PartyDetailParticipantScreen(
 
             LoadingView(
                 isLoading = isEnterRoomLoadingViewState
+            )
+
+            LoadingView(
+                isLoading = isChatRoomListLoadingViewState
             )
         }
     }
