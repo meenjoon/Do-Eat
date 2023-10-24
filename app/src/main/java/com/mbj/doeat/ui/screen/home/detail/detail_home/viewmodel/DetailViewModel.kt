@@ -160,14 +160,13 @@ class DetailViewModel @Inject constructor(
                         link = getUrl(searchItem.value?.link, searchItem.value?.title!!)
                     ),
                     onComplete = {
-
+                        setPostLoadingState(false)
                     },
                     onError = {
 
                     }
                 ).collectLatest { party ->
                     if (party is ApiResultSuccess) {
-                        setPostLoadingState(false)
                         navHostController.navigate(Graph.HOME) {
                             popUpTo(navHostController.graph.id) {
                                 inclusive = true
