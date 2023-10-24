@@ -101,6 +101,12 @@ class SettingViewModel @Inject constructor(
     private val _isDeleteChatRoomLoadingView = MutableStateFlow<Boolean>(false)
     val isDeleteChatRoomLoadingView: StateFlow<Boolean> = _isDeleteChatRoomLoadingView
 
+    private val _isAllChatRoomListNetworkError = MutableSharedFlow<Boolean>()
+    val isAllChatRoomListNetworkError: SharedFlow<Boolean> = _isAllChatRoomListNetworkError.asSharedFlow()
+
+    private val _showAllChatRoomListNetworkError = MutableStateFlow<Boolean>(false)
+    val showAllChatRoomListNetworkError: StateFlow<Boolean> = _showAllChatRoomListNetworkError
+
     val userInfo = UserDataStore.getLoginResponse()
     private var chatRoomsAllEventListener: ValueEventListener? = null
 
@@ -332,7 +338,9 @@ class SettingViewModel @Inject constructor(
             chatRoomsAllEventListener =
                 chatDBRepository.addChatRoomsAllEventListener(
                     onComplete = { },
-                    onError = { }
+                    onError = {
+                        toggleAllChatRoomListNetworkErrorToggle()
+                    }
                 ) { chatRoomList ->
                     _chatRoomItemList.value = chatRoomList
                     if (chatRoomList != null) {
@@ -404,6 +412,13 @@ class SettingViewModel @Inject constructor(
 
     private fun setDeleteChatRoomLoadingState(isLoading: Boolean) {
         _isDeleteChatRoomLoadingView.value = isLoading
+    }
+
+    private fun toggleAllChatRoomListNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isAllChatRoomListNetworkError.emit(true)
+            _showAllChatRoomListNetworkError.value = !showAllChatRoomListNetworkError.value
+        }
     }
 
     override fun onCleared() {
