@@ -83,6 +83,12 @@ class DetailViewModel @Inject constructor(
     private val _isPartyListLoadingView = MutableStateFlow<Boolean>(false)
     val isPartyListLoadingView: StateFlow<Boolean> = _isPartyListLoadingView
 
+    private val _isPostPartyNetworkError = MutableSharedFlow<Boolean>()
+    val isPostPartyNetworkError: SharedFlow<Boolean> = _isPostPartyNetworkError.asSharedFlow()
+
+    private val _showPostPartyNetworkError = MutableStateFlow<Boolean>(false)
+    val showPostPartyNetworkError: StateFlow<Boolean> = _showPostPartyNetworkError
+
     val userId = UserDataStore.getLoginResponse()?.userId
 
     private var chatRoomsAllEventListener: ValueEventListener? = null
@@ -163,7 +169,7 @@ class DetailViewModel @Inject constructor(
                         setPostLoadingState(false)
                     },
                     onError = {
-
+                        togglePostPartyNetworkErrorToggle()
                     }
                 ).collectLatest { party ->
                     if (party is ApiResultSuccess) {
@@ -289,8 +295,16 @@ class DetailViewModel @Inject constructor(
         }
     }
 
-    fun setPartyListLoadingState(isLoading: Boolean) {
+    private fun setPartyListLoadingState(isLoading: Boolean) {
         _isPartyListLoadingView.value = isLoading
+    }
+
+    private fun togglePostPartyNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isPostPartyNetworkError.emit(true)
+            _showPostPartyNetworkError.value = !showPostPartyNetworkError.value
+            _showCreatePartyDialog.value = false
+        }
     }
 
     override fun onCleared() {

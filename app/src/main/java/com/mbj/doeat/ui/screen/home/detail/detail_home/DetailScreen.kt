@@ -170,9 +170,9 @@ fun DetailContent(
     val errorValidRecruitmentCountState by viewModel.errorValidRecruitmentCount.collectAsStateWithLifecycle()
     val showEnterChatRoomState by viewModel.showEnterChatRoom.collectAsStateWithLifecycle()
     val isEnterChatRoomState by viewModel.isEnterChatRoom.collectAsStateWithLifecycle(initialValue = false)
-    val isValidRecruitmentCountState by viewModel.isValidRecruitmentCount.collectAsStateWithLifecycle(
-        initialValue = false
-    )
+    val isValidRecruitmentCountState by viewModel.isValidRecruitmentCount.collectAsStateWithLifecycle(initialValue = false)
+    val isPostPartyNetworkErrorState by viewModel.isPostPartyNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showPostPartyNetworkErrorState by viewModel.showPostPartyNetworkError.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier
@@ -211,6 +211,15 @@ fun DetailContent(
                     showMessage = isValidRecruitmentCountState,
                     message = errorValidRecruitmentCountState
                 )
+
+                ToastMessage(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.TopCenter),
+                    showToast = showPostPartyNetworkErrorState,
+                    showMessage = isPostPartyNetworkErrorState,
+                    message = "네트워크 연결을 다시 확인해주세요."
+                )
             }
 
             Text(
@@ -237,15 +246,6 @@ fun DetailContent(
 
         LoadingView(
             isLoading = isPostLoadingViewState,
-        )
-
-        ToastMessage(
-            modifier = Modifier
-                .padding(16.dp)
-                .align(Alignment.Center),
-            showToast = showEnterChatRoomState,
-            showMessage = isEnterChatRoomState,
-            message = "현재 인원이 꽉 찼습니다."
         )
 
         ToastMessage(
