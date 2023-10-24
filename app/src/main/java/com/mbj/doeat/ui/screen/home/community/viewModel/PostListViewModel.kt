@@ -64,6 +64,12 @@ class PostListViewModel @Inject constructor(
     private val _isPartyListLoadingView = MutableStateFlow<Boolean>(false)
     val isPartyListLoadingView: StateFlow<Boolean> = _isPartyListLoadingView
 
+    private val _isChatRoomListNetworkError = MutableSharedFlow<Boolean>()
+    val isChatRoomListNetworkError: SharedFlow<Boolean> = _isChatRoomListNetworkError.asSharedFlow()
+
+    private val _showChatRoomListNetworkError = MutableStateFlow<Boolean>(false)
+    val showChatRoomListNetworkError: StateFlow<Boolean> = _showChatRoomListNetworkError
+
     private var chatRoomsAllEventListener: ValueEventListener? = null
 
     init {
@@ -101,7 +107,7 @@ class PostListViewModel @Inject constructor(
             chatRoomsAllEventListener =
                 chatDBRepository.addChatRoomsAllEventListener(
                     onComplete = { },
-                    onError = { }
+                    onError = { toggleChatRoomListNetworkErrorToggle() }
                 ) { chatRoomList ->
                     _chatRoomItemList.value = chatRoomList
                 }
@@ -197,6 +203,13 @@ class PostListViewModel @Inject constructor(
 
     private fun setPartyListLoadingState(isLoading: Boolean) {
         _isPartyListLoadingView.value = isLoading
+    }
+
+    private fun toggleChatRoomListNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isChatRoomListNetworkError.emit(true)
+            _showChatRoomListNetworkError.value = !showChatRoomListNetworkError.value
+        }
     }
 
     override fun onCleared() {
