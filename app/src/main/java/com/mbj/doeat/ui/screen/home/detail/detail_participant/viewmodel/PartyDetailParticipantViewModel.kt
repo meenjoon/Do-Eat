@@ -38,6 +38,9 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
     private val _showEnterChatRoom = MutableStateFlow<Boolean>(false)
     val showEnterChatRoom: StateFlow<Boolean> = _showEnterChatRoom
 
+    private val _enterRoomErrorMessage = MutableStateFlow<String>("")
+    val enterRoomErrorMessage: StateFlow<String> = _enterRoomErrorMessage
+
     private var observeChatRoomChangesListener: ValueEventListener? = null
 
     init {
@@ -64,7 +67,9 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
             } else if (!isChatRoomFull){
                 chatDBRepository.enterChatRoom(
                     onComplete = { },
-                    onError = { },
+                    onError = {
+                        toggleEnterChatRoomStateToggle("네트워크 연결을 다시 확인해주세요")
+                    },
                     postId = partyItem.value?.postId.toString(),
                     postUserId = partyItem.value?.userId.toString(),
                     myUserId = myUserInfo?.userId.toString(),
@@ -80,7 +85,7 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
                     }
                 }
             } else if (isChatRoomFull) {
-                toggleEnterChatRoomToggle()
+                toggleEnterChatRoomStateToggle("현재 인원이 꽉 찼습니다.")
             }
         }
     }
@@ -108,10 +113,11 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
         }
     }
 
-    private fun toggleEnterChatRoomToggle() {
+    private fun toggleEnterChatRoomStateToggle(errorMessage: String) {
         viewModelScope.launch {
             _isEnterChatRoom.emit(true)
             _showEnterChatRoom.value = !showEnterChatRoom.value
+            _enterRoomErrorMessage.value = errorMessage
         }
     }
 

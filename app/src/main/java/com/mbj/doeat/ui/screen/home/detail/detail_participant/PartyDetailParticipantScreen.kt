@@ -43,6 +43,7 @@ fun PartyDetailParticipantScreen(
     val chatRoomItem by viewModel.chatRoomItem.collectAsStateWithLifecycle()
     val showEnterChatRoomState by viewModel.showEnterChatRoom.collectAsStateWithLifecycle()
     val isEnterChatRoomState by viewModel.isEnterChatRoom.collectAsStateWithLifecycle(initialValue = false)
+    val enterRoomErrorMessageState by viewModel.enterRoomErrorMessage.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = {
@@ -96,7 +97,7 @@ fun PartyDetailParticipantScreen(
                     .align(Alignment.Center),
                 showToast = showEnterChatRoomState,
                 showMessage = isEnterChatRoomState,
-                message = "현재 인원이 꽉 찼습니다."
+                message = enterRoomErrorMessageState
             )
         }
     }
