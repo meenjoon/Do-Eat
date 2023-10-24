@@ -58,6 +58,10 @@ class PartyDetailWriterViewModel @Inject constructor(
     private val _isEnterRoomLoadingView = MutableStateFlow<Boolean>(false)
     val isEnterRoomLoadingView: StateFlow<Boolean> = _isEnterRoomLoadingView
 
+    private val _isDeleteChatRoomLoadingView = MutableStateFlow<Boolean>(false)
+    val isDeleteChatRoomLoadingView: StateFlow<Boolean> = _isDeleteChatRoomLoadingView
+
+
     private var observeChatRoomChangesListener: ValueEventListener? = null
 
     init {
@@ -137,8 +141,11 @@ class PartyDetailWriterViewModel @Inject constructor(
 
     private fun deleteChatRoom(postId: String, navHostController: NavHostController) {
         viewModelScope.launch {
+            setDeleteChatRoomLoadingState(true)
             chatDBRepository.deleteChatRoom(
-                onComplete = { },
+                onComplete = {
+                    setDeleteChatRoomLoadingState(false)
+                },
                 onError = { },
                 postId = postId
             ).collectLatest { response ->
@@ -196,6 +203,10 @@ class PartyDetailWriterViewModel @Inject constructor(
             _isDeletePartyNetworkError.emit(true)
             _showDeletePartyListNetworkError.value = !showDeletePartyListNetworkError.value
         }
+    }
+
+    private fun setDeleteChatRoomLoadingState(isLoading: Boolean) {
+        _isDeleteChatRoomLoadingView.value = isLoading
     }
 
     override fun onCleared() {
