@@ -54,7 +54,9 @@ import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.ui.component.chat.ChatContent
 import com.mbj.doeat.ui.component.button.BackButton
 import com.mbj.doeat.ui.component.dialog.YesNoDialog
+import com.mbj.doeat.ui.component.loading.LoadingView
 import com.mbj.doeat.ui.component.textfield.CustomTextField
+import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.screen.home.chat_detail.viewmodel.ChatDetailViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.ChatDetailBottomSheetColor
 import com.mbj.doeat.util.Keyboard
@@ -73,6 +75,21 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
     val chatRoomItemState by viewModel.chatRoomItem.collectAsStateWithLifecycle()
     val chatRoomMembersState by viewModel.chatRoomMembers.collectAsStateWithLifecycle()
     val showLeaveDialogState by viewModel.showLeaveDialog.collectAsStateWithLifecycle()
+    val isSendMessageNetworkErrorState by viewModel.isSendMessageNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showSendMessageNetworkErrorState by viewModel.showSendMessageNetworkError.collectAsStateWithLifecycle()
+    val isSendMessageLoadingViewState by viewModel.isSendMessageLoadingView.collectAsStateWithLifecycle()
+    val isChatItemListNetworkErrorState by viewModel.isChatItemListNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showChatItemListNetworkErrorState by viewModel.showChatItemListNetworkError.collectAsStateWithLifecycle()
+    val isChatItemListLoadingViewState by viewModel.isChatItemListLoadingView.collectAsStateWithLifecycle()
+    val isChatRoomNetworkErrorState by viewModel.isChatRoomNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showChatRoomNetworkErrorState by viewModel.showChatRoomNetworkError.collectAsStateWithLifecycle()
+    val isChatRoomLoadingViewState by viewModel.isChatRoomLoadingView.collectAsStateWithLifecycle()
+    val isLeaveChatRoomNetworkErrorState by viewModel.isLeaveChatRoomNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showLeaveChatRoomNetworkErrorState by viewModel.showLeaveChatRoomNetworkError.collectAsStateWithLifecycle()
+    val isLeaveChatRoomLoadingViewState by viewModel.isLeaveChatRoomLoadingView.collectAsStateWithLifecycle()
+    val isUserListNetworkErrorState by viewModel.isUserListNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showUserListNetworkErrorState by viewModel.showUserListNetworkError.collectAsStateWithLifecycle()
+    val isUserListLoadingViewState by viewModel.isUserListLoadingView.collectAsStateWithLifecycle()
 
     var previousChatItemList by remember { mutableStateOf(chatItemListState) }
     val listState = rememberLazyListState()
@@ -210,6 +227,71 @@ fun ChatDetailScreen(postId: String, navController: NavHostController, onClick: 
                     message = "파티 탈퇴가 됩니다.",
                     confirmButtonMessage = "네",
                     dismissButtonMessage = "아니오"
+                )
+
+                ToastMessage(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.Center),
+                    showToast = showSendMessageNetworkErrorState,
+                    showMessage = isSendMessageNetworkErrorState,
+                    message = "네트워크 연결을 다시 확인해주세요"
+                )
+
+                LoadingView(
+                    isLoading = isSendMessageLoadingViewState
+                )
+
+                ToastMessage(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.Center),
+                    showToast = showChatItemListNetworkErrorState,
+                    showMessage = isChatItemListNetworkErrorState,
+                    message = "네트워크 연결을 다시 확인해주세요"
+                )
+
+                LoadingView(
+                    isLoading = isChatItemListLoadingViewState
+                )
+
+                ToastMessage(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.Center),
+                    showToast = showChatRoomNetworkErrorState,
+                    showMessage = isChatRoomNetworkErrorState,
+                    message = "네트워크 연결을 다시 확인해주세요"
+                )
+
+                LoadingView(
+                    isLoading = isChatRoomLoadingViewState
+                )
+
+                ToastMessage(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.Center),
+                    showToast = showLeaveChatRoomNetworkErrorState,
+                    showMessage = isLeaveChatRoomNetworkErrorState,
+                    message = "네트워크 연결을 다시 확인해주세요"
+                )
+
+                LoadingView(
+                    isLoading = isLeaveChatRoomLoadingViewState
+                )
+
+                ToastMessage(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.Center),
+                    showToast = showUserListNetworkErrorState,
+                    showMessage = isUserListNetworkErrorState,
+                    message = "네트워크 연결을 다시 확인해주세요"
+                )
+
+                LoadingView(
+                    isLoading = isUserListLoadingViewState
                 )
             }
         }

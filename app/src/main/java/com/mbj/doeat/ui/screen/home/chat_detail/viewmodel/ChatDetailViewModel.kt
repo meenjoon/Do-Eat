@@ -11,12 +11,14 @@ import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
 import com.mbj.doeat.data.remote.network.api.chat_db.repository.ChatDBRepository
 import com.mbj.doeat.data.remote.network.api.default_db.repository.DefaultDBRepository
-import com.mbj.doeat.ui.graph.BottomBarScreen
 import com.mbj.doeat.util.DateUtils
 import com.mbj.doeat.util.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -45,6 +47,51 @@ class ChatDetailViewModel @Inject constructor(
     private val _showLeaveDialog = MutableStateFlow<Boolean>(false)
     val showLeaveDialog: StateFlow<Boolean> = _showLeaveDialog
 
+    private val _isSendMessageNetworkError = MutableSharedFlow<Boolean>()
+    val isSendMessageNetworkError: SharedFlow<Boolean> = _isSendMessageNetworkError.asSharedFlow()
+
+    private val _showSendMessageNetworkError = MutableStateFlow<Boolean>(false)
+    val showSendMessageNetworkError: StateFlow<Boolean> = _showSendMessageNetworkError
+
+    private val _isSendMessageLoadingView = MutableStateFlow<Boolean>(false)
+    val isSendMessageLoadingView: StateFlow<Boolean> = _isSendMessageLoadingView
+
+    private val _isChatItemListNetworkError = MutableSharedFlow<Boolean>()
+    val isChatItemListNetworkError: SharedFlow<Boolean> = _isChatItemListNetworkError.asSharedFlow()
+
+    private val _showChatItemListNetworkError = MutableStateFlow<Boolean>(false)
+    val showChatItemListNetworkError: StateFlow<Boolean> = _showChatItemListNetworkError
+
+    private val _isChatItemListLoadingView = MutableStateFlow<Boolean>(false)
+    val isChatItemListLoadingView: StateFlow<Boolean> = _isChatItemListLoadingView
+
+    private val _isChatRoomNetworkError = MutableSharedFlow<Boolean>()
+    val isChatRoomNetworkError: SharedFlow<Boolean> = _isChatRoomNetworkError.asSharedFlow()
+
+    private val _showChatRoomNetworkError = MutableStateFlow<Boolean>(false)
+    val showChatRoomNetworkError: StateFlow<Boolean> = _showChatRoomNetworkError
+
+    private val _isChatRoomLoadingView = MutableStateFlow<Boolean>(false)
+    val isChatRoomLoadingView: StateFlow<Boolean> = _isChatRoomLoadingView
+
+    private val _isLeaveChatRoomNetworkError = MutableSharedFlow<Boolean>()
+    val isLeaveChatRoomNetworkError: SharedFlow<Boolean> = _isLeaveChatRoomNetworkError.asSharedFlow()
+
+    private val _showLeaveChatRoomNetworkError = MutableStateFlow<Boolean>(false)
+    val showLeaveChatRoomNetworkError: StateFlow<Boolean> = _showLeaveChatRoomNetworkError
+
+    private val _isLeaveChatRoomLoadingView = MutableStateFlow<Boolean>(false)
+    val isLeaveChatRoomLoadingView: StateFlow<Boolean> = _isLeaveChatRoomLoadingView
+
+    private val _isUserListNetworkError = MutableSharedFlow<Boolean>()
+    val isUserListNetworkError: SharedFlow<Boolean> = _isUserListNetworkError.asSharedFlow()
+
+    private val _showUserListNetworkError = MutableStateFlow<Boolean>(false)
+    val showUserListNetworkError: StateFlow<Boolean> = _showUserListNetworkError
+
+    private val _isUserListLoadingView = MutableStateFlow<Boolean>(false)
+    val isUserListLoadingView: StateFlow<Boolean> = _isUserListLoadingView
+
     private val myUserInfo = UserDataStore.getLoginResponse()
     private var inMemberKey = ""
 
@@ -53,7 +100,6 @@ class ChatDetailViewModel @Inject constructor(
 
     init {
         observeChatChangesListener()
-        getChatRoomItem()
         observeParticipantsChangesListener()
     }
 
@@ -67,9 +113,14 @@ class ChatDetailViewModel @Inject constructor(
 
     fun sendMessage(message: String) {
         viewModelScope.launch {
+            setSendMessageLoadingState(true)
             chatDBRepository.sendMessage(
-                onComplete = { },
-                onError = { },
+                onComplete = {
+                    setSendMessageLoadingState(false)
+                },
+                onError = {
+                    toggleSendMessageNetworkErrorToggle()
+                },
                 postId = postId.value.substring(1, postId.value.length - 1),
                 message = message,
                 sendMessageTime = DateUtils.getCurrentTime(),
@@ -82,6 +133,12 @@ class ChatDetailViewModel @Inject constructor(
             postId.collectLatest { postId ->
                 if (postId != "") {
                     observeChatChangesListener = chatDBRepository.addChatDetailEventListener(
+                        onComplete = {
+                            setChatItemListLoadingState(false)
+                        },
+                        onError = {
+                            toggleChatItemListNetworkErrorToggle()
+                        },
                         postId.substring(1, postId.length - 1)
                     ) { chatItem ->
                         val currentList = _chatItemList.value
@@ -93,27 +150,16 @@ class ChatDetailViewModel @Inject constructor(
         }
     }
 
-    private fun getChatRoomItem() {
-        viewModelScope.launch {
-            postId.collectLatest { postId ->
-                if (postId != "") {
-                    chatDBRepository.getChatRoomItem(
-                        onComplete = { },
-                        onError = { },
-                        postId = postId.substring(1, postId.length - 1)
-                    ) { chatRoomItem ->
-                        _chatRoomItem.value = chatRoomItem
-                    }
-                }
-            }
-        }
-    }
-
     fun leaveChatRoom(navController: NavHostController) {
         viewModelScope.launch {
+            setLeaveChatRoomLoadingState(true)
             chatDBRepository.leaveChatRoom(
-                onComplete = { },
-                onError = { },
+                onComplete = {
+                    setLeaveChatRoomLoadingState(false)
+                },
+                onError = {
+                    toggleLeaveChatRoomNetworkErrorToggle()
+                },
                 postId = postId.value.substring(1, postId.value.length - 1),
                 inMemberKey = inMemberKey,
                 chatItemList = chatItemList.value
@@ -134,14 +180,20 @@ class ChatDetailViewModel @Inject constructor(
 
     private fun observeParticipantsChangesListener() {
         viewModelScope.launch {
+            setChatRoomLoadingState(true)
             postId.collectLatest { postId ->
                 if (postId != "") {
                     observeParticipantsChangesListener =
                         chatDBRepository.addChatRoomsEventListener(
-                            onComplete = { },
-                            onError = { },
+                            onComplete = {
+                                setChatRoomLoadingState(false)
+                            },
+                            onError = {
+                                toggleChatRoomNetworkErrorToggle()
+                            },
                             postId.substring(1, postId.length - 1)
                         ) { chatRoom ->
+                            _chatRoomItem.value = chatRoom
                             getInMemberKey(chatRoom)
                             getChatRoomMembers(chatRoom)
                         }
@@ -158,9 +210,14 @@ class ChatDetailViewModel @Inject constructor(
 
     private fun getChatRoomMembers(chatRoom: ChatRoom?) {
         viewModelScope.launch {
+            setUserListLoadingState(true)
             defaultDBRepository.getAllUserList(
-                onComplete = { },
-                onError = { }
+                onComplete = {
+                    setUserListLoadingState(false)
+                },
+                onError = {
+                    toggleUserListNetworkErrorToggle()
+                }
             ).collectLatest { loginList ->
                 if (loginList is ApiResultSuccess) {
                     val membersList = chatRoom?.members?.values?.map { inMember ->
@@ -187,6 +244,61 @@ class ChatDetailViewModel @Inject constructor(
         if (inMemberKeyFind != null) {
             inMemberKey = inMemberKeyFind
         }
+    }
+
+    private fun toggleSendMessageNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isSendMessageNetworkError.emit(true)
+            _showSendMessageNetworkError.value = !showSendMessageNetworkError.value
+        }
+    }
+
+    private fun setSendMessageLoadingState(isLoading: Boolean) {
+        _isSendMessageLoadingView.value = isLoading
+    }
+
+    private fun toggleChatItemListNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isChatItemListNetworkError.emit(true)
+            _showChatItemListNetworkError.value = !showChatItemListNetworkError.value
+        }
+    }
+
+    private fun setChatItemListLoadingState(isLoading: Boolean) {
+        _isChatItemListLoadingView.value = isLoading
+    }
+
+    private fun toggleChatRoomNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isChatRoomNetworkError.emit(true)
+            _showChatRoomNetworkError.value = !showChatRoomNetworkError.value
+        }
+    }
+
+    private fun setChatRoomLoadingState(isLoading: Boolean) {
+        _isChatRoomLoadingView.value = isLoading
+    }
+
+    private fun toggleLeaveChatRoomNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isLeaveChatRoomNetworkError.emit(true)
+            _showLeaveChatRoomNetworkError.value = !showChatRoomNetworkError.value
+        }
+    }
+
+    private fun setLeaveChatRoomLoadingState(isLoading: Boolean) {
+        _isLeaveChatRoomLoadingView.value = isLoading
+    }
+
+    private fun toggleUserListNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isUserListNetworkError.emit(true)
+            _showUserListNetworkError.value = !showUserListNetworkError.value
+        }
+    }
+
+    private fun setUserListLoadingState(isLoading: Boolean) {
+        _isUserListLoadingView.value = isLoading
     }
 
     override fun onCleared() {

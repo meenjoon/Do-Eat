@@ -16,8 +16,11 @@ import javax.inject.Inject
 import com.kakao.sdk.user.UserApiClient
 import com.mbj.doeat.data.remote.model.FindUserRequest
 import com.mbj.doeat.util.UserDataStore.saveLoginResponse
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 @HiltViewModel
 class SignInViewModel @Inject constructor(
@@ -31,6 +34,12 @@ class SignInViewModel @Inject constructor(
     private val _isLoadingView = MutableStateFlow<Boolean>(false)
     val isLoadingView: StateFlow<Boolean> = _isLoadingView
 
+    private val _isNetworkError = MutableSharedFlow<Boolean>()
+    val isNetworkError: SharedFlow<Boolean> = _isNetworkError.asSharedFlow()
+
+    private val _showNetworkError = MutableStateFlow<Boolean>(false)
+    val showNetworkError: StateFlow<Boolean> = _showNetworkError
+
     fun signIn(
         loginRequest: LoginRequest,
         navHostController: NavHostController
@@ -40,6 +49,7 @@ class SignInViewModel @Inject constructor(
                 onComplete = {
                 },
                 onError = {
+                    toggleNetworkErrorToggle()
                 }
             ).collectLatest { loginResponse ->
                 if (loginResponse is ApiResultSuccess) {
@@ -77,6 +87,7 @@ class SignInViewModel @Inject constructor(
             defaultDBRepository.findUser(
                 findUserRequest = FindUserRequest(kakaoUserId),
                 onComplete = {
+                    toggleNetworkErrorToggle()
                 },
                 onError = {
                 }
@@ -90,6 +101,13 @@ class SignInViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    private fun toggleNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isNetworkError.emit(true)
+            _showNetworkError.value = !showNetworkError.value
         }
     }
 

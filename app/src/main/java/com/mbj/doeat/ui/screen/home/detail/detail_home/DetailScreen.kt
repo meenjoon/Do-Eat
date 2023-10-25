@@ -72,6 +72,10 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
     val isBottomSheetExpandedState by viewModel.isBottomSheetExpanded.collectAsStateWithLifecycle()
     val showCreatePartyDialogState by viewModel.showCreatePartyDialog.collectAsStateWithLifecycle()
     val chatRoomItemListState by viewModel.chatRoomItemList.collectAsStateWithLifecycle()
+    val isPartyListNetworkErrorState by viewModel.isPartyListNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showPartyListNetworkErrorState by viewModel.showPartyListNetworkError.collectAsStateWithLifecycle()
+    val isPartyListLoadingViewState by viewModel.isPartyListLoadingView.collectAsStateWithLifecycle()
+    val isEnterRoomLoadingViewState by viewModel.isEnterRoomLoadingView.collectAsStateWithLifecycle()
 
     val bottomSheetState = rememberBottomSheetState(
         initialValue = BottomSheetValue.Collapsed
@@ -108,29 +112,50 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
         sheetContentColor = Color.Transparent,
         sheetPeekHeight = 0.dp,
         content = { padding ->
-            ExpandBottomSheetIfRequired(bottomSheetState, isBottomSheetExpandedState)
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                ExpandBottomSheetIfRequired(bottomSheetState, isBottomSheetExpandedState)
 
-            chatRoomItemListState?.let {
-                DetailContent(
-                    viewModel = viewModel,
-                    searchItem = searchItemState!!,
-                    navController = navController,
-                    partyListState = partyListState,
-                    chatRoomItemList = it,
-                    onClick = onClick,
-                    padding = padding
+                chatRoomItemListState?.let {
+                    DetailContent(
+                        viewModel = viewModel,
+                        searchItem = searchItemState!!,
+                        navController = navController,
+                        partyListState = partyListState,
+                        chatRoomItemList = it,
+                        onClick = onClick,
+                        padding = padding
+                    )
+                }
+
+                YesNoDialog(
+                    showDialog = showCreatePartyDialogState,
+                    onYesClick = { viewModel.postParty(navHostController = navController) },
+                    onNoClick = { viewModel.changeShowCreatePartyDialog(showDialog = false) },
+                    title = "파티를 모집하시겠습니까?",
+                    message = "파티가 등록됩니다.",
+                    confirmButtonMessage = "등록",
+                    dismissButtonMessage = "취소"
+                )
+
+                ToastMessage(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.Center),
+                    showToast = showPartyListNetworkErrorState,
+                    showMessage = isPartyListNetworkErrorState,
+                    message = "네트워크 연결을 다시 확인해주세요"
+                )
+
+                LoadingView(
+                    isLoading = isPartyListLoadingViewState
+                )
+
+                LoadingView(
+                    isLoading = isEnterRoomLoadingViewState
                 )
             }
-
-            YesNoDialog(
-                showDialog = showCreatePartyDialogState,
-                onYesClick = { viewModel.postParty(navHostController = navController) },
-                onNoClick = { viewModel.changeShowCreatePartyDialog(showDialog = false) },
-                title = "파티를 모집하시겠습니까?",
-                message = "파티가 등록됩니다.",
-                confirmButtonMessage = "등록",
-                dismissButtonMessage = "취소"
-            )
         }
     )
 }
@@ -150,9 +175,10 @@ fun DetailContent(
     val errorValidRecruitmentCountState by viewModel.errorValidRecruitmentCount.collectAsStateWithLifecycle()
     val showEnterChatRoomState by viewModel.showEnterChatRoom.collectAsStateWithLifecycle()
     val isEnterChatRoomState by viewModel.isEnterChatRoom.collectAsStateWithLifecycle(initialValue = false)
-    val isValidRecruitmentCountState by viewModel.isValidRecruitmentCount.collectAsStateWithLifecycle(
-        initialValue = false
-    )
+    val isValidRecruitmentCountState by viewModel.isValidRecruitmentCount.collectAsStateWithLifecycle(initialValue = false)
+    val isPostPartyNetworkErrorState by viewModel.isPostPartyNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showPostPartyNetworkErrorState by viewModel.showPostPartyNetworkError.collectAsStateWithLifecycle()
+    val enterRoomErrorMessageState by viewModel.enterRoomErrorMessage.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier
@@ -191,6 +217,15 @@ fun DetailContent(
                     showMessage = isValidRecruitmentCountState,
                     message = errorValidRecruitmentCountState
                 )
+
+                ToastMessage(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.TopCenter),
+                    showToast = showPostPartyNetworkErrorState,
+                    showMessage = isPostPartyNetworkErrorState,
+                    message = "네트워크 연결을 다시 확인해주세요."
+                )
             }
 
             Text(
@@ -225,16 +260,7 @@ fun DetailContent(
                 .align(Alignment.Center),
             showToast = showEnterChatRoomState,
             showMessage = isEnterChatRoomState,
-            message = "현재 인원이 꽉 찼습니다."
-        )
-
-        ToastMessage(
-            modifier = Modifier
-                .padding(16.dp)
-                .align(Alignment.Center),
-            showToast = showEnterChatRoomState,
-            showMessage = isEnterChatRoomState,
-            message = "현재 인원이 꽉 찼습니다."
+            message = enterRoomErrorMessageState
         )
     }
 }

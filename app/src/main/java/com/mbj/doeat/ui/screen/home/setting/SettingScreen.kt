@@ -33,7 +33,9 @@ import com.mbj.doeat.data.remote.model.LoginResponse
 import com.mbj.doeat.ui.component.party.HomeDetailPartyContent
 import com.mbj.doeat.ui.component.dialog.YesNoDialog
 import com.mbj.doeat.ui.component.divider.HorizontalDivider
+import com.mbj.doeat.ui.component.loading.LoadingView
 import com.mbj.doeat.ui.component.party.NoPartiesAvailable
+import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.screen.home.setting.viewmodel.SettingViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 import com.mbj.doeat.ui.theme.Color.Companion.SettingDividerColor
@@ -43,12 +45,29 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
 
     val viewModel: SettingViewModel = hiltViewModel()
 
-    val userInfoState by viewModel.userInfo.collectAsStateWithLifecycle()
     val myCreatedPartiesState by viewModel.myCreatedParties.collectAsStateWithLifecycle()
     val joinedParties by viewModel.joinedParties.collectAsStateWithLifecycle()
     val chatRoomItemListState by viewModel.chatRoomItemList.collectAsStateWithLifecycle()
     val showLogoutDialogState by viewModel.showLogoutDialog.collectAsStateWithLifecycle()
     val showWithdrawMembershipDialogState by viewModel.showWithdrawMembershipDialog.collectAsStateWithLifecycle()
+    val isMyCreatedPartiesNetworkErrorState by viewModel.isMyCreatedPartiesNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showMyCreatedPartiesNetworkErrorState by viewModel.showMyCreatedPartiesNetworkError.collectAsStateWithLifecycle()
+    val isMyCreatedPartiesLoadingViewState by viewModel.isMyCreatedPartiesLoadingView.collectAsStateWithLifecycle()
+    val isAllPartyListNetworkErrorState by viewModel.isAllPartyListNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showAllPartyListNetworkErrorState by viewModel.showAllPartyListNetworkError.collectAsStateWithLifecycle()
+    val isAllPartyListLoadingViewState by viewModel.isAllPartyListLoadingView.collectAsStateWithLifecycle()
+    val isEnterChatRoomState by viewModel.isEnterChatRoom.collectAsStateWithLifecycle(initialValue = false)
+    val showEnterChatRoomState by viewModel.showEnterChatRoom.collectAsStateWithLifecycle()
+    val isEnterRoomLoadingViewState by viewModel.isEnterRoomLoadingView.collectAsStateWithLifecycle()
+    val isWithdrawMembershipNetworkErrorState by viewModel.isWithdrawMembershipNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showWithdrawMembershipNetworkErrorState by viewModel.showWithdrawMembershipNetworkError.collectAsStateWithLifecycle()
+    val isWithdrawMembershipLoadingViewState by viewModel.isWithdrawMembershipLoadingView.collectAsStateWithLifecycle()
+    val isDeleteChatRoomNetworkErrorState by viewModel.isDeleteChatRoomNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showDeleteChatRoomNetworkErrorState by viewModel.showDeleteChatRoomNetworkError.collectAsStateWithLifecycle()
+    val isDeleteChatRoomLoadingViewState by viewModel.isDeleteChatRoomLoadingView.collectAsStateWithLifecycle()
+    val isAllChatRoomListNetworkErrorState by viewModel.isAllChatRoomListNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showAllChatRoomListNetworkErrorState by viewModel.showAllChatRoomListNetworkError.collectAsStateWithLifecycle()
+    val isAllChatRoomListLoadingViewState by viewModel.isAllChatRoomListLoadingView.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -57,7 +76,7 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
             modifier = Modifier.fillMaxHeight(0.9f)
         ) {
             item {
-                UserProfileInfo(userInfo = userInfoState)
+                UserProfileInfo(userInfo = viewModel.userInfo)
             }
 
             item {
@@ -249,6 +268,84 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
             message = "회원탈퇴 됩니다.",
             confirmButtonMessage = "네",
             dismissButtonMessage = "아니오"
+        )
+
+        ToastMessage(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            showToast = showMyCreatedPartiesNetworkErrorState,
+            showMessage = isMyCreatedPartiesNetworkErrorState,
+            message = "네트워크 연결을 다시 확인해주세요"
+        )
+
+        LoadingView(
+            isLoading = isMyCreatedPartiesLoadingViewState
+        )
+
+        ToastMessage(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            showToast = showAllPartyListNetworkErrorState,
+            showMessage = isAllPartyListNetworkErrorState,
+            message = "네트워크 연결을 다시 확인해주세요"
+        )
+
+        LoadingView(
+            isLoading = isAllPartyListLoadingViewState
+        )
+
+        ToastMessage(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            showToast = showEnterChatRoomState,
+            showMessage = isEnterChatRoomState,
+            message = "네트워크 연결을 다시 확인해주세요"
+        )
+
+        LoadingView(
+            isLoading = isEnterRoomLoadingViewState
+        )
+
+        ToastMessage(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            showToast = showWithdrawMembershipNetworkErrorState,
+            showMessage = isWithdrawMembershipNetworkErrorState,
+            message = "네트워크 연결을 다시 확인해주세요"
+        )
+
+        LoadingView(
+            isLoading = isWithdrawMembershipLoadingViewState
+        )
+
+        ToastMessage(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            showToast = showDeleteChatRoomNetworkErrorState,
+            showMessage = isDeleteChatRoomNetworkErrorState,
+            message = "네트워크 연결을 다시 확인해주세요"
+        )
+
+        LoadingView(
+            isLoading = isDeleteChatRoomLoadingViewState
+        )
+
+        ToastMessage(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            showToast = showAllChatRoomListNetworkErrorState,
+            showMessage = isAllChatRoomListNetworkErrorState,
+            message = "네트워크 연결을 다시 확인해주세요"
+        )
+
+        LoadingView(
+            isLoading = isAllChatRoomListLoadingViewState
         )
     }
 }

@@ -52,6 +52,16 @@ class NearByRestaurantsViewModel @Inject constructor(
     private val _showSearchResultCollapse = MutableStateFlow<Boolean>(false)
     val showSearchResultCollapse: StateFlow<Boolean> = _showSearchResultCollapse
 
+    private val _isFamousRestaurantNetworkError = MutableSharedFlow<Boolean>()
+    val isFamousRestaurantNetworkError: SharedFlow<Boolean> =
+        _isFamousRestaurantNetworkError.asSharedFlow()
+
+    private val _showFamousRestaurantNetworkError = MutableStateFlow<Boolean>(false)
+    val showFamousRestaurantNetworkError: StateFlow<Boolean> = _showFamousRestaurantNetworkError
+
+    private val _isFamousRestaurantLoading = MutableStateFlow<Boolean>(false)
+    val isFamousRestaurantLoading: StateFlow<Boolean> = _isFamousRestaurantLoading
+
     init {
         viewModelScope.launch {
             searchResult.collectLatest { searchResult ->
@@ -75,8 +85,10 @@ class NearByRestaurantsViewModel @Inject constructor(
         viewModelScope.launch {
             famousRestaurantRepository.getSearchResult(query,
                 onComplete = {
+                    setFamousRestaurantLoadingState(false)
                 },
                 onError = {
+                    toggleEnterChatRoomToggle()
                 }
             ).collectLatest { response ->
                 if (response is ApiResultSuccess) {
@@ -108,5 +120,16 @@ class NearByRestaurantsViewModel @Inject constructor(
             _searchResultCollapse.emit(true)
             _showSearchResultCollapse.value = !_showSearchResultCollapse.value
         }
+    }
+
+    private fun toggleEnterChatRoomToggle() {
+        viewModelScope.launch {
+            _isFamousRestaurantNetworkError.emit(true)
+            _showFamousRestaurantNetworkError.value = !_showFamousRestaurantNetworkError.value
+        }
+    }
+
+    fun setFamousRestaurantLoadingState(isLoading: Boolean) {
+        _isFamousRestaurantLoading.value = isLoading
     }
 }

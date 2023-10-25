@@ -110,58 +110,6 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
         onComplete()
     }.flowOn(defaultDispatcher)
 
-    override fun getChatRoomItem(
-        onComplete: () -> Unit,
-        onError: (message: String?) -> Unit,
-        postId: String,
-        onChatRoomItem: (ChatRoom?) -> Unit
-    ) {
-        try {
-            groupChatsRef.child(postId)
-                .addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(dataSnapshot: DataSnapshot) {
-                        val chatRoomData = dataSnapshot.getValue(ChatRoom::class.java)
-                        val chatRoomItem = chatRoomData?.copy(postId = postId)
-                        onChatRoomItem(chatRoomItem)
-                    }
-
-                    override fun onCancelled(databaseError: DatabaseError) {
-                        onChatRoomItem(null)
-                    }
-                })
-        } catch (e: Exception) {
-            onChatRoomItem(null)
-        }
-    }
-
-    override fun getAllChatRoomItem(
-        onComplete: () -> Unit,
-        onError: (message: String?) -> Unit,
-        onChatRoomItemList: (List<ChatRoom>?) -> Unit
-    ) {
-        try {
-            groupChatsRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val chatRoomList = mutableListOf<ChatRoom>()
-                    for (childSnapshot in snapshot.children) {
-                        val chatRoomData = childSnapshot.getValue(ChatRoom::class.java)
-                        chatRoomData?.let {
-                            chatRoomList.add(it)
-                        }
-                    }
-                    onChatRoomItemList(chatRoomList)
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    onChatRoomItemList(null)
-                }
-            })
-
-        } catch (e: Exception) {
-            onChatRoomItemList(null)
-        }
-    }
-
     override fun leaveChatRoom(
         onComplete: () -> Unit,
         onError: (message: String?) -> Unit,
@@ -205,6 +153,8 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
     }.flowOn(defaultDispatcher)
 
     override fun deleteAllChatRoomsForUserID(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
         userIdToDelete: String,
         postIdsToDelete: Set<String>,
         response: (Unit?) -> Unit
@@ -238,27 +188,36 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
                         } else {
                             modifiedChatRoom
                         }
-                    }.filterNotNull().filter { it.postId in postIdsToDelete }
+                    }.filterNotNull().filter { it.postId !in postIdsToDelete }
 
-                    groupChatsRef.setValue(modifiedChatRooms).addOnSuccessListener {
-                        response(Unit)
-                    }.addOnCanceledListener  {
-                        response(null)
+                    groupChatsRef.removeValue()
+
+                    for (chatRoom in modifiedChatRooms) {
+                        val chatRoomPostId = chatRoom.postId
+                        groupChatsRef.child(chatRoomPostId.toString()).setValue(chatRoom).addOnSuccessListener {
+                            response(Unit)
+                            onComplete()
+                        }.addOnCanceledListener {
+                            response(null)
+                        }
                     }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
                     response(null)
+                    onError(null)
                 }
             })
 
-
         } catch (e: Exception) {
             response(null)
+            onError(null)
         }
     }
 
     override fun addChatDetailEventListener(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
         postId: String,
         onChatItemAdded: (ChatItem) -> Unit
     ): ChildEventListener {
@@ -269,6 +228,7 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
 
                 val chatItem = messageData?.copy(chatId = chatId)
                 chatItem?.let { onChatItemAdded(it) }
+                onComplete()
             }
 
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
@@ -281,6 +241,7 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
             }
 
             override fun onCancelled(error: DatabaseError) {
+                onError(null)
             }
 
         }
@@ -306,11 +267,11 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
 
         val chatRoomsEventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                onComplete()
                 val chatRoomList = snapshot.children.mapNotNull {
                     it.getValue(ChatRoom::class.java)
                 }
                 onChatRoomItemAdded(chatRoomList)
+                onComplete()
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -334,9 +295,9 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
     ): ValueEventListener {
         val chatRoomsEventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                onComplete()
                 val chatRoom = snapshot.getValue(ChatRoom::class.java)
                 onChatRoomItemAdded(chatRoom)
+                onComplete()
             }
 
             override fun onCancelled(error: DatabaseError) {

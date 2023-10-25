@@ -27,19 +27,6 @@ interface ChatDBApi {
         sendMessageTime: String
     ): Flow<ApiResponse<Unit>>
 
-    fun getChatRoomItem(
-        onComplete: () -> Unit,
-        onError: (message: String?) -> Unit,
-        postId: String,
-        onChatRoomItem: (ChatRoom?) -> Unit
-    )
-
-    fun getAllChatRoomItem(
-        onComplete: () -> Unit,
-        onError: (message: String?) -> Unit,
-        onChatRoomItemList: (List<ChatRoom>?) -> Unit
-    )
-
     fun leaveChatRoom(
         onComplete: () -> Unit,
         onError: (message: String?) -> Unit,
@@ -55,12 +42,16 @@ interface ChatDBApi {
     ): Flow<ApiResponse<Unit>>
 
     fun deleteAllChatRoomsForUserID(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
         userIdToDelete: String,
         postIdsToDelete: Set<String>,
         response: (Unit?) -> Unit
     )
 
     fun addChatDetailEventListener(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
         postId: String,
         onChatItemAdded: (ChatItem) -> Unit
     ): ChildEventListener

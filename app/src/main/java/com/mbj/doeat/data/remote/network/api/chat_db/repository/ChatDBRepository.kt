@@ -47,32 +47,6 @@ class ChatDBRepository @Inject constructor(private val chatDBDataSource: ChatDBD
         )
     }
 
-    override fun getChatRoomItem(
-        onComplete: () -> Unit,
-        onError: (message: String?) -> Unit,
-        postId: String,
-        onChatRoomItem: (ChatRoom?) -> Unit
-    ) {
-        return chatDBDataSource.getChatRoomItem(
-            onComplete,
-            onError,
-            postId,
-            onChatRoomItem
-        )
-    }
-
-    override fun getAllChatRoomItem(
-        onComplete: () -> Unit,
-        onError: (message: String?) -> Unit,
-        onChatRoomItemList: (List<ChatRoom>?) -> Unit
-    ) {
-        return chatDBDataSource.getAllChatRoomItem(
-            onComplete,
-            onError,
-            onChatRoomItemList
-        )
-    }
-
     override fun leaveChatRoom(
         onComplete: () -> Unit,
         onError: (message: String?) -> Unit,
@@ -102,11 +76,15 @@ class ChatDBRepository @Inject constructor(private val chatDBDataSource: ChatDBD
     }
 
     override fun deleteAllChatRoomsForUserID(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
         userIdToDelete: String,
         postIdsToDelete: Set<String>,
         response: (Unit?) -> Unit
     ) {
         return chatDBDataSource.deleteAllChatRoomsForUserID(
+            onComplete,
+            onError,
             userIdToDelete,
             postIdsToDelete,
             response
@@ -114,10 +92,14 @@ class ChatDBRepository @Inject constructor(private val chatDBDataSource: ChatDBD
     }
 
     override fun addChatDetailEventListener(
+        onComplete: () -> Unit,
+        onError: (message: String?) -> Unit,
         postId: String,
         onChatItemAdded: (ChatItem) -> Unit
     ): ChildEventListener {
         return chatDBDataSource.addChatDetailEventListener(
+            onComplete,
+            onError,
             postId,
             onChatItemAdded
         )

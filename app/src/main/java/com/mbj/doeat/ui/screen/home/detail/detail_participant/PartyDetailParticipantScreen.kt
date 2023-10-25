@@ -24,6 +24,7 @@ import com.mbj.doeat.ui.component.party.PartyDetailContent
 import com.mbj.doeat.ui.component.webview.ReusableWebView
 import com.mbj.doeat.ui.component.button.BackButton
 import com.mbj.doeat.ui.component.button.LongRectangleButtonWithParams
+import com.mbj.doeat.ui.component.loading.LoadingView
 import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.screen.home.detail.detail_participant.viewmodel.PartyDetailParticipantViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
@@ -43,6 +44,11 @@ fun PartyDetailParticipantScreen(
     val chatRoomItem by viewModel.chatRoomItem.collectAsStateWithLifecycle()
     val showEnterChatRoomState by viewModel.showEnterChatRoom.collectAsStateWithLifecycle()
     val isEnterChatRoomState by viewModel.isEnterChatRoom.collectAsStateWithLifecycle(initialValue = false)
+    val enterRoomErrorMessageState by viewModel.enterRoomErrorMessage.collectAsStateWithLifecycle()
+    val isEnterRoomLoadingViewState by viewModel.isEnterRoomLoadingView.collectAsStateWithLifecycle()
+    val isChatRoomListNetworkErrorState by viewModel.isChatRoomListNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showChatRoomListNetworkErrorState by viewModel.showChatRoomListNetworkError.collectAsStateWithLifecycle()
+    val isChatRoomListLoadingViewState by viewModel.isChatRoomListLoadingView.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = {
@@ -96,7 +102,24 @@ fun PartyDetailParticipantScreen(
                     .align(Alignment.Center),
                 showToast = showEnterChatRoomState,
                 showMessage = isEnterChatRoomState,
-                message = "현재 인원이 꽉 찼습니다."
+                message = enterRoomErrorMessageState
+            )
+
+            ToastMessage(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.Center),
+                showToast = showChatRoomListNetworkErrorState,
+                showMessage = isChatRoomListNetworkErrorState,
+                message = "네트워크 연결을 다시 확인해주세요"
+            )
+
+            LoadingView(
+                isLoading = isEnterRoomLoadingViewState
+            )
+
+            LoadingView(
+                isLoading = isChatRoomListLoadingViewState
             )
         }
     }

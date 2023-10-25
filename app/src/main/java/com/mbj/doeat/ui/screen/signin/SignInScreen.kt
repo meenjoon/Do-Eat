@@ -39,6 +39,7 @@ import com.kakao.sdk.user.UserApiClient
 import com.mbj.doeat.R
 import com.mbj.doeat.data.remote.model.LoginRequest
 import com.mbj.doeat.ui.component.loading.LoadingView
+import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.screen.signin.viewmodel.SignInViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 
@@ -53,6 +54,8 @@ fun SignInScreen(
 
     val isAutoLogin by viewModel.isAutoLoginState.collectAsStateWithLifecycle()
     val isLoadingView by viewModel.isLoadingView.collectAsStateWithLifecycle()
+    val showNetworkErrorState by viewModel.showNetworkError.collectAsStateWithLifecycle()
+    val isNetworkErrorState by viewModel.isNetworkError.collectAsStateWithLifecycle(initialValue = false)
 
     val kakaoCallback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
         viewModel.setLoadingState(true)
@@ -137,6 +140,15 @@ fun SignInScreen(
 
         LoadingView(
             isLoading = isLoadingView,
+        )
+
+        ToastMessage(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            showToast = showNetworkErrorState,
+            showMessage = isNetworkErrorState,
+            message = "네트워크 연결을 다시 확인해주세요."
         )
     }
 }

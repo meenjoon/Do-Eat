@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -20,6 +21,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mbj.doeat.ui.component.chat.ChatRoomContent
+import com.mbj.doeat.ui.component.loading.LoadingView
+import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.screen.home.chat_room.viewmodel.ChatRoomViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.NormalColorInverted
 
@@ -30,6 +33,12 @@ fun ChatRoomScreen(name: String, navController: NavHostController, onClick: () -
 
     val myChatRoomListState by viewModel.myChatRoomList.collectAsStateWithLifecycle()
     val userListState by viewModel.userList.collectAsStateWithLifecycle()
+    val isChatRoomListNetworkErrorState by viewModel.isChatRoomListNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showChatRoomListNetworkErrorState by viewModel.showChatRoomListNetworkError.collectAsStateWithLifecycle()
+    val isChatRoomListLoadingViewState by viewModel.isChatRoomListLoadingView.collectAsStateWithLifecycle()
+    val isUserListNetworkErrorState by viewModel.isUserListNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showUserListNetworkErrorState by viewModel.showUserListNetworkError.collectAsStateWithLifecycle()
+    val isUserListLoadingViewState by viewModel.isUserListLoadingView.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -67,5 +76,31 @@ fun ChatRoomScreen(name: String, navController: NavHostController, onClick: () -
                 }
             }
         }
+
+        ToastMessage(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            showToast = showChatRoomListNetworkErrorState,
+            showMessage = isChatRoomListNetworkErrorState,
+            message = "네트워크 연결을 다시 확인해주세요"
+        )
+
+        LoadingView(
+            isLoading = isChatRoomListLoadingViewState
+        )
+
+        ToastMessage(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            showToast = showUserListNetworkErrorState,
+            showMessage = isUserListNetworkErrorState,
+            message = "네트워크 연결을 다시 확인해주세요"
+        )
+
+        LoadingView(
+            isLoading = isUserListLoadingViewState
+        )
     }
 }

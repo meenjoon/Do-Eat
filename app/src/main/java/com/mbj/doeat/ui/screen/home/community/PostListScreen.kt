@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.mbj.doeat.ui.component.loading.LoadingView
 import com.mbj.doeat.ui.component.party.HomeDetailPartyContent
 import com.mbj.doeat.ui.component.searchbar.SearchAppBar
 import com.mbj.doeat.ui.component.toast.ToastMessage
@@ -36,6 +37,14 @@ fun PostListScreen(name: String, navController: NavHostController, onClick: () -
     val chatRoomItemListState by viewModel.chatRoomItemList.collectAsStateWithLifecycle()
     val showEnterChatRoomState by viewModel.showEnterChatRoom.collectAsStateWithLifecycle()
     val isEnterChatRoomState by viewModel.isEnterChatRoom.collectAsStateWithLifecycle(initialValue = false)
+    val isPartyListNetworkErrorState by viewModel.isPartyListNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showPartyListNetworkErrorState by viewModel.showPartyListNetworkError.collectAsStateWithLifecycle()
+    val isPartyListLoadingViewState by viewModel.isPartyListLoadingView.collectAsStateWithLifecycle()
+    val isChatRoomListNetworkErrorState by viewModel.isChatRoomListNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val showChatRoomListNetworkErrorState by viewModel.showChatRoomListNetworkError.collectAsStateWithLifecycle()
+    val isChatRoomListLoadingViewState by viewModel.isChatRoomListLoadingView.collectAsStateWithLifecycle()
+    val enterRoomErrorMessageState by viewModel.enterRoomErrorMessage.collectAsStateWithLifecycle()
+    val isEnterRoomLoadingViewState by viewModel.isEnterRoomLoadingView.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -93,7 +102,37 @@ fun PostListScreen(name: String, navController: NavHostController, onClick: () -
                 .align(Alignment.Center),
             showToast = showEnterChatRoomState,
             showMessage = isEnterChatRoomState,
-            message = "현재 인원이 꽉 찼습니다."
+            message = enterRoomErrorMessageState
+        )
+
+        ToastMessage(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            showToast = showPartyListNetworkErrorState,
+            showMessage = isPartyListNetworkErrorState,
+            message = "네트워크 연결을 다시 확인해주세요"
+        )
+
+        LoadingView(
+            isLoading = isPartyListLoadingViewState
+        )
+
+        ToastMessage(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            showToast = showChatRoomListNetworkErrorState,
+            showMessage = isChatRoomListNetworkErrorState,
+            message = "네트워크 연결을 다시 확인해주세요"
+        )
+
+        LoadingView(
+            isLoading = isChatRoomListLoadingViewState
+        )
+
+        LoadingView(
+            isLoading = isEnterRoomLoadingViewState
         )
     }
 }

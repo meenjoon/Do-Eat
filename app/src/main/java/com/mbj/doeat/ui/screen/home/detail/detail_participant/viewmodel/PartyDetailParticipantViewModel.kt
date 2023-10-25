@@ -23,8 +23,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepository: ChatDBRepository) :
-    ViewModel() {
+class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepository: ChatDBRepository) : ViewModel() {
 
     private val _partyItem = MutableStateFlow<Party?>(null)
     val partyItem: StateFlow<Party?> = _partyItem
@@ -38,6 +37,21 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
     private val _showEnterChatRoom = MutableStateFlow<Boolean>(false)
     val showEnterChatRoom: StateFlow<Boolean> = _showEnterChatRoom
 
+    private val _enterRoomErrorMessage = MutableStateFlow<String>("")
+    val enterRoomErrorMessage: StateFlow<String> = _enterRoomErrorMessage
+
+    private val _isEnterRoomLoadingView = MutableStateFlow<Boolean>(false)
+    val isEnterRoomLoadingView: StateFlow<Boolean> = _isEnterRoomLoadingView
+
+    private val _isChatRoomListNetworkError = MutableSharedFlow<Boolean>()
+    val isChatRoomListNetworkError: SharedFlow<Boolean> = _isChatRoomListNetworkError.asSharedFlow()
+
+    private val _showChatRoomListNetworkError = MutableStateFlow<Boolean>(false)
+    val showChatRoomListNetworkError: StateFlow<Boolean> = _showChatRoomListNetworkError
+
+    private val _isChatRoomListLoadingView = MutableStateFlow<Boolean>(false)
+    val isChatRoomListLoadingView: StateFlow<Boolean> = _isChatRoomListLoadingView
+
     private var observeChatRoomChangesListener: ValueEventListener? = null
 
     init {
@@ -50,12 +64,14 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
 
     fun enterChatRoom(navController: NavHostController) {
         viewModelScope.launch {
+            setEnterRoomLoadingState(true)
             val myUserInfo = UserDataStore.getLoginResponse()
 
             val isChatRoomFull = chatRoomItem.value?.members?.size == partyItem.value?.recruitmentLimit
             val isUserInChatRoom = chatRoomItem.value?.members?.any{ it.value.userId == myUserInfo?.userId.toString()}
 
             if (isUserInChatRoom == true) {
+                setEnterRoomLoadingState(false)
                 NavigationUtils.navigate(
                     navController, DetailScreen.ChatDetail.navigateWithArg(
                         partyItem.value?.postId.toString()
@@ -63,8 +79,12 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
                 )
             } else if (!isChatRoomFull){
                 chatDBRepository.enterChatRoom(
-                    onComplete = { },
-                    onError = { },
+                    onComplete = {
+                        setEnterRoomLoadingState(false)
+                    },
+                    onError = {
+                        toggleEnterChatRoomStateToggle("네트워크 연결을 다시 확인해주세요")
+                    },
                     postId = partyItem.value?.postId.toString(),
                     postUserId = partyItem.value?.userId.toString(),
                     myUserId = myUserInfo?.userId.toString(),
@@ -80,7 +100,8 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
                     }
                 }
             } else if (isChatRoomFull) {
-                toggleEnterChatRoomToggle()
+                setEnterRoomLoadingState(false)
+                toggleEnterChatRoomStateToggle("현재 인원이 꽉 찼습니다.")
             }
         }
     }
@@ -89,10 +110,15 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
         viewModelScope.launch {
             partyItem.collectLatest { partyItem ->
                 if (partyItem !=  null) {
+                    setChatRoomListLoadingState(true)
                     observeChatRoomChangesListener =
                         chatDBRepository.addChatRoomsEventListener(
-                            onComplete = { },
-                            onError = { },
+                            onComplete = {
+                                setChatRoomListLoadingState(false)
+                            },
+                            onError = {
+                                toggleChatRoomListNetworkErrorToggle()
+                            },
                             partyItem.postId.toString()
                         ) { chatRoom ->
                             _chatRoomItem.value = chatRoom
@@ -108,11 +134,27 @@ class PartyDetailParticipantViewModel @Inject constructor(private val chatDBRepo
         }
     }
 
-    private fun toggleEnterChatRoomToggle() {
+    private fun toggleEnterChatRoomStateToggle(errorMessage: String) {
         viewModelScope.launch {
             _isEnterChatRoom.emit(true)
             _showEnterChatRoom.value = !showEnterChatRoom.value
+            _enterRoomErrorMessage.value = errorMessage
         }
+    }
+
+    private fun setEnterRoomLoadingState(isLoading: Boolean) {
+        _isEnterRoomLoadingView.value = isLoading
+    }
+
+    private fun toggleChatRoomListNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isChatRoomListNetworkError.emit(true)
+            _showChatRoomListNetworkError.value = !showChatRoomListNetworkError.value
+        }
+    }
+
+    private fun setChatRoomListLoadingState(isLoading: Boolean) {
+        _isChatRoomListLoadingView.value = isLoading
     }
 
     override fun onCleared() {

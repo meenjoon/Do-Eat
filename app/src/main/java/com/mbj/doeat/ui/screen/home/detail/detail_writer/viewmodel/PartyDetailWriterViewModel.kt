@@ -16,8 +16,11 @@ import com.mbj.doeat.util.DateUtils
 import com.mbj.doeat.util.NavigationUtils
 import com.mbj.doeat.util.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,8 +40,41 @@ class PartyDetailWriterViewModel @Inject constructor(
     private val _showDeletePartyDialog = MutableStateFlow<Boolean>(false)
     val showDeletePartyDialog: StateFlow<Boolean> = _showDeletePartyDialog
 
-    private val _isLoadingView = MutableStateFlow<Boolean>(false)
-    val isLoadingView: StateFlow<Boolean> = _isLoadingView
+    private val _isDeletePartyLoadingView = MutableStateFlow<Boolean>(false)
+    val isDeletePartyLoadingView: StateFlow<Boolean> = _isDeletePartyLoadingView
+
+    private val _isDeletePartyNetworkError = MutableSharedFlow<Boolean>()
+    val isDeletePartyNetworkError: SharedFlow<Boolean> = _isDeletePartyNetworkError.asSharedFlow()
+
+    private val _showDeletePartyListNetworkError = MutableStateFlow<Boolean>(false)
+    val showDeletePartyListNetworkError: StateFlow<Boolean> = _showDeletePartyListNetworkError
+
+    private val _isEnterChatRoom = MutableSharedFlow<Boolean>()
+    val isEnterChatRoom: SharedFlow<Boolean> = _isEnterChatRoom.asSharedFlow()
+
+    private val _showEnterChatRoom = MutableStateFlow<Boolean>(false)
+    val showEnterChatRoom: StateFlow<Boolean> = _showEnterChatRoom
+
+    private val _isEnterRoomLoadingView = MutableStateFlow<Boolean>(false)
+    val isEnterRoomLoadingView: StateFlow<Boolean> = _isEnterRoomLoadingView
+
+    private val _isDeleteChatRoomLoadingView = MutableStateFlow<Boolean>(false)
+    val isDeleteChatRoomLoadingView: StateFlow<Boolean> = _isDeleteChatRoomLoadingView
+
+    private val _isDeleteChatRoomNetworkError = MutableSharedFlow<Boolean>()
+    val isDeleteChatRoomNetworkError: SharedFlow<Boolean> = _isDeleteChatRoomNetworkError.asSharedFlow()
+
+    private val _showDeleteChatRoomNetworkError = MutableStateFlow<Boolean>(false)
+    val showDeleteChatRoomNetworkError: StateFlow<Boolean> = _showDeleteChatRoomNetworkError
+
+    private val _isChatRoomListLoadingView = MutableStateFlow<Boolean>(false)
+    val isChatRoomListLoadingView: StateFlow<Boolean> = _isChatRoomListLoadingView
+
+    private val _isChatRoomListNetworkError = MutableSharedFlow<Boolean>()
+    val isChatRoomListNetworkError: SharedFlow<Boolean> = _isChatRoomListNetworkError.asSharedFlow()
+
+    private val _showChatRoomListNetworkError = MutableStateFlow<Boolean>(false)
+    val showChatRoomListNetworkError: StateFlow<Boolean> = _showChatRoomListNetworkError
 
     private var observeChatRoomChangesListener: ValueEventListener? = null
 
@@ -56,11 +92,14 @@ class PartyDetailWriterViewModel @Inject constructor(
 
     fun enterChatRoom(navController: NavHostController) {
         viewModelScope.launch {
+            setEnterRoomLoadingState(true)
             val myUserInfo = UserDataStore.getLoginResponse()
 
-            val isUserInChatRoom = chatRoomItem.value?.members?.any { it.value.userId == myUserInfo?.userId.toString() }
+            val isUserInChatRoom =
+                chatRoomItem.value?.members?.any { it.value.userId == myUserInfo?.userId.toString() }
 
             if (isUserInChatRoom == true) {
+                setEnterRoomLoadingState(false)
                 NavigationUtils.navigate(
                     navController, DetailScreen.ChatDetail.navigateWithArg(
                         partyItem.value?.postId.toString()
@@ -68,8 +107,12 @@ class PartyDetailWriterViewModel @Inject constructor(
                 )
             } else {
                 chatDBRepository.enterChatRoom(
-                    onComplete = { },
-                    onError = { },
+                    onComplete = {
+                        setEnterRoomLoadingState(false)
+                    },
+                    onError = {
+                        toggleEnterChatRoomStateToggle()
+                    },
                     postId = partyItem.value?.postId.toString(),
                     postUserId = partyItem.value?.userId.toString(),
                     myUserId = myUserInfo?.userId.toString(),
@@ -89,12 +132,16 @@ class PartyDetailWriterViewModel @Inject constructor(
     }
 
     fun deleteParty(navHostController: NavHostController) {
-        setLoadingState(true)
+        setDeletePartyLoadingState(true)
         viewModelScope.launch {
             defaultDBRepository.deleteParty(
                 PartyPostIdRequestDto(partyItem.value?.postId!!),
-                onComplete = { },
-                onError = { }
+                onComplete = {
+                    setDeletePartyLoadingState(false)
+                },
+                onError = {
+                    toggleDeletePartyNetworkErrorToggle()
+                }
             ).collectLatest { response ->
                 if (response is ApiResultSuccess) {
                     deleteChatRoom(
@@ -108,9 +155,14 @@ class PartyDetailWriterViewModel @Inject constructor(
 
     private fun deleteChatRoom(postId: String, navHostController: NavHostController) {
         viewModelScope.launch {
+            setDeleteChatRoomLoadingState(true)
             chatDBRepository.deleteChatRoom(
-                onComplete = { },
-                onError = { },
+                onComplete = {
+                    setDeleteChatRoomLoadingState(false)
+                },
+                onError = {
+                    toggleDeleteChatRoomNetworkErrorToggle()
+                },
                 postId = postId
             ).collectLatest { response ->
                 if (response is ApiResultSuccess) {
@@ -128,10 +180,15 @@ class PartyDetailWriterViewModel @Inject constructor(
         viewModelScope.launch {
             partyItem.collectLatest { partyItem ->
                 if (partyItem != null) {
+                    setChatRoomListLoadingState(true)
                     observeChatRoomChangesListener =
                         chatDBRepository.addChatRoomsEventListener(
-                            onComplete = { },
-                            onError = { },
+                            onComplete = {
+                                setChatRoomListLoadingState(false)
+                            },
+                            onError = {
+                                toggleChatRoomListNetworkErrorToggle()
+                            },
                             partyItem.postId.toString()
                         ) { chatRoom ->
                             _chatRoomItem.value = chatRoom
@@ -147,8 +204,48 @@ class PartyDetailWriterViewModel @Inject constructor(
         }
     }
 
-    private fun setLoadingState(isLoading: Boolean) {
-        _isLoadingView.value = isLoading
+    private fun setDeletePartyLoadingState(isLoading: Boolean) {
+        _isDeletePartyLoadingView.value = isLoading
+    }
+
+    private fun toggleEnterChatRoomStateToggle() {
+        viewModelScope.launch {
+            _isEnterChatRoom.emit(true)
+            _showEnterChatRoom.value = !showEnterChatRoom.value
+        }
+    }
+
+    private fun setEnterRoomLoadingState(isLoading: Boolean) {
+        _isEnterRoomLoadingView.value = isLoading
+    }
+
+    private fun toggleDeletePartyNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isDeletePartyNetworkError.emit(true)
+            _showDeletePartyListNetworkError.value = !showDeletePartyListNetworkError.value
+        }
+    }
+
+    private fun setDeleteChatRoomLoadingState(isLoading: Boolean) {
+        _isDeleteChatRoomLoadingView.value = isLoading
+    }
+
+    private fun toggleDeleteChatRoomNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isDeleteChatRoomNetworkError.emit(true)
+            _showDeleteChatRoomNetworkError.value = !showDeleteChatRoomNetworkError.value
+        }
+    }
+
+    private fun setChatRoomListLoadingState(isLoading: Boolean) {
+        _isChatRoomListLoadingView.value = isLoading
+    }
+
+    private fun toggleChatRoomListNetworkErrorToggle() {
+        viewModelScope.launch {
+            _isChatRoomListNetworkError.emit(true)
+            _showChatRoomListNetworkError.value = !showChatRoomListNetworkError.value
+        }
     }
 
     override fun onCleared() {
