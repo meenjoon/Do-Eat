@@ -77,7 +77,6 @@ class SignInViewModel @Inject constructor(
                     }
                 } else {
                     setLoadingState(false)
-                    toggleNetworkErrorToggle()
                 }
             }
         }
