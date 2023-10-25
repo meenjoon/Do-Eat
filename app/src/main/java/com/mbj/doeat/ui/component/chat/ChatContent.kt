@@ -36,10 +36,9 @@ fun ChatContent(
     chat: ChatItem,
     chatRoom: ChatRoom?,
 ) {
-
-    val myId = UserDataStore.getLoginResponse()?.userId
-    val isOther = chat.userId != myId
-    val isMaster = chatRoom?.members?.any { it.value.guest == false }
+    val myUserId = UserDataStore.getLoginResponse()?.userId
+    val isOther = chat.userId != myUserId
+    val isMaster = chatRoom?.members?.values?.firstOrNull { it.userId == chat.userId.toString() }?.guest == false
 
     Row(
         modifier = Modifier.wrapContentSize(),
