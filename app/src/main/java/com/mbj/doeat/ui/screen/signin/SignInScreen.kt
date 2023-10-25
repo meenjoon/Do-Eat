@@ -5,11 +5,11 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -79,10 +79,20 @@ fun SignInScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 로그인 버튼
+            Spacer(modifier = Modifier.fillMaxHeight(0.2f))
+
+            Image(
+                painter = painterResource(id = R.drawable.logo_icon),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxHeight(0.3f)
+            )
+
+            Spacer(modifier = Modifier.fillMaxHeight(0.1f))
+
             Box(
                 modifier = Modifier
                     .width(200.dp)
@@ -117,7 +127,6 @@ fun SignInScreen(
                 }
             }
 
-            // 자동 로그인 체크 박스
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(8.dp)
