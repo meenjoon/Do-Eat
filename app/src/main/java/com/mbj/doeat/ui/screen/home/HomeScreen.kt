@@ -38,7 +38,6 @@ fun BottomBar(navController: NavHostController) {
         BottomBarScreen.NearbyRestaurants,
         BottomBarScreen.ChatRoom,
         BottomBarScreen.Community,
-        BottomBarScreen.MenuRecommendation,
         BottomBarScreen.Setting,
     )
     val navBackStackEntry by navController.currentBackStackEntryAsState()
