@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Text
@@ -17,9 +18,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mbj.doeat.ui.theme.Color.Companion.Beige50
-import com.mbj.doeat.ui.theme.Color.Companion.Pink500
-import com.mbj.doeat.ui.theme.Color.Companion.Remon400
+import com.mbj.doeat.ui.theme.Color.Companion.DialogColor
+import com.mbj.doeat.ui.theme.Color.Companion.NegativeButtonColor
+import com.mbj.doeat.ui.theme.Color.Companion.NormalColor
+import com.mbj.doeat.ui.theme.Color.Companion.PositiveButtonColor
 import com.mbj.doeat.ui.theme.DoEatTheme
 
 
@@ -66,15 +68,15 @@ fun YesNoDialog(
                             onYesClick()
                         },
                         modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth(0.4f)
+                            .padding(bottom = 16.dp)
                             .height(50.dp)
-                            .background(Remon400, shape = RoundedCornerShape(16.dp))
+                            .width(90.dp)
+                            .background(PositiveButtonColor, shape = RoundedCornerShape(16.dp))
                     ) {
                         Text(
                             text = confirmButtonMessage,
-                            color = Color.Black,
-                            fontSize = 16.sp,
+                            color = NormalColor,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -84,22 +86,22 @@ fun YesNoDialog(
                                   onNoClick()
                         },
                         modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth(0.4f)
+                            .padding(bottom = 16.dp)
                             .height(50.dp)
-                            .background(Pink500, shape = RoundedCornerShape(16.dp))
+                            .width(90.dp)
+                            .background(NegativeButtonColor, shape = RoundedCornerShape(16.dp))
                     ) {
                         Text(
                             text = dismissButtonMessage,
-                            color = Color.Black,
-                            fontSize = 16.sp,
+                            color = NormalColor,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
                 }
             },
             shape = RoundedCornerShape(16.dp),
-            backgroundColor = Beige50
+            backgroundColor = DialogColor
         )
     }
 }

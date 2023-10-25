@@ -57,7 +57,8 @@ import com.mbj.doeat.ui.screen.home.detail.detail_home.viewmodel.DetailViewModel
 import com.mbj.doeat.ui.theme.Color.Companion.Gray200
 import com.mbj.doeat.ui.theme.Color.Companion.NormalColor
 import com.mbj.doeat.ui.theme.Color.Companion.NormalColorInverted
-import com.mbj.doeat.ui.theme.Color.Companion.Remon400
+import com.mbj.doeat.ui.theme.Color.Companion.Lemon400
+import com.mbj.doeat.ui.theme.Color.Companion.NormalButtonColor
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -72,7 +73,9 @@ fun DetailScreen(searchItem: SearchItem, navController: NavHostController, onCli
     val isBottomSheetExpandedState by viewModel.isBottomSheetExpanded.collectAsStateWithLifecycle()
     val showCreatePartyDialogState by viewModel.showCreatePartyDialog.collectAsStateWithLifecycle()
     val chatRoomItemListState by viewModel.chatRoomItemList.collectAsStateWithLifecycle()
-    val isPartyListNetworkErrorState by viewModel.isPartyListNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val isPartyListNetworkErrorState by viewModel.isPartyListNetworkError.collectAsStateWithLifecycle(
+        initialValue = false
+    )
     val showPartyListNetworkErrorState by viewModel.showPartyListNetworkError.collectAsStateWithLifecycle()
     val isPartyListLoadingViewState by viewModel.isPartyListLoadingView.collectAsStateWithLifecycle()
     val isEnterRoomLoadingViewState by viewModel.isEnterRoomLoadingView.collectAsStateWithLifecycle()
@@ -175,8 +178,12 @@ fun DetailContent(
     val errorValidRecruitmentCountState by viewModel.errorValidRecruitmentCount.collectAsStateWithLifecycle()
     val showEnterChatRoomState by viewModel.showEnterChatRoom.collectAsStateWithLifecycle()
     val isEnterChatRoomState by viewModel.isEnterChatRoom.collectAsStateWithLifecycle(initialValue = false)
-    val isValidRecruitmentCountState by viewModel.isValidRecruitmentCount.collectAsStateWithLifecycle(initialValue = false)
-    val isPostPartyNetworkErrorState by viewModel.isPostPartyNetworkError.collectAsStateWithLifecycle(initialValue = false)
+    val isValidRecruitmentCountState by viewModel.isValidRecruitmentCount.collectAsStateWithLifecycle(
+        initialValue = false
+    )
+    val isPostPartyNetworkErrorState by viewModel.isPostPartyNetworkError.collectAsStateWithLifecycle(
+        initialValue = false
+    )
     val showPostPartyNetworkErrorState by viewModel.showPostPartyNetworkError.collectAsStateWithLifecycle()
     val enterRoomErrorMessageState by viewModel.enterRoomErrorMessage.collectAsStateWithLifecycle()
 
@@ -336,8 +343,8 @@ fun CreatePartyButton(onClick: () -> Unit) {
             start = 15.dp,
             end = 15.dp
         ),
-        backgroundColor = Remon400,
-        contentColor = Color.Black,
+        backgroundColor = NormalButtonColor,
+        contentColor = NormalColor,
         shape = RoundedCornerShape(12.dp),
         onClick = onClick
     )
@@ -481,7 +488,7 @@ fun DetailBottomSheet(
                 start = 15.dp,
                 end = 15.dp
             ),
-            backgroundColor = Remon400,
+            backgroundColor = Lemon400,
             contentColor = Color.Black,
             shape = RoundedCornerShape(12.dp)
         ) {

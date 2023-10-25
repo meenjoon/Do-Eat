@@ -27,7 +27,8 @@ import com.mbj.doeat.ui.component.button.LongRectangleButtonWithParams
 import com.mbj.doeat.ui.component.loading.LoadingView
 import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.screen.home.detail.detail_participant.viewmodel.PartyDetailParticipantViewModel
-import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
+import com.mbj.doeat.ui.theme.Color.Companion.NormalButtonColor
+import com.mbj.doeat.ui.theme.Color.Companion.NormalColor
 import com.mbj.doeat.ui.theme.button1
 
 @Composable
@@ -60,12 +61,12 @@ fun PartyDetailParticipantScreen(
                 backgroundColor = if (chatRoomItem?.members?.count() == party.recruitmentLimit) {
                     Color.Red
                 } else {
-                    Yellow700
+                    NormalButtonColor
                 },
                 contentColor = if (chatRoomItem?.members?.count() == party.recruitmentLimit) {
                     Color.White
                 } else {
-                    Color.Black
+                    NormalColor
                 },
                 textStyle = MaterialTheme.typography.button1
             ) {

@@ -1,5 +1,6 @@
 package com.mbj.doeat.ui.graph
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -13,6 +14,7 @@ import com.mbj.doeat.ui.screen.home.nearby_restaurants.NearbyRestaurantsScreen
 
 @Composable
 fun HomeNavGraph(
+    padding: PaddingValues,
     navController: NavHostController,
     fusedLocationClient: FusedLocationProviderClient
 ) {

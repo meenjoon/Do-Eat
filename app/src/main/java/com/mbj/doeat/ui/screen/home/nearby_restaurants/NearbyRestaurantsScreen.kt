@@ -71,6 +71,8 @@ import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.graph.DetailScreen
 import com.mbj.doeat.ui.model.SearchWidgetState
 import com.mbj.doeat.ui.screen.home.nearby_restaurants.viewmodel.NearByRestaurantsViewModel
+import com.mbj.doeat.ui.theme.Color.Companion.NormalButtonColor
+import com.mbj.doeat.ui.theme.Color.Companion.NormalColor
 import com.mbj.doeat.ui.theme.Color.Companion.NormalColorInverted
 import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 import com.mbj.doeat.ui.theme.Color.Companion.RandomColors
@@ -168,8 +170,8 @@ fun NearbyRestaurantsScreen(
             MainAppBar(
                 searchWidgetState = searchWidgetState,
                 searchTextState = searchTextState,
-                backgroundColor = Yellow700,
-                contentColor = Color.Black,
+                backgroundColor = NormalButtonColor,
+                contentColor = NormalColor,
                 defaultAppBarText = "맛집 검색",
                 searchAppBarText = "지역을 입력해주세요.",
                 onTextChange = {
@@ -397,8 +399,8 @@ fun MyBottomSheetContentItem(
             height = 40.dp,
             useFillMaxWidth = true,
             padding = PaddingValues(start = 30.dp, end = 30.dp, top = 10.dp, bottom = 10.dp),
-            backgroundColor = Yellow700,
-            contentColor = Color.Black
+            backgroundColor = NormalButtonColor,
+            contentColor = NormalColor
         ) {
             val encodedLink = encodeUrl(searchItem.link)
             val titleWithoutHtmlTags = removeHtmlTags(searchItem.title)

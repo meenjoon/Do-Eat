@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -24,7 +23,8 @@ import com.mbj.doeat.ui.component.party.HomeDetailPartyContent
 import com.mbj.doeat.ui.component.searchbar.SearchAppBar
 import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.screen.home.community.viewModel.PostListViewModel
-import com.mbj.doeat.ui.theme.Color.Companion.Remon400
+import com.mbj.doeat.ui.theme.Color.Companion.NormalButtonColor
+import com.mbj.doeat.ui.theme.Color.Companion.NormalColor
 
 @Composable
 fun PostListScreen(name: String, navController: NavHostController, onClick: () -> Unit) {
@@ -56,8 +56,8 @@ fun PostListScreen(name: String, navController: NavHostController, onClick: () -
                 text = searchFilterTextState,
                 height = 70.dp,
                 leftAndRightPaddingDp = 8.dp,
-                backgroundColor = Remon400,
-                contentColor = Color.Black,
+                backgroundColor = NormalButtonColor,
+                contentColor = NormalColor,
                 searchAppBarText = "파티를 검색해주세요.",
                 roundedCornerShape = RoundedCornerShape(8.dp),
                 onTextChange = { newText ->

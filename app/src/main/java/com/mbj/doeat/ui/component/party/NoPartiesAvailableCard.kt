@@ -18,7 +18,7 @@ fun NoPartiesAvailable(modifier: Modifier = Modifier.size(120.dp)) {
         imageVector = Icons.Default.Close,
         contentDescription = "No parties available",
         modifier = modifier,
-        tint = Color.Red
+        tint = Color(0xFF57443E)
     )
     Text(
         text = "현재 개설된 파티가 없습니다.",
