@@ -73,7 +73,7 @@ fun PartyDetailContent(party: Party?, chatRoom: ChatRoom?) {
             state = scrollState,
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.75f)
+                .fillMaxHeight(0.65f)
                 .border(1.dp, NormalColor, shape = RoundedCornerShape(8.dp))
                 .padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 4.dp)
         ) {
