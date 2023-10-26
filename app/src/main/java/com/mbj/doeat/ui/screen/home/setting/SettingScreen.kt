@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,8 +38,9 @@ import com.mbj.doeat.ui.component.loading.LoadingView
 import com.mbj.doeat.ui.component.party.NoPartiesAvailable
 import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.screen.home.setting.viewmodel.SettingViewModel
-import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
+import com.mbj.doeat.ui.theme.Color.Companion.Brown900
 import com.mbj.doeat.ui.theme.Color.Companion.SettingDividerColor
+import com.mbj.doeat.ui.theme.Color.Companion.SettingScreenColor
 
 @Composable
 fun SettingScreen(name: String, navController: NavHostController, onClick: () -> Unit) {
@@ -120,7 +122,8 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
                     Text(
                         text = "개설",
                         style = MaterialTheme.typography.h5,
-                        color = Yellow700
+                        color = Brown900,
+                        fontWeight = FontWeight.Bold
                     )
                     Text(
                         text = "한 파티",
@@ -193,7 +196,8 @@ fun SettingScreen(name: String, navController: NavHostController, onClick: () ->
                     Text(
                         text = "참가",
                         style = MaterialTheme.typography.h5,
-                        color = Yellow700
+                        color = Brown900,
+                        fontWeight = FontWeight.Bold
                     )
                     Text(
                         text = "한 파티",
@@ -383,7 +387,7 @@ fun UserProfileInfo(userInfo: LoginResponse?) {
 
             Text(
                 text = "님",
-                color = Yellow700,
+                color = SettingScreenColor,
                 fontSize = 20.sp
             )
         }

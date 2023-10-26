@@ -38,7 +38,7 @@ fun ChatRoomContent(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 5.dp, top = 5.dp, bottom = 5.dp)
+            .padding(top = 5.dp, bottom = 5.dp)
             .height(90.dp)
             .clickable {
                 onChatJoinClick()
@@ -46,7 +46,7 @@ fun ChatRoomContent(
         elevation = 4.dp,
     ) {
         Row(
-            modifier = Modifier.padding(start = 8.dp, top = 16.dp, bottom = 16.dp),
+            modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
         ) {
             Box(
                 modifier = Modifier.fillMaxHeight(1f)
@@ -229,7 +229,7 @@ fun ChatRoomContent(
                         chatRoomDetailType = false
                     ),
                     fontSize = 14.sp,
-                    color =  chatListTextColor,
+                    color = chatListTextColor,
                     textAlign = TextAlign.End,
                     modifier = Modifier.fillMaxWidth(0.8f)
                 )
@@ -240,7 +240,7 @@ fun ChatRoomContent(
                         chatRoomDetailType = false
                     ),
                     fontSize = 14.sp,
-                    color =  chatListTextColor,
+                    color = chatListTextColor,
                     textAlign = TextAlign.End,
                     modifier = Modifier.fillMaxWidth(0.8f)
                 )

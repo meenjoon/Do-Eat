@@ -28,8 +28,9 @@ import com.mbj.doeat.ui.component.webview.ReusableWebView
 import com.mbj.doeat.ui.component.dialog.YesNoDialog
 import com.mbj.doeat.ui.component.toast.ToastMessage
 import com.mbj.doeat.ui.screen.home.detail.detail_writer.viewmodel.PartyDetailWriterViewModel
+import com.mbj.doeat.ui.theme.Color.Companion.NormalButtonColor
+import com.mbj.doeat.ui.theme.Color.Companion.NormalColor
 import com.mbj.doeat.ui.theme.Color.Companion.Red500
-import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 import com.mbj.doeat.ui.theme.button1
 
 @Composable
@@ -79,8 +80,8 @@ fun PartyDetailWriterScreen(party: Party, navController: NavHostController, onCl
                     height = 60.dp,
                     useFillMaxWidth = false,
                     padding = PaddingValues(start = 30.dp, end = 30.dp, top = 10.dp, bottom = 10.dp),
-                    backgroundColor = Yellow700,
-                    contentColor = Color.Black,
+                    backgroundColor = NormalButtonColor,
+                    contentColor = NormalColor,
                     textStyle = MaterialTheme.typography.button1
                 ) {
                     viewModel.enterChatRoom(navController)

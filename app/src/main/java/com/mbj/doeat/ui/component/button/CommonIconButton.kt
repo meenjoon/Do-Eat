@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.mbj.doeat.ui.component.image.IconComponentImageVector
+import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 
 @Composable
 fun CommonIconButton(
@@ -20,7 +21,7 @@ fun CommonIconButton(
 ) {
     Box(
         modifier = Modifier
-            .background(Color.Yellow, CircleShape)
+            .background(Yellow700, CircleShape)
             .size(33.dp)
             .clickable { onClick() },
         contentAlignment = Alignment.Center

@@ -12,6 +12,7 @@ import com.mbj.doeat.data.remote.network.adapter.ApiResultSuccess
 import com.mbj.doeat.data.remote.network.api.chat_db.repository.ChatDBRepository
 import com.mbj.doeat.data.remote.network.api.default_db.repository.DefaultDBRepository
 import com.mbj.doeat.util.DateUtils
+import com.mbj.doeat.util.TextUtils.extractMiddleCharacters
 import com.mbj.doeat.util.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -121,7 +122,7 @@ class ChatDetailViewModel @Inject constructor(
                 onError = {
                     toggleSendMessageNetworkErrorToggle()
                 },
-                postId = postId.value.substring(1, postId.value.length - 1),
+                postId = extractMiddleCharacters(postId.value),
                 message = message,
                 sendMessageTime = DateUtils.getCurrentTime(),
             ).collectLatest { }
@@ -139,7 +140,7 @@ class ChatDetailViewModel @Inject constructor(
                         onError = {
                             toggleChatItemListNetworkErrorToggle()
                         },
-                        postId.substring(1, postId.length - 1)
+                        extractMiddleCharacters(postId)
                     ) { chatItem ->
                         val currentList = _chatItemList.value
                         val newList = currentList.toMutableList().apply { add(chatItem) }
@@ -160,7 +161,7 @@ class ChatDetailViewModel @Inject constructor(
                 onError = {
                     toggleLeaveChatRoomNetworkErrorToggle()
                 },
-                postId = postId.value.substring(1, postId.value.length - 1),
+                postId = extractMiddleCharacters(postId.value),
                 inMemberKey = inMemberKey,
                 chatItemList = chatItemList.value
             ).collectLatest { response ->
@@ -173,7 +174,7 @@ class ChatDetailViewModel @Inject constructor(
 
     private fun removeObserveChatChangesListener() {
         chatDBRepository.removeChatDetailEventListener(
-            postId.value.substring(1, postId.value.length - 1),
+            extractMiddleCharacters(postId.value),
             observeChatChangesListener
         )
     }
@@ -191,7 +192,7 @@ class ChatDetailViewModel @Inject constructor(
                             onError = {
                                 toggleChatRoomNetworkErrorToggle()
                             },
-                            postId.substring(1, postId.length - 1)
+                            extractMiddleCharacters(postId)
                         ) { chatRoom ->
                             _chatRoomItem.value = chatRoom
                             getInMemberKey(chatRoom)

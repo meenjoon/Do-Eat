@@ -60,7 +60,7 @@ fun ChatRoomScreen(name: String, navController: NavHostController, onClick: () -
             LazyColumn(
                 Modifier
                     .fillMaxHeight(0.9f)
-                    .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
+                    .padding(8.dp)
             ) {
                 items(
                     items = myChatRoomListState!!,

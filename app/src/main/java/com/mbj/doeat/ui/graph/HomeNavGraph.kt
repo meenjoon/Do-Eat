@@ -1,5 +1,6 @@
 package com.mbj.doeat.ui.graph
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -9,11 +10,11 @@ import com.mbj.doeat.R
 import com.mbj.doeat.ui.screen.home.setting.SettingScreen
 import com.mbj.doeat.ui.screen.home.chat_room.ChatRoomScreen
 import com.mbj.doeat.ui.screen.home.community.PostListScreen
-import com.mbj.doeat.ui.screen.home.menu_recommendation.MenuRecommendationScreen
 import com.mbj.doeat.ui.screen.home.nearby_restaurants.NearbyRestaurantsScreen
 
 @Composable
 fun HomeNavGraph(
+    padding: PaddingValues,
     navController: NavHostController,
     fusedLocationClient: FusedLocationProviderClient
 ) {
@@ -40,12 +41,6 @@ fun HomeNavGraph(
             PostListScreen(
                 name = BottomBarScreen.Community.route,
                 navController = navController,
-                onClick = { }
-            )
-        }
-        composable(route = BottomBarScreen.MenuRecommendation.route) {
-            MenuRecommendationScreen(
-                name = BottomBarScreen.MenuRecommendation.route,
                 onClick = { }
             )
         }
@@ -82,12 +77,6 @@ sealed class BottomBarScreen(
         route = "COMMUNITY",
         title = "파티 모집",
         icon = R.drawable.party_icon
-    )
-
-    object MenuRecommendation : BottomBarScreen(
-        route = "MENU_RECOMMENDATION",
-        title = "메뉴 추천",
-        icon = R.drawable.recommendation_icon
     )
 
     object Setting : BottomBarScreen(
