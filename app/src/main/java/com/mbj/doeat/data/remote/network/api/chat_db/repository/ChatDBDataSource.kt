@@ -44,12 +44,10 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
             if (dataSnapshot.value != null) {
                 val membersRef = chatRoomDB.child("members")
                 if (myUserId == postUserId) {
-                    val hostMember =
-                        InMember(inMemberId = memberKey, userId = myUserId, guest = false)
+                    val hostMember = InMember(inMemberId = memberKey, userId = myUserId, guest = false)
                     membersRef.child(memberKey!!).setValue(hostMember)
                 } else {
-                    val guestMember =
-                        InMember(inMemberId = memberKey, userId = myUserId, guest = true)
+                    val guestMember = InMember(inMemberId = memberKey, userId = myUserId, guest = true)
                     membersRef.child(memberKey!!).setValue(guestMember)
                 }
                 emit(ApiResultSuccess(Unit))
@@ -60,14 +58,11 @@ class ChatDBDataSource @Inject constructor(private val defaultDispatcher: Corout
                 newChatRoomRef.child("postId").setValue(postId)
                 val membersRef = newChatRoomRef.child("members")
                 if (myUserId == postUserId) {
-                    val hostMember =
-                        InMember(inMemberId = memberKey, userId = myUserId, guest = false)
+                    val hostMember = InMember(inMemberId = memberKey, userId = myUserId, guest = false)
                     membersRef.child(memberKey!!).setValue(hostMember)
                 } else {
-                    val guestMember =
-                        InMember(inMemberId = memberKey, userId = myUserId, guest = false)
-                    val hostMember =
-                        InMember(inMemberId = memberKey, userId = postUserId, guest = true)
+                    val guestMember = InMember(inMemberId = memberKey, userId = myUserId, guest = true)
+                    val hostMember = InMember(inMemberId = memberKey, userId = postUserId, guest = false)
                     val hostKey = groupChatsRef.child(postId).child("members").push().key
                     membersRef.child(memberKey!!).setValue(guestMember)
                     membersRef.child(hostKey!!).setValue(hostMember)
