@@ -12,11 +12,21 @@ plugins {
 
 val properties = Properties()
 properties.load(rootProject.file("local.properties").inputStream())
+val keystoreProperties = Properties()
+keystoreProperties.load(rootProject.file("keystore.properties").inputStream())
 
 val KAKAO_SIGNIN_NATIVE_KEY = properties.getProperty("kakao_signin_native_key")
 val NAVER_CLIENT_ID = properties.getProperty("naver_client_id")
 
 android {
+    signingConfigs {
+        create("release") {
+            storeFile = file(keystoreProperties.getProperty("storeFile"))
+            storePassword = keystoreProperties.getProperty("storePassword")
+            keyAlias = keystoreProperties.getProperty("keyAlias")
+            keyPassword = keystoreProperties.getProperty("keyPassword")
+        }
+    }
     namespace = "com.mbj.doeat"
     compileSdk = 33
 
@@ -24,8 +34,9 @@ android {
         applicationId = "com.mbj.doeat"
         minSdk = 24
         targetSdk = 33
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 5
+        versionName = "1.05"
+        setProperty("archivesBaseName", "${applicationId}-v${versionName}")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -57,12 +68,15 @@ android {
 
         manifestPlaceholders["KAKAO_SIGNIN_NATIVE_KEY"] = KAKAO_SIGNIN_NATIVE_KEY
         manifestPlaceholders["NAVER_CLIENT_ID"] = NAVER_CLIENT_ID
-
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            signingConfig = signingConfigs["release"]
+            isMinifyEnabled = true
+            isShrinkResources = true
+            isDebuggable = false
+            versionNameSuffix = "-release"
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -136,7 +150,7 @@ dependencies {
     // WebView
     implementation("com.google.accompanist:accompanist-webview:0.24.13-rc")
 
-    // Coil(이미지 로딩)
+    // Coil
     implementation("io.coil-kt:coil-compose:2.4.0")
 
     // Firebase
