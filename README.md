@@ -7,11 +7,27 @@
   <a href="https://docs.aws.amazon.com/ko_kr/AWSEC2/latest/UserGuide/concepts.html"><img alt="Cloud" src="https://img.shields.io/badge/Cloud-Aws EC2-blue.svg"/></a>
 </p>
 
-Do Eat is an application that provides information about local restaurants and helps you find a partner to visit them with.
+Do Eat 애플리케이션은 지역의 맛집을 찾고 지도에서 확인할 수 있는 기능을 제공합니다.
+
+또한, 해당 맛집에 대한 자세한 정보를 앱 내에서 확인할 수 있도록 도와주며,
+
+모집글 작성과 그룹 채팅 기능을 통해 함께 맛집을 탐방할 동행자를 찾을 수 있어요 ☕️
 
 <p align="center">
   <img src="https://github.com/meenjoon/Do-Eat/assets/88024665/ac2c1466-2381-401b-9622-9088ef0f4928" alt="Do Eat LOGO">
 </p>
+
+<a href="https://play.google.com/store/apps/details?id=com.mbj.doeat">
+    <img src="http://github.com/PARKJONGMlN/Cours/assets/77707692/ab98934b-b749-4e67-9175-a9eb7faea3d6" width="250" height="100"/>
+</a>
+
+> ### **지역 맛집을 함께 방문할 파트너를 찾아주는 ‘Do Eat’입니다.**
+
+- 지역을 검색하여 해당 지역 맛집 정보를 얻을 수 있습니다.
+- 원하는 맛집 파티를 생성하고 가입 할 수 있습니다.
+- 원하는 맛집 파티를 고를 수 있습니다.
+- 함께 맛집을 탐방할 동행자들과 채팅을 할 수 있습니다.
+
 
 ## Tech stack & Open-source libraries
 
