@@ -42,7 +42,7 @@ Do Eat 애플리케이션은 지역의 맛집을 찾고 지도에서 확인할 �
 - [Hilt](https://dagger.dev/hilt/) - Dependency injection.
 - [Coil](https://coil-kt.github.io/coil/) - An image loading library for Android backed by Kotlin Coroutines.
 - [Retrofit2 & OkHttp3](https://github.com/square/retrofit) - Construct the REST APIs.
-- [kotlinx serializable](https://kotlinlang.org/docs/serialization.html#example-json-serialization) - A library in Kotlin that supports object serialization and deserialization
+- [kotlinx serialization](https://kotlinlang.org/docs/serialization.html#example-json-serialization) - A library in Kotlin that supports object serialization and deserialization
 
 ### API Data (Currently Updating)
 
