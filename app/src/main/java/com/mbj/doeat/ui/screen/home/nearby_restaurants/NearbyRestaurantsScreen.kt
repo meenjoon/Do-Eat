@@ -74,8 +74,8 @@ import com.mbj.doeat.ui.screen.home.nearby_restaurants.viewmodel.NearByRestauran
 import com.mbj.doeat.ui.theme.Color.Companion.NormalButtonColor
 import com.mbj.doeat.ui.theme.Color.Companion.NormalColor
 import com.mbj.doeat.ui.theme.Color.Companion.NormalColorInverted
-import com.mbj.doeat.ui.theme.Color.Companion.Yellow700
 import com.mbj.doeat.ui.theme.Color.Companion.RandomColors
+import com.mbj.doeat.util.LocationManager
 import com.mbj.doeat.util.MapConverter.formatLatLng
 import com.mbj.doeat.util.MapConverter.removeHtmlTags
 import com.mbj.doeat.util.NavigationUtils
@@ -290,17 +290,17 @@ fun updateMyLocation(
     viewModel: NearByRestaurantsViewModel,
     cameraPositionState: CameraPositionState,
 ) {
-    try {
-        fusedLocationClient.lastLocation.addOnSuccessListener {
-            viewModel.updateLocation(LatLng(it.latitude, it.longitude))
-            cameraPositionState.move(
-                CameraUpdate.scrollAndZoomTo(LatLng(it.latitude, it.longitude), 18.0)
-                    .animate(CameraAnimation.Easing)
-            )
-        }
-    } catch (e: SecurityException) {
-        Log.d("NearbyRestaurantsScreen", e.stackTraceToString())
+    val locationManager = LocationManager(
+        fusedLocationClient = fusedLocationClient,
+        ) { latLng ->
+        viewModel.updateLocation(LatLng(latLng.latitude, latLng.longitude))
+        cameraPositionState.move(
+            CameraUpdate.scrollAndZoomTo(LatLng(latLng.latitude, latLng.longitude), 18.0)
+                .animate(CameraAnimation.Easing)
+        )
     }
+
+    locationManager.startLocationUpdates()
 }
 
 @Composable
