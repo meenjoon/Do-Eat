@@ -34,8 +34,8 @@ android {
         applicationId = "com.mbj.doeat"
         minSdk = 24
         targetSdk = 33
-        versionCode = 5
-        versionName = "1.05"
+        versionCode = 7
+        versionName = "1.2"
         setProperty("archivesBaseName", "${applicationId}-v${versionName}")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
