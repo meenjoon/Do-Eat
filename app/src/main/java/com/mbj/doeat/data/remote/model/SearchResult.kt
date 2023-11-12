@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SearchResult(
-    @SerialName("items") val items: List<SearchItem>
+    @SerialName("items") val items: List<SearchItem>? = emptyList()
 )
 
 @Serializable

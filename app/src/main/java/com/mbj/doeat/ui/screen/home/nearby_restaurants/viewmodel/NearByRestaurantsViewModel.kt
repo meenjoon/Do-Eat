@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,8 +32,8 @@ class NearByRestaurantsViewModel @Inject constructor(
     private val _showLocationPermissionDeniedToast = MutableStateFlow<Boolean>(false)
     val showLocationPermissionDeniedToast: StateFlow<Boolean> = _showLocationPermissionDeniedToast
 
-    private val _searchResult = MutableSharedFlow<SearchResult>()
-    val searchResult: SharedFlow<SearchResult> = _searchResult.asSharedFlow()
+    private val _searchResult = MutableStateFlow<SearchResult>(SearchResult())
+    val searchResult: StateFlow<SearchResult> = _searchResult.asStateFlow()
 
     private val _searchWidgetState = MutableStateFlow(SearchWidgetState.CLOSED)
     val searchWidgetState: StateFlow<SearchWidgetState> = _searchWidgetState
@@ -108,7 +109,7 @@ class NearByRestaurantsViewModel @Inject constructor(
 
     private fun handleSearchResult(searchResult: SearchResult) {
         viewModelScope.launch {
-            if (searchResult.items.isEmpty()) {
+            if (searchResult.items?.isEmpty() == true) {
                 _isSearchInvalid.emit(true)
                 _showSearchInvalidToast.value = !_showSearchInvalidToast.value
             }

@@ -4,9 +4,9 @@ import com.naver.maps.geometry.LatLng
 
 object MapConverter {
 
-    fun formatLatLng(x: Int, y: Int): LatLng {
-        val xDouble = x.toDouble() / 10e6
-        val yDouble = y.toDouble() / 10e6
+    fun formatLatLng(x: Int?, y: Int?): LatLng {
+        val xDouble = (x ?: 0).toDouble() / 10e6
+        val yDouble = (y ?: 0).toDouble() / 10e6
         return LatLng(xDouble, yDouble)
     }
 

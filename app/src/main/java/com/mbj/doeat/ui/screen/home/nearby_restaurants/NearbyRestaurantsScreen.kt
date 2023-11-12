@@ -62,7 +62,6 @@ import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberCameraPositionState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.mbj.doeat.data.remote.model.SearchItem
-import com.mbj.doeat.data.remote.model.SearchResult
 import com.mbj.doeat.ui.component.button.LongRectangleButtonWithParams
 import com.mbj.doeat.ui.component.searchbar.MainAppBar
 import com.mbj.doeat.ui.component.line.RoundedLine
@@ -99,7 +98,7 @@ fun NearbyRestaurantsScreen(
     val myLocationInfoState by viewModel.location.collectAsStateWithLifecycle()
     val searchWidgetState by viewModel.searchWidgetState.collectAsStateWithLifecycle()
     val searchTextState by viewModel.searchTextState.collectAsStateWithLifecycle()
-    val searchResultState by viewModel.searchResult.collectAsStateWithLifecycle(initialValue = SearchResult(emptyList()))
+    val searchResultState by viewModel.searchResult.collectAsStateWithLifecycle()
     val searchResultCollapseState by viewModel.searchResultCollapse.collectAsStateWithLifecycle(initialValue = false)
     val showSearchResultCollapseState by viewModel.showSearchResultCollapse.collectAsStateWithLifecycle()
     val showLocationPermissionDeniedToastState by viewModel.showLocationPermissionDeniedToast.collectAsStateWithLifecycle()
@@ -201,8 +200,8 @@ fun NearbyRestaurantsScreen(
             modifier = Modifier.fillMaxSize(),
         ) {
             NaverMap(cameraPositionState = cameraPositionState) {
-                if (searchResultState.items.isNotEmpty()) {
-                    searchResultState.items.forEachIndexed { index, searchItem ->
+                if (searchResultState.items?.isNotEmpty() == true) {
+                    searchResultState.items?.forEachIndexed { index, searchItem ->
                         val iconTintColor = RandomColors[index % RandomColors.size]
                         Marker(
                             state = MarkerState(
@@ -218,8 +217,8 @@ fun NearbyRestaurantsScreen(
                     cameraPositionState.move(
                         CameraUpdate.scrollAndZoomTo(
                             formatLatLng(
-                                searchResultState.items.first().mapy,
-                                searchResultState.items.first().mapx
+                                searchResultState.items?.firstOrNull()?.mapy,
+                                searchResultState.items?.firstOrNull()?.mapx
                             ), 18.0
                         )
                             .animate(CameraAnimation.Easing)
@@ -292,7 +291,7 @@ fun updateMyLocation(
 ) {
     val locationManager = LocationManager(
         fusedLocationClient = fusedLocationClient,
-        ) { latLng ->
+    ) { latLng ->
         viewModel.updateLocation(LatLng(latLng.latitude, latLng.longitude))
         cameraPositionState.move(
             CameraUpdate.scrollAndZoomTo(LatLng(latLng.latitude, latLng.longitude), 18.0)
@@ -309,7 +308,7 @@ fun MyBottomSheetContent(
     cameraPositionState: CameraPositionState,
     navController: NavHostController
 ) {
-    val searchResult by viewModel.searchResult.collectAsStateWithLifecycle(initialValue = SearchResult(emptyList()))
+    val searchResult by viewModel.searchResult.collectAsStateWithLifecycle()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -333,7 +332,7 @@ fun MyBottomSheetContent(
         )
         LazyColumn {
             items(
-                items = searchResult.items,
+                items = searchResult.items.orEmpty(),
                 key = { searchItem -> searchItem.roadAddress }
             ) { searchItem ->
                 MyBottomSheetContentItem(
